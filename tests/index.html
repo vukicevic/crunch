@@ -1,0 +1,177 @@
+<html>
+<head>
+  <meta charset="utf-8"> 
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>SecureRoom - Tests - MPI</title>
+
+  <script src="../crunch.js"></script>
+</head>
+<body>
+
+<dl id="results"></dl>
+
+<script>
+var r, w, x, y, mpi = Crunch();
+
+function printArray(a) {
+  return a.map(function(v){return ('0'+v.toString(16)).slice(-2);}).join('');
+}
+
+function compareArrays(a, b) {
+  if (a.length != b.length)
+    return false;
+  for (var i = 0; i < a.length; i++)
+    if (a[i] !== b[i]) return false;
+  return true;
+}
+
+function printSection(n) {
+  var e = document.getElementById("results"),
+      d = e.appendChild(document.createElement("dt"));
+
+  d.textContent = n;
+}
+
+function printResult(r, t) {
+  var e = document.getElementById('results'),
+      f = e.appendChild(document.createElement("dd"));
+
+  f.textContent = printArray(r) + " " + compareArrays(r,t);
+}
+
+/* BEGIN ADDITION TESTS */
+printSection("ADDITION TESTS");
+
+x = [62014];
+y = [10754];
+r = [72768];
+w = mpi.add(x, y);
+printResult(w, r);
+
+x = [0x00000611];
+y = [0x00002a02];
+r = [0x00003013];
+w = mpi.add(x, y);
+printResult(w, r);
+  
+x = [0x1, 0xaffe611];
+y = [0x00002a22];
+r = [0x1, 0xb001033];
+w = mpi.add(x, y);
+printResult(w, r);
+
+x = [0xea22];
+y = [0xf, 0xfffe611];
+r = [0x000010, 0x000D033];
+w = mpi.add(x, y);
+printResult(w, r);
+
+x = [0x00fffff, 0xfffffff];
+y = [0x00fffff, 0xfffffff];
+r = [0x01fffff, 0xffffffe];
+w = mpi.add(x, y);
+printResult(w, r);
+/* END ADDITION TESTS */
+
+/* BEGIN SUBTRACTION TESTS */
+printSection("SUBTRACTION TESTS");
+
+x = [0xf23e];
+y = [0x2a02];
+r = [0xc83c];
+w = mpi.sub(x, y);
+printResult(w, r);
+  
+x = [0x001a];
+y = [0x00ff];
+r = [-0x00e5];
+w = mpi.sub(x, y);
+printResult(w, r);
+  
+x = [0xaa014, 0xf77f23e];
+y = [0x11f17, 0xbfa2a02];
+r = [0x980fd, 0x37dc83c];
+w = mpi.sub(x, y);
+printResult(w, r);
+  
+x = [0xf0000, 0x0000000];
+y = [0x0001];
+r = [0xeffff, 0xfffffff];
+w = mpi.sub(x, y);
+printResult(w, r);
+/* END SUBTRACTION TESTS */
+
+/* BEGIN MULTIPLICATION TESTS */
+printSection("MULTIPLICATION TESTS");
+
+x = [62014];
+y = [10754];
+r = [0x2, 0x7C0107C];
+w = mpi.mul(x, y);
+printResult(w, r);
+
+x = [0x0a2335f];
+y = [0x02a12cc];
+r = [0x1aa85, 0x6739db4]; 
+w = mpi.mul(x, y);
+printResult(w, r);
+
+x = [0x00ff4, 0x122335f];
+y = [0x02a12cc];
+r = [0x29, 0xf36d98b, 0xc739db4];
+w = mpi.mul(x, y);
+printResult(w, r);
+
+x = [0x04df23e];
+y = [0x2a027, 0x12b3941];
+r = [0x000cca, 0x7c85927, 0xd244fbe];
+w = mpi.mul(x, y);
+printResult(w, r);
+
+x = [0xf, 0xf11a23e];
+y = [0xf, 0xf11a23e];
+r = [0xfe, 0x24226e7, 0x70e8704];
+w = mpi.mul(x, y);
+printResult(w, r);
+
+x = [0xf, 0xfffffff];
+y = [0xf, 0xfffffff];
+r = [0xFF, 0xFFFFFE0, 0x0000001];
+w = mpi.mul(x, y);
+printResult(w, r);
+
+x = [0x3, 0xcc147d1];
+y = [0x5, 0xd088fed];
+r = [0x16, 0x143f496, 0x1953b7d];
+w = mpi.mul(x, y);
+printResult(w, r);
+/* END MULTIPLICATION TESTS */
+
+/* BEGIN SQUARE TESTS */
+printSection("SQUARE TESTS");
+
+x = [0xa23e];
+r = [0x6, 0x6d28704]; 
+w = mpi.sqr(x);
+printResult(w, r);
+
+x = [0xf, 0xf11a23e];
+r = [0xfe, 0x24226e7, 0x70e8704];
+w = mpi.sqr(x);
+printResult(w, r);
+/* END SQUARE TESTS */
+
+/* BEGIN EXPONENTIATION TESTS */
+printSection("EXPONENTIATION TESTS");
+
+x = [0x0025ca0];
+y = [0x2d];
+z = [0x0bc0e02];
+r = [0x03aa4ec];
+w = mpi.exp(x, y, z);
+printResult(w, r);
+
+</script>
+
+</body>
+</html>
