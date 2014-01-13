@@ -347,7 +347,7 @@ function Crunch() {
       var ss = s % 28,
           ls = Math.floor(s/28),
           l  = x.length,
-          w  = [];
+          w  = [],
           t  = 0;
 
       if (ss) {
@@ -389,7 +389,7 @@ function Crunch() {
       d  = u.length - v.length;
       q  = [0];
       k  = v.concat(zeroes.slice(0, d));
-      vt = v[0]*268435456 + v[1];
+      yt = v[0]*268435456 + v[1];
 
       // only mmcp as last resort. if x0 > k0 then do, 
       // if x0 < k0 then dont, check only if x0 = k0
@@ -400,7 +400,7 @@ function Crunch() {
 
       for (i = 1; i <= d; i++) {
         q[i] = (u[i-1] === v[0]) ? 268435455 : Math.floor((u[i-1]*268435456 + u[i])/v[0]);
-        ut = u[i-1]*72057594037927936 + u[i]*268435456 + u[i+1];
+        xt = u[i-1]*72057594037927936 + u[i]*268435456 + u[i+1];
 
         while (q[i]*yt > xt) //condition check fails due to precision problem with bits = 28
           q[i]--;
