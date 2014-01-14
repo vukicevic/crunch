@@ -950,7 +950,7 @@ function Crunch() {
         u = ci(u);
         if (dp1) {
           dp1 = ci(dp1);
-          dp2 = ci(dp2);
+          dq1 = ci(dq1);
         }
       }
 
