@@ -11,8 +11,8 @@ function Crunch() {
    * Generate first n primes array
    *
    * @method nprimes
-   * @param {Integer} n
-   * @return {Array} array of primes
+   * @param {integer} n
+   * @return {array} array of primes
    */
   function nprimes(n) {
     for (var j, b, p = [2], l = 1, i = 3; l < n; i += 2) {
@@ -32,8 +32,8 @@ function Crunch() {
    * Generate n-length zero filled array
    *
    * @method nzeroes
-   * @param {Integer} n
-   * @return {Array} array of zeroes
+   * @param {integer} n
+   * @return {array} array of zeroes
    */
   function nzeroes(n) {
     for (var z = [], i = 0; i < n; i++)
@@ -56,8 +56,8 @@ function Crunch() {
      * Count number of leading zeroes in MPI
      *
      * @method nlz
-     * @param {Array} x
-     * @return {Integer} number of leading zeroes
+     * @param {array} x
+     * @return {integer} number of leading zeroes
      */
     nlz: function(x) {
       for (var l = x.length, i = 0; i < l; i++)
@@ -83,9 +83,9 @@ function Crunch() {
      * Not safe for signed or leading zero MPI
      *
      * @method cmp
-     * @param {Array} x
-     * @param {Array} y
-     * @return {Integer} 1: x > y
+     * @param {array} x
+     * @param {array} y
+     * @return {integer} 1: x > y
      *                   0: x = y 
      *                  -1: x < y
      */
@@ -113,8 +113,8 @@ function Crunch() {
      * Most significant bit, base 28
      *
      * @method msb
-     * @param {Integer} x
-     * @return {Integer} position of msb, from left
+     * @param {integer} x
+     * @return {integer} position of msb, from left
      */
     msb: function(x) {
       if (x === 0) return;
@@ -129,8 +129,8 @@ function Crunch() {
      * Least significant bit, base 28
      *
      * @method lsb
-     * @param {Integer} x
-     * @return {Integer} position of lsb, from right
+     * @param {integer} x
+     * @return {integer} position of lsb, from right
      */
     lsb: function(x) {
       if (x === 0) return;
@@ -147,9 +147,9 @@ function Crunch() {
      * Not safe for signed MPI, use 'sad' instead
      *
      * @method add
-     * @param {Array} x
-     * @param {Array} y
-     * @return {Array} x + y
+     * @param {array} x
+     * @param {array} y
+     * @return {array} x + y
      */
     add: function(x, y) {
       var n = x.length,
@@ -187,9 +187,9 @@ function Crunch() {
      * Not safe for signed MPI, use 'ssb' instead
      *
      * @method sub
-     * @param {Array} x
-     * @param {Array} y
-     * @return {Array} x - y
+     * @param {array} x
+     * @param {array} y
+     * @return {array} x - y
      */
     sub: function(x, y, internal) {
       var n = x.length,
@@ -229,9 +229,9 @@ function Crunch() {
      * HAC 14.12
      *
      * @method mul
-     * @param {Array} x
-     * @param {Array} y
-     * @return {Array} x * y
+     * @param {array} x
+     * @param {array} y
+     * @return {array} x * y
      */
     mul: function(x, y) {
       var yl, yh, xl, xh, t1, t2, c, j,
@@ -270,8 +270,8 @@ function Crunch() {
      * HAC 14.16
      *
      * @method sqr
-     * @param {Array} x
-     * @return {Array} x * x
+     * @param {array} x
+     * @return {array} x * x
      */
     sqr: function(x) {
       var l1, l2, h1, h2, t1, t2, j, c,
@@ -312,9 +312,9 @@ function Crunch() {
      * Not safe for signed MPI, use 'srs' instead
      *
      * @method rsh
-     * @param {Array} x
-     * @param {Integer} s
-     * @return {Array} x >> s
+     * @param {array} x
+     * @param {integer} s
+     * @return {array} x >> s
      */
     rsh: function(x, s) {
       var ss = s % 28,
@@ -339,9 +339,9 @@ function Crunch() {
      * MPI Left Shift
      *
      * @method lsh
-     * @param {Array} x
-     * @param {Integer} s
-     * @return {Array} x << s
+     * @param {array} x
+     * @param {integer} s
+     * @return {array} x << s
      */
     lsh: function(x, s) {
       var ss = s % 28,
@@ -368,10 +368,10 @@ function Crunch() {
      * HAC 14.20
      *
      * @method div
-     * @param {Array} x
-     * @param {Array} y
-     * @param {Boolean} mod
-     * @return {Array} !mod: x / y
+     * @param {array} x
+     * @param {array} y
+     * @param {boolean} mod
+     * @return {array} !mod: x / y
      *                  mod: x % y
      */
     div: function(x, y, mod) {
@@ -399,10 +399,12 @@ function Crunch() {
       }
 
       for (i = 1; i <= d; i++) {
-        q[i] = (u[i-1] === v[0]) ? 268435455 : Math.floor((u[i-1]*268435456 + u[i])/v[0]);
+        q[i] = (u[i-1] === v[0]) ? 268435455 
+                                 : ~~((u[i-1]*268435456 + u[i])/v[0]);
+
         xt = u[i-1]*72057594037927936 + u[i]*268435456 + u[i+1];
 
-        while (q[i]*yt > xt) //condition check fails due to precision problem with bits = 28
+        while (q[i]*yt > xt) //condition check occasionally fails due to precision problem
           q[i]--;
 
         k = this.mul(v, [q[i]]).concat(zeroes.slice(0, d-i)); //concat after multiply
@@ -422,9 +424,9 @@ function Crunch() {
      * MPI Modulus
      *
      * @method mod
-     * @param {Array} x
-     * @param {Array} y
-     * @return {Array} x % y
+     * @param {array} x
+     * @param {array} y
+     * @return {array} x % y
      */
     mod: function(x, y) {
       switch(this.cmp(x, y)) {
@@ -442,9 +444,9 @@ function Crunch() {
      * Safe for signed MPI
      *
      * @method sad
-     * @param {Array} x
-     * @param {Array} y
-     * @return {Array} x + y
+     * @param {array} x
+     * @param {array} y
+     * @return {array} x + y
      */
     sad: function(x, y) {
       var a, b;
@@ -478,9 +480,9 @@ function Crunch() {
      * Safe for signed MPI
      *
      * @method ssb
-     * @param {Array} x
-     * @param {Array} y
-     * @return {Array} x - y
+     * @param {array} x
+     * @param {array} y
+     * @return {array} x - y
      */
     ssb: function(x, y) {
       var a, b;
@@ -514,9 +516,9 @@ function Crunch() {
      * Safe for signed MPI
      *
      * @method srs
-     * @param {Array} x
-     * @param {Integer} s
-     * @return {Array} x >>> s
+     * @param {array} x
+     * @param {integer} s
+     * @return {array} x >>> s
      */
     srs: function(x, s) {
       if (x[0] < 0) {
@@ -535,9 +537,9 @@ function Crunch() {
      * HAC 14.61 - Binary Extended GCD
      *
      * @method gcd
-     * @param {Array} x
-     * @param {Array} y
-     * @return {Array} gcd x,y
+     * @param {array} x
+     * @param {array} y
+     * @return {array} gcd x,y
      */
     gcd: function(x, y) {
       var s,
@@ -589,9 +591,9 @@ function Crunch() {
      * MPI Mod Inverse
      *
      * @method inv
-     * @param {Array} x
-     * @param {Array} y
-     * @return {Array} 1/x % y
+     * @param {array} x
+     * @param {array} y
+     * @return {array} 1/x % y
      */
     inv: function(x, y) {
       var u = this.gcd(y, x);
@@ -609,10 +611,10 @@ function Crunch() {
      * HAC 14.42
      *
      * @method bmr
-     * @param {Array} x
-     * @param {Array} y
-     * @param {Array} [mu]
-     * @return {Array} x % y
+     * @param {array} x
+     * @param {array} y
+     * @param {array} [mu]
+     * @return {array} x % y
      */
     bmr: function(x, m, mu) {
       if (this.cmp(x, m) < 0) return x; 
@@ -652,10 +654,10 @@ function Crunch() {
      * HAC 14.76 Right-to-left binary exp
      *
      * @method exp
-     * @param {Array} x
-     * @param {Array} e
-     * @param {Array} n
-     * @return {Array} x^e % n
+     * @param {array} x
+     * @param {array} e
+     * @param {array} n
+     * @return {array} x^e % n
      */
     exp: function(x, e, n) {
       var c, i, j,
@@ -681,14 +683,14 @@ function Crunch() {
      * HAC 14.71
      *
      * @method gar
-     * @param {Array} x
-     * @param {Array} p
-     * @param {Array} q
-     * @param {Array} d
-     * @param {Array} u
-     * @param {Array} [dp1]
-     * @param {Array} [dq1]
-     * @return {Array} x^d % pq
+     * @param {array} x
+     * @param {array} p
+     * @param {array} q
+     * @param {array} d
+     * @param {array} u
+     * @param {array} [dp1]
+     * @param {array} [dq1]
+     * @return {array} x^d % pq
      */
     gar: function(x, p, q, d, u, dp1, dq1) {
       var vp, vq, t;
@@ -718,9 +720,9 @@ function Crunch() {
      * When n < 2^14
      *
      * @method mds
-     * @param {Array} x
-     * @param {Array} n
-     * @return {Array} x % n
+     * @param {array} x
+     * @param {array} n
+     * @return {array} x % n
      */
     mds: function(x, n) {
       for(var i = 0, c = 0, l = x.length; i < l; i++) {
@@ -735,9 +737,9 @@ function Crunch() {
      * MPI Exclusive-Or
      *
      * @method xor
-     * @param {Array} x
-     * @param {Array} y
-     * @return {Array} x xor y
+     * @param {array} x
+     * @param {array} y
+     * @return {array} x xor y
      */
     xor: function(x, y) {
       if (x.length != y.length) return;
@@ -752,8 +754,8 @@ function Crunch() {
      * MPI Decrement
      *
      * @method dec
-     * @param {Array} x
-     * @return {Array} x - 1
+     * @param {array} x
+     * @return {array} x - 1
      */
     dec: function(x) {
       if (x[x.length-1] > 0) {
@@ -769,9 +771,9 @@ function Crunch() {
      * Miller-Rabin Primality Test
      *
      * @method mrb
-     * @param {Array} n
-     * @param {Integer} iterations
-     * @return {Boolean} is prime
+     * @param {array} n
+     * @param {integer} iterations
+     * @return {boolean} is prime
      */
     mrb: function(n, iterations) {
       var m = this.sub(n, [1]),
@@ -802,8 +804,8 @@ function Crunch() {
      * Sieve then Miller-Rabin
      *
      * @method testPrime
-     * @param {Array} n
-     * @return {Boolean} is prime
+     * @param {array} n
+     * @return {boolean} is prime
      */
     testPrime: function(n) {
       for (var i = 1, k = primes.length; i < k; i++)
@@ -817,8 +819,8 @@ function Crunch() {
      * Find Next Prime
      *
      * @method nextPrime
-     * @param {Array} n
-     * @return {Array} 1st prime > n
+     * @param {array} n
+     * @return {array} 1st prime > n
      */
     nextPrime: function(n) {
       var l = n.length - 1;
@@ -835,8 +837,8 @@ function Crunch() {
      * Convert byte array to 28 bit array
      *
      * @method c8to28
-     * @param {Array} a
-     * @return {Array} 28-bit array
+     * @param {array} a
+     * @return {array} 28-bit array
      */
     c8to28: function(a) {
       var i = [0,0,0,0,0,0].slice((a.length-1)%7).concat(a),
@@ -856,8 +858,8 @@ function Crunch() {
      * Convert 28 bit array to byte array
      *
      * @method c28to8
-     * @param {Array} a
-     * @return {Array} byte array
+     * @param {array} a
+     * @return {array} byte array
      */
     c28to8: function(a) {
       var b = [0].slice((a.length-1)%2).concat(a),
@@ -878,7 +880,9 @@ function Crunch() {
 
 /**
  * Crunch is runnable within a web worker.
- * Invoked by messaging. Sample request:
+ * Invoked by messaging.
+ *
+ * @example
  * 
  * Request: { "func": "add",
  *            "args": [[123], [456]] }

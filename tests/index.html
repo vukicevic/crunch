@@ -2,7 +2,7 @@
 <head>
   <meta charset="utf-8"> 
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-  <title>SecureRoom - Tests - MPI</title>
+  <title>Crunch - Tests</title>
 
   <script src="../crunch.js"></script>
 </head>
@@ -48,14 +48,14 @@ r = [72768];
 w = mpi.add(x, y);
 printResult(w, r);
 
-x = [0x00000611];
-y = [0x00002a02];
-r = [0x00003013];
+x = [0x0000611];
+y = [0x0002a02];
+r = [0x0003013];
 w = mpi.add(x, y);
 printResult(w, r);
   
 x = [0x1, 0xaffe611];
-y = [0x00002a22];
+y = [0x0002a22];
 r = [0x1, 0xb001033];
 w = mpi.add(x, y);
 printResult(w, r);
@@ -170,6 +170,99 @@ z = [0x0bc0e02];
 r = [0x03aa4ec];
 w = mpi.exp(x, y, z);
 printResult(w, r);
+
+x = [0x0025ca0];
+y = [0x11be];
+z = [0x0bc0e02];
+r = [0x03231d0];
+w = mpi.exp(x, y, z);
+printResult(w, r);
+
+x = [0x025c];
+y = [0x11ae];
+z = [0xfc0e];
+r = [0xa732];
+w = mpi.exp(x, y, z);
+printResult(w, r);
+
+x = [0x006fc53];
+y = [0x3, 0xadb6663];
+z = [0x4, 0xac0ee49];
+r = [0x3, 0x4ae12f5];
+w = mpi.exp(x, y, z);
+printResult(w, r);
+
+x = [0x00018ee, 0x90ff6c3, 0x73e0ee4, 0xe3f0ad2];
+y = [0x0010001];
+z = [0x000abcd, 0xefabcde, 0xfabefab, 0xcdefdae];
+r = [0x000785c, 0x3e0857f, 0x05d7524, 0xc5901c0];
+w = mpi.exp(x, y, z);
+printResult(w, r);
+
+x = [0x00012, 0x3651498, 0x1436123, 0x5148afe, 0xff12378, 0x61319ab, 0xcde1387, 0x1461097, 0x4501981, 0x4986128, 0x971246a, 0xbedfefd, 0xbe12873, 0x6149147, 0x6139196, 0x21436af, 0xafabbbb, 0xe123670];
+y = [0x0101];
+z = [0x00087, 0x61234af, 0xe9872ac, 0xb32e890, 0x4718124, 0x617ff13, 0x6ac4eb6, 0x727153f, 0xea10947, 0x3267190, 0x0bbef14, 0x38fe981, 0x2fe5123, 0x7811238, 0x9712461, 0x2985712, 0x6129146, 0x5814612];
+r = [0x00019, 0xf4e7ce5, 0xef7038f, 0xf3b6061, 0x2c82ab8, 0xfbf6841, 0xcdd9fe4, 0x4ceb6b1, 0xd636dfe, 0xd0e2578, 0x82d61e5, 0xbe1808d, 0x99110fe, 0x7ab4a22, 0xd00a2ab, 0x2c2444c, 0x7c814ac, 0xb086428];
+w = mpi.exp(x, y, z);
+printResult(w, r);
+  
+x = [500];
+y = [257];
+z = [0xf67, 0x8654b7a, 0x1953b7d];
+r = [0xab1, 0xc5f5c2c, 0xfb02f31];
+w = mpi.exp(x, y, z);
+printResult(w, r);
+/* END EXPONENTIATION TESTS */
+
+/* BEGIN DIVISION TESTS */
+printSection("DIVISION TESTS");
+
+x = [0x0aa9988];
+y = [0x1144];
+r = [0x09e1];
+w = mpi.div(x, y);
+printResult(w, r);
+
+x = [0xaa998, 0x8776655];
+y = [0x1144];
+r = [0x0009e, 0x181ff09];
+w = mpi.div(x, y);
+printResult(w, r);
+
+x = [0x349ba, 0x8170655];
+y = [0x0131af7];
+r = [0x2c0ea88];
+w = mpi.div(x, y);
+printResult(w, r);
+/* END DIVISION TESTS */
+
+/* BEGIN MODULO TESTS */
+printSection("MODULO TESTS");
+        
+x = [0x0aa9988];
+y = [0x1144];
+r = [0x08c4];
+w = mpi.mod(x, y);
+printResult(w, r);
+
+x = [0xaa998, 0x8776655];
+y = [0x1144];
+r = [0x0ef1];
+w = mpi.mod(x, y);
+printResult(w, r);
+
+x = [0x349ba, 0x8170655];
+y = [0x0131af7];
+r = [0x00aed1d];
+w = mpi.mod(x, y);
+printResult(w, r);
+
+x = [0x0100];
+y = [0x01f1];
+r = [0x0100];
+w = mpi.mod(x, y);
+printResult(w, r);
+/* END MODULO TESTS */
 </script>
 
 </body>
