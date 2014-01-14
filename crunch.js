@@ -50,831 +50,953 @@ function Crunch() {
   const primes = nprimes(1899);
   const ptests = primes.slice(0, 10).map(function(v){return [v]});
 
-  return {
+  /**
+   * Count number of leading zeroes in MPI
+   *
+   * @method nlz
+   * @param {array} x
+   * @return {integer} number of leading zeroes
+   */
+  function nlz(x) {
+    for (var l = x.length, i = 0; i < l; i++)
+      if (x[i] !== 0)
+        break;
 
-    /**
-     * Count number of leading zeroes in MPI
-     *
-     * @method nlz
-     * @param {array} x
-     * @return {integer} number of leading zeroes
-     */
-    nlz: function(x) {
-      for (var l = x.length, i = 0; i < l; i++)
-        if (x[i] !== 0)
-          break;
+    return i;
+  }
 
-      return i;
-    },
+  /**
+   * Remove leading zeroes from MPI
+   *
+   * @method cut
+   * @param {Array} x
+   * @return {Array} new array without leading zeroes
+   */
+  function cut(x) {
+    return x.slice(nlz(x));
+  }
 
-    /**
-     * Remove leading zeroes from MPI
-     *
-     * @method cut
-     * @param {Array} x
-     * @return {Array} new array without leading zeroes
-     */
-    cut: function(x) {
-      return x.slice(this.nlz(x));
-    },
+  /**
+   * Compare values of two MPIs. 
+   * Not safe for signed or leading zero MPI
+   *
+   * @method cmp
+   * @param {array} x
+   * @param {array} y
+   * @return {integer} 1: x > y
+   *                   0: x = y 
+   *                  -1: x < y
+   */
+  function cmp(x, y) {
+    var xl = x.length,
+        yl = y.length; //zero front pad problem
 
-    /**
-     * Compare values of two MPIs. 
-     * Not safe for signed or leading zero MPI
-     *
-     * @method cmp
-     * @param {array} x
-     * @param {array} y
-     * @return {integer} 1: x > y
-     *                   0: x = y 
-     *                  -1: x < y
-     */
-    cmp: function(x, y) {
-      var xl = x.length,
-          yl = y.length; //zero front pad problem
+    //check negative flag here
 
-      //check negative flag here
+    if (xl < yl) {
+      return -1;
+    } else if (xl > yl) {
+      return 1;
+    }
 
-      if (xl < yl) {
-        return -1;
-      } else if (xl > yl) {
-        return 1;
-      }
+    for (var i = 0; i < xl; i++) {
+      if (x[i] < y[i]) return -1;
+      if (x[i] > y[i]) return 1;
+    }
 
-      for (var i = 0; i < xl; i++) {
-        if (x[i] < y[i]) return -1;
-        if (x[i] > y[i]) return 1;
-      }
+    return 0;
+  }
 
-      return 0;
-    },
+  /**
+   * Most significant bit, base 28
+   *
+   * @method msb
+   * @param {integer} x
+   * @return {integer} position of msb, from left
+   */
+  function msb(x) {
+    if (x === 0) return;
 
-    /**
-     * Most significant bit, base 28
-     *
-     * @method msb
-     * @param {integer} x
-     * @return {integer} position of msb, from left
-     */
-    msb: function(x) {
-      if (x === 0) return;
+    for (var i = 134217728, l = 0; i > x; l++)
+      i /= 2;
 
-      for (var i = 134217728, l = 0; i > x; l++)
-        i /= 2;
+    return l;
+  }
 
-      return l;
-    },
+  /**
+   * Least significant bit, base 28
+   *
+   * @method lsb
+   * @param {integer} x
+   * @return {integer} position of lsb, from right
+   */
+  function lsb(x) {
+    if (x === 0) return;
 
-    /**
-     * Least significant bit, base 28
-     *
-     * @method lsb
-     * @param {integer} x
-     * @return {integer} position of lsb, from right
-     */
-    lsb: function(x) {
-      if (x === 0) return;
+    for (var l = 0; !(x & 1); l++)
+      x /= 2;
 
-      for (var l = 0; !(x & 1); l++)
-        x /= 2;
+    return l;
+  }
 
-      return l;
-    },
+  /**
+   * MPI Addition
+   * Handbook of Applied Cryptography (HAC) 14.7
+   * Not safe for signed MPI, use 'sad' instead
+   *
+   * @method add
+   * @param {array} x
+   * @param {array} y
+   * @return {array} x + y
+   */
+  function add(x, y) {
+    var n = x.length,
+        t = y.length,
+        i = Math.max(n, t),
+        c = 0,
+        w = zeroes.slice(0, i);
 
-    /**
-     * MPI Addition
-     * Handbook of Applied Cryptography (HAC) 14.7
-     * Not safe for signed MPI, use 'sad' instead
-     *
-     * @method add
-     * @param {array} x
-     * @param {array} y
-     * @return {array} x + y
-     */
-    add: function(x, y) {
-      var n = x.length,
-          t = y.length,
-          i = Math.max(n, t),
-          c = 0,
-          w = zeroes.slice(0, i);
+    if (n < t) {
+      x = zeroes.slice(0, t-n).concat(x);
+    } else if (n > t) {
+      y = zeroes.slice(0, n-t).concat(y);
+    }
 
-      if (n < t) {
-        x = zeroes.slice(0, t-n).concat(x);
-      } else if (n > t) {
-        y = zeroes.slice(0, n-t).concat(y);
-      }
+    for (i -= 1; i >= 0; i--) {
+      w[i] = x[i] + y[i] + c;
 
-      for (i -= 1; i >= 0; i--) {
-        w[i] = x[i] + y[i] + c;
-
-        if (w[i] > 268435455) {
-          c = 1;
-          w[i] -= 268435456;
-        } else {
-          c = 0;
-        }
-      }
-
-      if (c === 1)
-        w.unshift(c);
-
-      return w;
-    },
-
-    /**
-     * MPI Subtraction
-     * HAC 14.9
-     * Not safe for signed MPI, use 'ssb' instead
-     *
-     * @method sub
-     * @param {array} x
-     * @param {array} y
-     * @return {array} x - y
-     */
-    sub: function(x, y, internal) {
-      var n = x.length,
-          t = y.length,
-          i = Math.max(n, t),
-          c = 0,
-          w = zeroes.slice(0, i);
-
-      if (n < t) {
-        x = zeroes.slice(0, t-n).concat(x);
-      } else if (n > t) {
-        y = zeroes.slice(0, n-t).concat(y);
-      }
-
-      for (i -= 1; i >= 0; i--) {
-        w[i] = x[i] - y[i] - c;
-
-        if ( w[i] < 0 ) {
-          c = 1;
-          w[i] += 268435456;
-        } else {
-          c = 0;
-        }
-      }
-
-      if (c === 1 && typeof internal == "undefined") {
-        w = this.sub([], w, true);
-        w[this.nlz(w)] *= -1;
-        w.negative = true;
-      }
-
-      return w;
-    },
-
-    /**
-     * MPI Multiplication
-     * HAC 14.12
-     *
-     * @method mul
-     * @param {array} x
-     * @param {array} y
-     * @return {array} x * y
-     */
-    mul: function(x, y) {
-      var yl, yh, xl, xh, t1, t2, c, j,
-          n = x.length,
-          i = y.length,
-          w = zeroes.slice(0, n+i);
-
-      while (i--) {
+      if (w[i] > 268435455) {
+        c = 1;
+        w[i] -= 268435456;
+      } else {
         c = 0;
-
-        yl = y[i] & 16383;
-        yh = y[i] >> 14;
-
-        for (j = n-1; j>=0; j--) {
-          xl = x[j] & 16383;
-          xh = x[j] >> 14;
-
-          t1 = yh*xl + xh*yl;
-          t2 = yl*xl + ((t1 & 16383) << 14) + w[j+i+1] + c;
-
-          w[j+i+1] = t2 & 268435455;
-          c = yh*xh + (t1 >> 14) + (t2 >> 28);
-        }
-
-        w[i] = c;
       }
+    }
+
+    if (c === 1)
+      w.unshift(c);
+
+    return w;
+  }
+
+  /**
+   * MPI Subtraction
+   * HAC 14.9
+   * Not safe for signed MPI, use 'ssb' instead
+   *
+   * @method sub
+   * @param {array} x
+   * @param {array} y
+   * @return {array} x - y
+   */
+  function sub(x, y, internal) {
+    var n = x.length,
+        t = y.length,
+        i = Math.max(n, t),
+        c = 0,
+        w = zeroes.slice(0, i);
+
+    if (n < t) {
+      x = zeroes.slice(0, t-n).concat(x);
+    } else if (n > t) {
+      y = zeroes.slice(0, n-t).concat(y);
+    }
+
+    for (i -= 1; i >= 0; i--) {
+      w[i] = x[i] - y[i] - c;
+
+      if ( w[i] < 0 ) {
+        c = 1;
+        w[i] += 268435456;
+      } else {
+        c = 0;
+      }
+    }
+
+    if (c === 1 && typeof internal == "undefined") {
+      w = sub([], w, true);
+      w[nlz(w)] *= -1;
+      w.negative = true;
+    }
+
+    return w;
+  }
+
+  /**
+   * MPI Multiplication
+   * HAC 14.12
+   *
+   * @method mul
+   * @param {array} x
+   * @param {array} y
+   * @return {array} x * y
+   */
+  function mul(x, y) {
+    var yl, yh, xl, xh, t1, t2, c, j,
+        n = x.length,
+        i = y.length,
+        w = zeroes.slice(0, n+i);
+
+    while (i--) {
+      c = 0;
+
+      yl = y[i] & 16383;
+      yh = y[i] >> 14;
+
+      for (j = n-1; j>=0; j--) {
+        xl = x[j] & 16383;
+        xh = x[j] >> 14;
+
+        t1 = yh*xl + xh*yl;
+        t2 = yl*xl + ((t1 & 16383) << 14) + w[j+i+1] + c;
+
+        w[j+i+1] = t2 & 268435455;
+        c = yh*xh + (t1 >> 14) + (t2 >> 28);
+      }
+
+      w[i] = c;
+    }
+
+    if (w[0] === 0)
+      w.shift();
+
+    return w;
+  }
+
+  /**
+   * MPI Squaring
+   * HAC 14.16
+   *
+   * @method sqr
+   * @param {array} x
+   * @return {array} x * x
+   */
+  function sqr(x) {
+    var l1, l2, h1, h2, t1, t2, j, c,
+        i = x.length,
+        w = zeroes.slice(0, 2*i);
+
+    while (i--) {
+      l1 = x[i] & 16383;
+      h1 = x[i] >> 14;
+
+      t1 = 2*h1*l1;
+      t2 = l1*l1 + ((t1 & 16383) << 14) + w[2*i+1];
+
+      w[2*i+1] = t2 & 268435455;
+      c = h1*h1 + (t1 >> 14) + (t2 >> 28);
+
+      for (j = i-1; j>=0; j--) {
+        l2 = (2 * x[j]) & 16383;
+        h2 = x[j] >> 13;
+
+        t1 = h2*l1 + h1*l2;
+        t2 = l2*l1 + ((t1 & 16383) << 14) + w[j+i+1] + c;
+        w[j+i+1] = t2 & 268435455;
+        c = h2*h1 + (t1 >> 14) + (t2 >> 28);
+      }
+
+      w[i] = c;
+    }
+
+    if (w[0] === 0)
+      w.shift();
+    
+    return w;
+  }
+
+  /**
+   * MPI Right Shift
+   * Not safe for signed MPI, use 'srs' instead
+   *
+   * @method rsh
+   * @param {array} x
+   * @param {integer} s
+   * @return {array} x >> s
+   */
+  function rsh(x, s) {
+    var ss = s % 28,
+        ls = Math.floor(s/28),
+        l  = x.length - ls,
+        w  = x.slice(0,l);
+
+    if (ss) {
+      while (--l) 
+        w[l] = ((w[l] >> ss) | (w[l-1] << (28-ss))) & 268435455;
+
+      w[l] = (w[l] >> ss);
 
       if (w[0] === 0)
         w.shift();
+    }
 
-      return w;
-    },
+    return w;
+  }
 
-    /**
-     * MPI Squaring
-     * HAC 14.16
-     *
-     * @method sqr
-     * @param {array} x
-     * @return {array} x * x
-     */
-    sqr: function(x) {
-      var l1, l2, h1, h2, t1, t2, j, c,
-          i = x.length,
-          w = zeroes.slice(0, 2*i);
+  /**
+   * MPI Left Shift
+   *
+   * @method lsh
+   * @param {array} x
+   * @param {integer} s
+   * @return {array} x << s
+   */
+  function lsh(x, s) {
+    var ss = s % 28,
+        ls = Math.floor(s/28),
+        l  = x.length,
+        w  = [],
+        t  = 0;
 
-      while (i--) {
-        l1 = x[i] & 16383;
-        h1 = x[i] >> 14;
-
-        t1 = 2*h1*l1;
-        t2 = l1*l1 + ((t1 & 16383) << 14) + w[2*i+1];
-
-        w[2*i+1] = t2 & 268435455;
-        c = h1*h1 + (t1 >> 14) + (t2 >> 28);
-
-        for (j = i-1; j>=0; j--) {
-          l2 = (2 * x[j]) & 16383;
-          h2 = x[j] >> 13;
-
-          t1 = h2*l1 + h1*l2;
-          t2 = l2*l1 + ((t1 & 16383) << 14) + w[j+i+1] + c;
-          w[j+i+1] = t2 & 268435455;
-          c = h2*h1 + (t1 >> 14) + (t2 >> 28);
-        }
-
-        w[i] = c;
+    if (ss) {
+      while (l--) {
+        w[l] = ((x[l] << ss) + t) & 268435455;
+        t    = x[l] >>> (28-ss);
       }
 
-      if (w[0] === 0)
-        w.shift();
-      
-      return w;
-    },
+      if (t !== 0)
+        w.unshift(t);
+    }
 
-    /**
-     * MPI Right Shift
-     * Not safe for signed MPI, use 'srs' instead
-     *
-     * @method rsh
-     * @param {array} x
-     * @param {integer} s
-     * @return {array} x >> s
-     */
-    rsh: function(x, s) {
-      var ss = s % 28,
-          ls = Math.floor(s/28),
-          l  = x.length - ls,
-          w  = x.slice(0,l);
+    return (ls) ? w.concat(zeroes.slice(0, ls)) : w;
+  }
 
-      if (ss) {
-        while (--l) 
-          w[l] = ((w[l] >> ss) | (w[l-1] << (28-ss))) & 268435455;
+  /**
+   * MPI Division
+   * HAC 14.20
+   *
+   * @method div
+   * @param {array} x
+   * @param {array} y
+   * @param {boolean} mod
+   * @return {array} !mod: x / y
+   *                  mod: x % y
+   */
+  function div(x, y, mod) {
+    var u, v, xt, yt, d, q, k, i,
+        s = msb(y[0]) - 1;
 
-        w[l] = (w[l] >> ss);
+    if (s > 0) {
+      u = lsh(x, s);
+      v = lsh(y, s);
+    } else {
+      u = x.slice();
+      v = y.slice();
+    }
 
-        if (w[0] === 0)
-          w.shift();
+    d  = u.length - v.length;
+    q  = [0];
+    k  = v.concat(zeroes.slice(0, d));
+    yt = v[0]*268435456 + v[1];
+
+    // only mmcp as last resort. if x0 > k0 then do, 
+    // if x0 < k0 then dont, check only if x0 = k0
+    while (u[0] > k[0] || (u[0] === k[0] && cmp(u, k) > -1)) {
+      q[0]++;
+      u = sub(u, k);
+    }
+
+    for (i = 1; i <= d; i++) {
+      q[i] = (u[i-1] === v[0]) ? 268435455 
+                               : ~~((u[i-1]*268435456 + u[i])/v[0]);
+
+      xt = u[i-1]*72057594037927936 + u[i]*268435456 + u[i+1];
+
+      while (q[i]*yt > xt) //condition check occasionally fails due to precision problem
+        q[i]--;
+
+      k = mul(v, [q[i]]).concat(zeroes.slice(0, d-i)); //concat after multiply
+      u = sub(u, k);
+
+      if (u.negative) {
+        u[nlz(u)] *= -1;
+        u = sub(v.concat(zeroes.slice(0, d-i)), u);
+        q[i]--;
       }
+    }
 
-      return w;
-    },
+    return (mod) ? (s > 0) ? rsh(cut(u), s) : cut(u) : cut(q);
+  }
 
-    /**
-     * MPI Left Shift
-     *
-     * @method lsh
-     * @param {array} x
-     * @param {integer} s
-     * @return {array} x << s
-     */
-    lsh: function(x, s) {
-      var ss = s % 28,
-          ls = Math.floor(s/28),
-          l  = x.length,
-          w  = [],
-          t  = 0;
+  /**
+   * MPI Modulus
+   *
+   * @method mod
+   * @param {array} x
+   * @param {array} y
+   * @return {array} x % y
+   */
+  function mod(x, y) {
+    switch(cmp(x, y)) {
+    case -1:
+      return x;
+    case 0:
+      return 0;
+    default:
+      return div(x, y, true);
+    }
+  }
 
-      if (ss) {
-        while (l--) {
-          w[l] = ((x[l] << ss) + t) & 268435455;
-          t    = x[l] >>> (28-ss);
-        }
-
-        if (t !== 0)
-          w.unshift(t);
-      }
-
-      return (ls) ? w.concat(zeroes.slice(0, ls)) : w;
-    },
-
-    /**
-     * MPI Division
-     * HAC 14.20
-     *
-     * @method div
-     * @param {array} x
-     * @param {array} y
-     * @param {boolean} mod
-     * @return {array} !mod: x / y
-     *                  mod: x % y
-     */
-    div: function(x, y, mod) {
-      var u, v, xt, yt, d, q, k, i,
-          s = this.msb(y[0]) - 1;
-
-      if (s > 0) {
-        u = this.lsh(x, s);
-        v = this.lsh(y, s);
+  /**
+   * MPI Signed Addition
+   * Safe for signed MPI
+   *
+   * @method sad
+   * @param {array} x
+   * @param {array} y
+   * @return {array} x + y
+   */
+  function sad(x, y) {
+    var a, b;
+    if (x[0] >= 0) {
+      if (y[0] >= 0) {
+        return add(x, y);
       } else {
-        u = x.slice();
-        v = y.slice();
+        b = y.slice();
+        b[0] *= -1;
+        return cut(sub(x, b));
       }
-
-      d  = u.length - v.length;
-      q  = [0];
-      k  = v.concat(zeroes.slice(0, d));
-      yt = v[0]*268435456 + v[1];
-
-      // only mmcp as last resort. if x0 > k0 then do, 
-      // if x0 < k0 then dont, check only if x0 = k0
-      while (u[0] > k[0] || (u[0] === k[0] && this.cmp(u, k) > -1)) {
-        q[0]++;
-        u = this.sub(u, k);
-      }
-
-      for (i = 1; i <= d; i++) {
-        q[i] = (u[i-1] === v[0]) ? 268435455 
-                                 : ~~((u[i-1]*268435456 + u[i])/v[0]);
-
-        xt = u[i-1]*72057594037927936 + u[i]*268435456 + u[i+1];
-
-        while (q[i]*yt > xt) //condition check occasionally fails due to precision problem
-          q[i]--;
-
-        k = this.mul(v, [q[i]]).concat(zeroes.slice(0, d-i)); //concat after multiply
-        u = this.sub(u, k);
-
-        if (u.negative) {
-          u[this.nlz(u)] *= -1;
-          u = this.sub(v.concat(zeroes.slice(0, d-i)), u);
-          q[i]--;
-        }
-      }
-
-      return (mod) ? (s > 0) ? this.rsh(this.cut(u), s) : this.cut(u) : this.cut(q);
-    },
-
-    /**
-     * MPI Modulus
-     *
-     * @method mod
-     * @param {array} x
-     * @param {array} y
-     * @return {array} x % y
-     */
-    mod: function(x, y) {
-      switch(this.cmp(x, y)) {
-      case -1:
-        return x;
-      case 0:
-        return 0;
-      default:
-        return this.div(x, y, true);
-      }
-    },
-
-    /**
-     * MPI Signed Addition
-     * Safe for signed MPI
-     *
-     * @method sad
-     * @param {array} x
-     * @param {array} y
-     * @return {array} x + y
-     */
-    sad: function(x, y) {
-      var a, b;
-      if (x[0] >= 0) {
-        if (y[0] >= 0) {
-          return this.add(x, y);
-        } else {
-          b = y.slice();
-          b[0] *= -1;
-          return this.cut(this.sub(x, b));
-        }
+    } else {
+      if (y[0] >= 0) {
+        a = x.slice();
+        a[0] *= -1;
+        return cut(sub(y, a));
       } else {
-        if (y[0] >= 0) {
-          a = x.slice();
-          a[0] *= -1;
-          return this.cut(this.sub(y, a));
-        } else {
-          a = x.slice();
-          b = y.slice();
-          a[0] *= -1;
-          b[0] *= -1;
-          a = this.add(a, b);
-          a[0] *= -1;
-          return a;
-        }
+        a = x.slice();
+        b = y.slice();
+        a[0] *= -1;
+        b[0] *= -1;
+        a = add(a, b);
+        a[0] *= -1;
+        return a;
       }
-    },
+    }
+  }
 
-    /**
-     * MPI Signed Subtraction
-     * Safe for signed MPI
-     *
-     * @method ssb
-     * @param {array} x
-     * @param {array} y
-     * @return {array} x - y
-     */
-    ssb: function(x, y) {
-      var a, b;
-      if (x[0] >= 0) {
-        if (y[0] >= 0) {
-          return this.cut(this.sub(x, y));
-        } else {
-          b = y.slice();
-          b[0] *= -1;
-          return this.add(x, b);
-        }
+  /**
+   * MPI Signed Subtraction
+   * Safe for signed MPI
+   *
+   * @method ssb
+   * @param {array} x
+   * @param {array} y
+   * @return {array} x - y
+   */
+  function ssb(x, y) {
+    var a, b;
+    if (x[0] >= 0) {
+      if (y[0] >= 0) {
+        return cut(sub(x, y));
       } else {
-        if (y[0] >= 0) {
-          a = x.slice();
-          a[0] *= -1;
-          b = this.add(a, y);
-          b[0] *= -1;
-          return b;
-        } else {
-          a = x.slice();
-          b = y.slice();
-          a[0] *= -1;
-          b[0] *= -1;
-          return this.cut(this.sub(b, a));
-        }
+        b = y.slice();
+        b[0] *= -1;
+        return add(x, b);
       }
-    },
-
-    /**
-     * MPI Signed Right Shift
-     * Safe for signed MPI
-     *
-     * @method srs
-     * @param {array} x
-     * @param {integer} s
-     * @return {array} x >>> s
-     */
-    srs: function(x, s) {
-      if (x[0] < 0) {
-        x[0] *= -1;
-        x = this.rsh(x, s);
-        x[0] *= -1;
-
-        return x;
-      }
-
-      return this.rsh(x, s);
-    },
-
-    /**
-     * MPI Greatest Common Divisor
-     * HAC 14.61 - Binary Extended GCD
-     *
-     * @method gcd
-     * @param {array} x
-     * @param {array} y
-     * @return {array} gcd x,y
-     */
-    gcd: function(x, y) {
-      var s,
-          g = Math.min(this.lsb(x[x.length-1]), this.lsb(y[y.length-1])),
-          u = this.rsh(x, g),
-          v = this.rsh(y, g),
-          a = [1], b = [0], c = [0], d = [1];
-
-      while (u.length !== 1 || u[0] !== 0) {
-        s = this.lsb(u[u.length-1]);
-        u = this.rsh(u, s);
-        while (s--) {
-          if ((a[a.length-1]&1) === 0 && (b[b.length-1]&1) === 0) {
-            a = this.srs(a, 1);
-            b = this.srs(b, 1);
-          } else {
-            a = this.srs(this.sad(a, y), 1);
-            b = this.srs(this.ssb(b, x), 1);
-          }
-        }
-
-        s = this.lsb(v[v.length-1]);
-        v = this.rsh(v, s);
-        while (s--) {
-          if ((c[c.length-1]&1) === 0 && (d[d.length-1]&1) === 0) {
-            c = this.srs(c, 1);
-            d = this.srs(d, 1);
-          } else {
-            c = this.srs(this.sad(c, y), 1);
-            d = this.srs(this.ssb(d, x), 1);
-          }
-        }
-
-        if ( this.cmp(u, v) >= 0 ) {
-          u = this.sub(u, v);
-          a = this.ssb(a, c);
-          b = this.ssb(b, d);
-        } else {
-          v = this.sub(v, u);
-          c = this.ssb(c, a);
-          d = this.ssb(d, b);
-        }
-      }
-
-      return (v.length === 1 && v[0] === 1) ? d : [];
-    },
-
-    /**
-     * MPI Mod Inverse
-     *
-     * @method inv
-     * @param {array} x
-     * @param {array} y
-     * @return {array} 1/x % y
-     */
-    inv: function(x, y) {
-      var u = this.gcd(y, x);
-
-      while (u[0] < 0) {
-        u[0] *= -1;
-        u = this.sub(y, u);
-      }
-
-      return u;
-    },
-
-    /**
-     * MPI Barret Modular Reduction
-     * HAC 14.42
-     *
-     * @method bmr
-     * @param {array} x
-     * @param {array} y
-     * @param {array} [mu]
-     * @return {array} x % y
-     */
-    bmr: function(x, m, mu) {
-      if (this.cmp(x, m) < 0) return x; 
-      //if equal, return 0;
-
-      var q1, q2, q3, r1, r2, r, s,
-          k = m.length;
-
-      if (typeof mu == "undefined")
-        mu = this.div([1].concat(zeroes.slice(0, 2*k)), m);
-
-      q1 = x.slice(0, x.length-(k-1));
-      q2 = this.mul(q1, mu);
-      q3 = q2.slice(0, q2.length-(k+1));
-
-      s  = x.length-(k+1);
-      r1 = (s > 0) ? x.slice(s) : x.slice();
-
-      r2 = this.mul(q3, m);
-      s  = r2.length-(k+1);
-      if (s > 0) r2 = r2.slice(s);
-
-      r = this.cut(this.sub(r1, r2));
-      if (r[0] < 0) {
-        r[0] *= -1;
-        r = this.cut(this.sub([1].concat(zeroes.slice(0, k+1)), r));
-      }
-
-      while (this.cmp(r, m) >= 0)
-        r = this.cut(this.sub(r, m));
-
-      return r;
-    },
-
-    /**
-     * MPI Modular Exponentiation
-     * HAC 14.76 Right-to-left binary exp
-     *
-     * @method exp
-     * @param {array} x
-     * @param {array} e
-     * @param {array} n
-     * @return {array} x^e % n
-     */
-    exp: function(x, e, n) {
-      var c, i, j,
-          r = [1],
-          u = this.div(r.concat(zeroes.slice(0, 2*n.length)), n);
-
-      for (c = 268435456, i = e.length-1; i >= 0; i--) {
-        if (i === 0)
-          c = 1 << (27 - this.msb(e[0]));
-
-        for (j = 1; j < c; j *= 2) {
-          if (e[i] & j)
-            r = this.bmr(this.mul(r, x), n, u);
-          x = this.bmr(this.sqr(x), n, u);
-        }
-      }
-
-      return this.bmr(this.mul(r, x), n, u);
-    },
-
-    /**
-     * MPI Garner's Algorithm
-     * HAC 14.71
-     *
-     * @method gar
-     * @param {array} x
-     * @param {array} p
-     * @param {array} q
-     * @param {array} d
-     * @param {array} u
-     * @param {array} [dp1]
-     * @param {array} [dq1]
-     * @return {array} x^d % pq
-     */
-    gar: function(x, p, q, d, u, dp1, dq1) {
-      var vp, vq, t;
-
-      if (typeof dp1 == "undefined") {
-        dp1 = this.mod(d, this.dec(p));
-        dq1 = this.mod(d, this.dec(q));
-      }
-
-      vp = this.exp(this.mod(x, p), dp1, p);
-      vq = this.exp(this.mod(x, q), dq1, q);
-
-      if (this.cmp(vq, vp) < 0) {
-        t = this.cut(this.sub(vp, vq));
-        t = this.cut(this.bmr(this.mul(t, u), q));
-        t = this.cut(this.sub(q, t));
+    } else {
+      if (y[0] >= 0) {
+        a = x.slice();
+        a[0] *= -1;
+        b = add(a, y);
+        b[0] *= -1;
+        return b;
       } else {
-        t = this.cut(this.sub(vq, vp));
-        t = this.cut(this.bmr(this.mul(t, u), q)); //bmr instead of mod, div fails too frequently because precision issue
+        a = x.slice();
+        b = y.slice();
+        a[0] *= -1;
+        b[0] *= -1;
+        return cut(sub(b, a));
       }
+    }
+  }
 
-      return this.cut(this.add(vp, this.mul(t, p)));
-    },
+  /**
+   * MPI Signed Right Shift
+   * Safe for signed MPI
+   *
+   * @method srs
+   * @param {array} x
+   * @param {integer} s
+   * @return {array} x >>> s
+   */
+  function srs(x, s) {
+    if (x[0] < 0) {
+      x[0] *= -1;
+      x = rsh(x, s);
+      x[0] *= -1;
 
-    /**
-     * MPI Simple Mod
-     * When n < 2^14
-     *
-     * @method mds
-     * @param {array} x
-     * @param {array} n
-     * @return {array} x % n
-     */
-    mds: function(x, n) {
-      for(var i = 0, c = 0, l = x.length; i < l; i++) {
-        c = ((x[i] >> 14) + (c << 14)) % n;
-        c = ((x[i] & 16383) + (c << 14)) % n;
-      }
+      return x;
+    }
 
-      return c;
-    },
+    return rsh(x, s);
+  }
 
-    /**
-     * MPI Exclusive-Or
-     *
-     * @method xor
-     * @param {array} x
-     * @param {array} y
-     * @return {array} x xor y
-     */
-    xor: function(x, y) {
-      if (x.length != y.length) return;
+  /**
+   * MPI Greatest Common Divisor
+   * HAC 14.61 - Binary Extended GCD
+   *
+   * @method gcd
+   * @param {array} x
+   * @param {array} y
+   * @return {array} gcd x,y
+   */
+  function gcd(x, y) {
+    var s,
+        g = Math.min(lsb(x[x.length-1]), lsb(y[y.length-1])),
+        u = rsh(x, g),
+        v = rsh(y, g),
+        a = [1], b = [0], c = [0], d = [1];
 
-      for(var r = [], l = x.length, i = 0; i < l; i++)
-        r[i] = x[i] ^ y[i];
-
-      return r;
-    },
-
-    /**
-     * MPI Decrement
-     *
-     * @method dec
-     * @param {array} x
-     * @return {array} x - 1
-     */
-    dec: function(x) {
-      if (x[x.length-1] > 0) {
-        var o = x.slice();
-        o[x.length-1]--;
-        return o;
-      }
-
-      return this.sub(x, [1]);
-    },
-
-    /**
-     * Miller-Rabin Primality Test
-     *
-     * @method mrb
-     * @param {array} n
-     * @param {integer} iterations
-     * @return {boolean} is prime
-     */
-    mrb: function(n, iterations) {
-      var m = this.sub(n, [1]),
-          s = this.lsb(m[n.length-1]),
-          r = this.rsh(n, s),
-          y, t, j, i;
-
-      for (i = 0; i < iterations; i++) {
-        y = this.exp(ptests[i], r, n);
-        if ( (y.length > 1 || y[0] !== 1) && this.cmp(y,m) !== 0 ) {
-          j = 1; t = true;
-          while (t && s > j++) {
-            y = this.mod(this.sqr(y), n);
-            if (y.length === 1 && y[0] === 1) 
-              return false;
-
-            t = (this.cmp(y,m) !== 0);
-          }
-          if (t) return false;
+    while (u.length !== 1 || u[0] !== 0) {
+      s = lsb(u[u.length-1]);
+      u = rsh(u, s);
+      while (s--) {
+        if ((a[a.length-1]&1) === 0 && (b[b.length-1]&1) === 0) {
+          a = srs(a, 1);
+          b = srs(b, 1);
+        } else {
+          a = srs(sad(a, y), 1);
+          b = srs(ssb(b, x), 1);
         }
       }
 
-      return true;
-    },
+      s = lsb(v[v.length-1]);
+      v = rsh(v, s);
+      while (s--) {
+        if ((c[c.length-1]&1) === 0 && (d[d.length-1]&1) === 0) {
+          c = srs(c, 1);
+          d = srs(d, 1);
+        } else {
+          c = srs(sad(c, y), 1);
+          d = srs(ssb(d, x), 1);
+        }
+      }
 
-    /**
-     * Primality Test
-     * Sieve then Miller-Rabin
-     *
-     * @method testPrime
-     * @param {array} n
-     * @return {boolean} is prime
-     */
-    testPrime: function(n) {
-      for (var i = 1, k = primes.length; i < k; i++)
-        if (this.mds(n, primes[i]) === 0)
-          return false;
+      if ( cmp(u, v) >= 0 ) {
+        u = sub(u, v);
+        a = ssb(a, c);
+        b = ssb(b, d);
+      } else {
+        v = sub(v, u);
+        c = ssb(c, a);
+        d = ssb(d, b);
+      }
+    }
 
-      return this.mrb(n, 3);
-    },
+    return (v.length === 1 && v[0] === 1) ? d : [];
+  }
 
-    /**
-     * Find Next Prime
-     *
-     * @method nextPrime
-     * @param {array} n
-     * @return {array} 1st prime > n
-     */
-    nextPrime: function(n) {
-      var l = n.length - 1;
+  /**
+   * MPI Mod Inverse
+   *
+   * @method inv
+   * @param {array} x
+   * @param {array} y
+   * @return {array} 1/x % y
+   */
+  function inv(x, y) {
+    var u = gcd(y, x);
 
-      n[l] |= 1;
+    while (u[0] < 0) {
+      u[0] *= -1;
+      u = sub(y, u);
+    }
 
-      while (!this.testPrime(n))
-        n[l] = (n[l]+2) % 268435456;
+    return u;
+  }
 
-      return n;
-    },
+  /**
+   * MPI Barret Modular Reduction
+   * HAC 14.42
+   *
+   * @method bmr
+   * @param {array} x
+   * @param {array} y
+   * @param {array} [mu]
+   * @return {array} x % y
+   */
+  function bmr(x, m, mu) {
+    if (cmp(x, m) < 0) return x; 
+    //if equal, return 0;
 
-    /**
-     * Convert byte array to 28 bit array
-     *
-     * @method c8to28
-     * @param {array} a
-     * @return {array} 28-bit array
-     */
-    c8to28: function(a) {
-      var i = [0,0,0,0,0,0].slice((a.length-1)%7).concat(a),
-          o = [], 
-          p;
+    var q1, q2, q3, r1, r2, r, s,
+        k = m.length;
 
-      for (p = 0; p < i.length; p += 7)
-        o.push((i[p]*1048576 + i[p+1]*4096 + i[p+2]*16 + (i[p+3]>>4)), ((i[p+3]&15)*16777216 + i[p+4]*65536 + i[p+5]*256 + i[p+6]));
+    if (typeof mu == "undefined")
+      mu = div([1].concat(zeroes.slice(0, 2*k)), m);
 
-      if (o[0] === 0)
-        o.shift();
+    q1 = x.slice(0, x.length-(k-1));
+    q2 = mul(q1, mu);
+    q3 = q2.slice(0, q2.length-(k+1));
 
+    s  = x.length-(k+1);
+    r1 = (s > 0) ? x.slice(s) : x.slice();
+
+    r2 = mul(q3, m);
+    s  = r2.length-(k+1);
+    if (s > 0) r2 = r2.slice(s);
+
+    r = cut(sub(r1, r2));
+    if (r[0] < 0) {
+      r[0] *= -1;
+      r = cut(sub([1].concat(zeroes.slice(0, k+1)), r));
+    }
+
+    while (cmp(r, m) >= 0)
+      r = cut(sub(r, m));
+
+    return r;
+  }
+
+  /**
+   * MPI Modular Exponentiation
+   * HAC 14.76 Right-to-left binary exp
+   *
+   * @method exp
+   * @param {array} x
+   * @param {array} e
+   * @param {array} n
+   * @return {array} x^e % n
+   */
+  function exp(x, e, n) {
+    var c, i, j,
+        r = [1],
+        u = div(r.concat(zeroes.slice(0, 2*n.length)), n);
+
+    for (c = 268435456, i = e.length-1; i >= 0; i--) {
+      if (i === 0)
+        c = 1 << (27 - msb(e[0]));
+
+      for (j = 1; j < c; j *= 2) {
+        if (e[i] & j)
+          r = bmr(mul(r, x), n, u);
+        x = bmr(sqr(x), n, u);
+      }
+    }
+
+    return bmr(mul(r, x), n, u);
+  }
+
+  /**
+   * MPI Garner's Algorithm
+   * HAC 14.71
+   *
+   * @method gar
+   * @param {array} x
+   * @param {array} p
+   * @param {array} q
+   * @param {array} d
+   * @param {array} u
+   * @param {array} [dp1]
+   * @param {array} [dq1]
+   * @return {array} x^d % pq
+   */
+  function gar(x, p, q, d, u, dp1, dq1) {
+    var vp, vq, t;
+
+    if (typeof dp1 == "undefined") {
+      dp1 = mod(d, dec(p));
+      dq1 = mod(d, dec(q));
+    }
+
+    vp = exp(mod(x, p), dp1, p);
+    vq = exp(mod(x, q), dq1, q);
+
+    if (cmp(vq, vp) < 0) {
+      t = cut(sub(vp, vq));
+      t = cut(bmr(mul(t, u), q));
+      t = cut(sub(q, t));
+    } else {
+      t = cut(sub(vq, vp));
+      t = cut(bmr(mul(t, u), q)); //bmr instead of mod, div fails too frequently because precision issue
+    }
+
+    return cut(add(vp, mul(t, p)));
+  }
+
+  /**
+   * MPI Simple Mod
+   * When n < 2^14
+   *
+   * @method mds
+   * @param {array} x
+   * @param {array} n
+   * @return {array} x % n
+   */
+  function mds(x, n) {
+    for(var i = 0, c = 0, l = x.length; i < l; i++) {
+      c = ((x[i] >> 14) + (c << 14)) % n;
+      c = ((x[i] & 16383) + (c << 14)) % n;
+    }
+
+    return c;
+  }
+
+  /**
+   * MPI Exclusive-Or
+   *
+   * @method xor
+   * @param {array} x
+   * @param {array} y
+   * @return {array} x xor y
+   */
+  function xor(x, y) {
+    if (x.length != y.length) return;
+
+    for(var r = [], l = x.length, i = 0; i < l; i++)
+      r[i] = x[i] ^ y[i];
+
+    return r;
+  }
+
+  /**
+   * MPI Decrement
+   *
+   * @method dec
+   * @param {array} x
+   * @return {array} x - 1
+   */
+  function dec(x) {
+    if (x[x.length-1] > 0) {
+      var o = x.slice();
+      o[x.length-1]--;
       return o;
-    },
+    }
 
-    /**
-     * Convert 28 bit array to byte array
-     *
-     * @method c28to8
-     * @param {array} a
-     * @return {array} byte array
-     */
-    c28to8: function(a) {
-      var b = [0].slice((a.length-1)%2).concat(a),
-          o = [],
-          c, d, i;
+    return sub(x, [1]);
+  }
 
-      for (i = 0; i < b.length;) {
-        c = b[i++]; 
-        d = b[i++];
+  /**
+   * Miller-Rabin Primality Test
+   *
+   * @method mrb
+   * @param {array} n
+   * @param {integer} iterations
+   * @return {boolean} is prime
+   */
+  function mrb(n, iterations) {
+    var m = sub(n, [1]),
+        s = lsb(m[n.length-1]),
+        r = rsh(n, s),
+        y, t, j, i;
 
-        o.push((c >> 20), (c >> 12 & 255), (c >> 4 & 255), ((c << 4 | d >> 24) & 255), (d >> 16 & 255), (d >> 8 & 255), (d & 255));
+    for (i = 0; i < iterations; i++) {
+      y = exp(ptests[i], r, n);
+      if ( (y.length > 1 || y[0] !== 1) && cmp(y,m) !== 0 ) {
+        j = 1; t = true;
+        while (t && s > j++) {
+          y = mod(sqr(y), n);
+          if (y.length === 1 && y[0] === 1) 
+            return false;
+
+          t = (cmp(y,m) !== 0);
+        }
+        if (t) return false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * Primality Test
+   * Sieve then Miller-Rabin
+   *
+   * @method testPrime
+   * @param {array} n
+   * @return {boolean} is prime
+   */
+  function tpr(n) {
+    for (var i = 1, k = primes.length; i < k; i++)
+      if (mds(n, primes[i]) === 0)
+        return false;
+
+    return mrb(n, 3);
+  }
+
+  /**
+   * Find Next Prime
+   *
+   * @method nextPrime
+   * @param {array} n
+   * @return {array} 1st prime > n
+   */
+  function npr(n) {
+    var l = n.length - 1;
+
+    n[l] |= 1;
+
+    while (!tpr(n))
+      n[l] = (n[l]+2) % 268435456;
+
+    return n;
+  }
+
+  /**
+   * Convert byte array to 28 bit array
+   *
+   * @method i
+   * @param {array} a
+   * @return {array} 28-bit array
+   */
+  function ci(a) {
+    var i = [0,0,0,0,0,0].slice((a.length-1)%7).concat(a),
+        o = [], 
+        p;
+
+    for (p = 0; p < i.length; p += 7)
+      o.push((i[p]*1048576 + i[p+1]*4096 + i[p+2]*16 + (i[p+3]>>4)), ((i[p+3]&15)*16777216 + i[p+4]*65536 + i[p+5]*256 + i[p+6]));
+
+    if (o[0] === 0)
+      o.shift();
+
+    return o;
+  }
+
+  /**
+   * Convert 28 bit array to byte array
+   *
+   * @method o
+   * @param {array} a
+   * @return {array} byte array
+   */
+  function co(a) {
+    var b = [0].slice((a.length-1)%2).concat(a),
+        o = [],
+        c, d, i;
+
+    for (i = 0; i < b.length;) {
+      c = b[i++]; 
+      d = b[i++];
+
+      o.push((c >> 20), (c >> 12 & 255), (c >> 4 & 255), ((c << 4 | d >> 24) & 255), (d >> 16 & 255), (d >> 8 & 255), (d & 255));
+    }
+
+    return cut(o);
+  }
+
+  return {
+    RAWIN:  2,
+    RAWOUT: 1,
+
+    add: function(x, y, raw) {
+      if (!(raw & this.RAWIN)) {
+        x = ci(x);
+        y = ci(y);
       }
 
-      return this.cut(o);
+      return (raw & this.RAWOUT) ? sad(x, y) : co(sad(x, y));
     },
+
+    sub: function(x, y, raw) {
+      if (!(raw & this.RAWIN)) {
+        x = ci(x);
+        y = ci(y);
+      }
+
+      return (raw & this.RAWOUT) ? ssb(x, y) : co(ssb(x, y));
+    },
+
+    mul: function(x, y, raw) {
+      if (!(raw & this.RAWIN)) {
+        x = ci(x);
+        y = ci(y);
+      }
+
+      return (raw & this.RAWOUT) ? mul(x, y) : co(mul(x, y));
+    },
+
+    sqr: function(x, raw) {
+      if (!(raw & this.RAWIN)) {
+        x = ci(x);
+      }
+
+      return (raw & this.RAWOUT) ? sqr(x) : co(sqr(x));
+    },
+
+    exp: function(x, e, n, raw) {
+      if (!(raw & this.RAWIN)) {
+        x = ci(x);
+        e = ci(e);
+        n = ci(n);
+      }
+
+      return (raw & this.RAWOUT) ? exp(x, e, n) : co(exp(x, e, n));
+    },
+
+    div: function(x, y, raw) {
+      if (!(raw & this.RAWIN)) {
+        x = ci(x);
+        y = ci(y);
+      }
+
+      return (raw & this.RAWOUT) ? div(x, y) : co(div(x, y));
+    },
+
+    mod: function(x, y, raw) {
+      if (!(raw & this.RAWIN)) {
+        x = ci(x);
+        y = ci(y);
+      }
+
+      return (raw & this.RAWOUT) ? mod(x, y) : o(mod(x, y));
+    },
+
+    gar: function(x, p, q, d, u, dp1, dq1, raw) {
+      if (!(raw & this.RAWIN)) {
+        x = ci(x);
+        p = ci(p);
+        q = ci(q);
+        d = ci(d);
+        u = ci(u);
+        if (dp1) {
+          dp1 = ci(dp1);
+          dp2 = ci(dp2);
+        }
+      }
+
+      return (raw & this.RAWOUT) ? gar(x, p, q, d, u, dp1, dq1) : co(gar(x, p, q, d, u, dp1, dq1));
+    },
+
+    inv: function(x, y, raw) {
+      if (!(raw & this.RAWIN)) {
+        x = ci(x);
+        y = ci(y);
+      }
+
+      return (raw & this.RAWOUT) ? inv(x, y) : co(inv(x, y));
+    },
+
+    dec: function(x, raw) {
+      if (!(raw & this.RAWIN)) {
+        x = ci(x);
+      }
+
+      return (raw & this.RAWOUT) ? dec(x) : co(dec(x));
+    },
+
+    xor: function(x, y) {
+      return xor(x, y);
+    },
+
+    nextPrime: function(x, raw) {
+      if (!(raw & this.RAWIN)) {
+        x = ci(x);
+      }
+
+      return (raw & this.RAWOUT) ? npr(x) : co(npr(x));
+    },
+
+    testPrime: function(x, raw) {
+      if (!(raw & this.RAWIN)) {
+        x = ci(x);
+      }
+
+      return (raw & this.RAWOUT) ? tpr(x) : co(tpr(x));
+    },
+
+    transform: function(x, raw) {
+      return (raw & this.RAWIN) ? co(x) : ci(x);
+    }
   }
 }
 

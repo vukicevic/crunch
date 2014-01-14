@@ -1,0 +1,17 @@
+<html>
+<head>
+  <meta charset="utf-8"> 
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>Crunch - Worker - Tests</title>
+</head>
+<body>
+
+<script>
+  var worker = new Worker("../crunch.js");
+  worker.onmessage = function(m) {
+    console.log(m.data);
+  }
+</script>
+
+</body>
+</html>
