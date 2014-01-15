@@ -6,31 +6,39 @@ Usage
 -----
 Crunch can be loaded as a classic script `<script src="crunch.js"></script>` or in a web worker `new Worker("crunch.js")`.
 
-An arbitrary-precision integer is stored as an array of integers 8 or 28-bit integers. Internally, arithmetic is calculated over 28-bit elements. 
+An arbitrary-precision integer is stored as an array of 8 or 28-bit integers. Internally, calculations are computed using 28-bit elements. 
 
-> Example 1
-> `c = Crunch();`
-> `x = [10, 123, 21, 127];`
-> `y = [4, 211, 176, 200];`
-> `a = c.add(x, y);`
-> 
-> The value of `a` is `[15, 78, 198, 71]`
 
-Crunch accepts both 8 and 28-bit inputs and converts the values. Output can be an array of either 8 or 28-bit, depending on user preference.
+**Example 1**
+```c = Crunch();
+x = [10, 123, 21, 127];
+y = [4, 211, 176, 200];
+a = c.add(x, y);```
 
-> Example 2
-> `b = c.add(x, y, c.RAWOUT);`
-> 
-> The value of `b` is `[256820807]`.
+The value of `a` is `[15, 78, 198, 71]`
 
-The results are equivalent. Array radix conversion can be performed via the `transform` function.  
 
-> Example 3
-> `c.transform([256820807], c.RAWIN);` evaluates to `[15, 78, 198, 71]`, 
-> the same value as `a`.
->
-> The reverse transform takes no second parameter `c.transform([15, 78, 198, 71]);`
-> and evaluates back to `[256820807]`.
+Crunch accepts both 8 and 28-bit inputs and converts the values. Output can be an array of either 8 or 28-bit integer elements, depending on user preference.
+
+
+**Example 2**
+`b = c.add(x, y, c.RAWOUT);`
+
+The value of `b` is `[256820807]`.
+
+
+The results of examples 1 and 2 are equivalent. 
+
+Array radix conversion can be performed via the `transform` function.  
+
+
+**Example 3**
+`c.transform([256820807], c.RAWIN);` evaluates to `[15, 78, 198, 71]`, 
+the same value as `a`.
+
+The reverse transform takes no second parameter `c.transform([15, 78, 198, 71]);`
+and evaluates back to `[256820807]`.
+
 
 Every arithmetic function provided by Crunch accepts a conversion parameter as its last argument.
 
@@ -70,10 +78,8 @@ Web Workers
 
 Crunch can be loaded to a Web Worker. Instructions to the worker take the following format `{func: "", args: []}`.
 
-> Example 4
->
-> `w = new Worker("crunch.js");`
-> `w.onmessage = function(m) { /* do something with result */ }};`
->
-> `m = {func: "add", args: [[10, 123, 21, 127], [4, 211, 176, 200]]};`
-> `w.postMessage(m);`
+**Example 4**
+```w = new Worker("crunch.js");
+w.onmessage = function(m) { /* do something with result */ }};
+m = {func: "add", args: [[10, 123, 21, 127], [4, 211, 176, 200]]};
+w.postMessage(m);```
