@@ -834,7 +834,7 @@ function Crunch() {
   /**
    * Convert byte array to 28 bit array
    *
-   * @method i
+   * @method ci
    * @param {array} a
    * @return {array} 28-bit array
    */
@@ -855,7 +855,7 @@ function Crunch() {
   /**
    * Convert 28 bit array to byte array
    *
-   * @method o
+   * @method co
    * @param {array} a
    * @return {array} byte array
    */
@@ -875,9 +875,26 @@ function Crunch() {
   }
 
   return {
+    
+    /**
+     * Constants for input/output conversion (8 <=> 28 bit array)
+     *
+     * RAWIN: No input conversion, expect 28 bit array
+     * RAWOUT: No output conversion, return 28 bit array
+     *
+     * @default - Input and output conversion performed. 8-bit in, 8-bir out.
+     * crunc.add(x, y)
+     *
+     * @example - no input, no output conversion. 28-bir in, 28-bit out.
+     * crunch.add(x, y, crunch.RAWIN | crunch.RAWOUT)
+     *
+     * @example - only input conversion. 8-bit in, 28-bit out.
+     * crunch.add(x, y, crunch.RAWOUT)
+     */
     RAWIN:  2,
     RAWOUT: 1,
 
+    /* Addition - Safe for signed numbers */
     add: function(x, y, raw) {
       if (!(raw & this.RAWIN)) {
         x = ci(x);
@@ -887,6 +904,7 @@ function Crunch() {
       return (raw & this.RAWOUT) ? sad(x, y) : co(sad(x, y));
     },
 
+    /* Subtraction - Safe for signed numbers */
     sub: function(x, y, raw) {
       if (!(raw & this.RAWIN)) {
         x = ci(x);
@@ -896,6 +914,7 @@ function Crunch() {
       return (raw & this.RAWOUT) ? ssb(x, y) : co(ssb(x, y));
     },
 
+    /* Multiplication */
     mul: function(x, y, raw) {
       if (!(raw & this.RAWIN)) {
         x = ci(x);
@@ -905,6 +924,7 @@ function Crunch() {
       return (raw & this.RAWOUT) ? mul(x, y) : co(mul(x, y));
     },
 
+    /* Squaring */
     sqr: function(x, raw) {
       if (!(raw & this.RAWIN)) {
         x = ci(x);
@@ -913,6 +933,7 @@ function Crunch() {
       return (raw & this.RAWOUT) ? sqr(x) : co(sqr(x));
     },
 
+    /* Modular Exponentiation */
     exp: function(x, e, n, raw) {
       if (!(raw & this.RAWIN)) {
         x = ci(x);
@@ -923,6 +944,7 @@ function Crunch() {
       return (raw & this.RAWOUT) ? exp(x, e, n) : co(exp(x, e, n));
     },
 
+    /* Division */
     div: function(x, y, raw) {
       if (!(raw & this.RAWIN)) {
         x = ci(x);
@@ -932,6 +954,7 @@ function Crunch() {
       return (raw & this.RAWOUT) ? div(x, y) : co(div(x, y));
     },
 
+    /* Remainder/Modulus */
     mod: function(x, y, raw) {
       if (!(raw & this.RAWIN)) {
         x = ci(x);
@@ -941,6 +964,7 @@ function Crunch() {
       return (raw & this.RAWOUT) ? mod(x, y) : o(mod(x, y));
     },
 
+    /* Garner's Algorithm for Modular Exponentiation */
     gar: function(x, p, q, d, u, dp1, dq1, raw) {
       if (!(raw & this.RAWIN)) {
         x = ci(x);
@@ -957,6 +981,7 @@ function Crunch() {
       return (raw & this.RAWOUT) ? gar(x, p, q, d, u, dp1, dq1) : co(gar(x, p, q, d, u, dp1, dq1));
     },
 
+    /* Modular Inverse */
     inv: function(x, y, raw) {
       if (!(raw & this.RAWIN)) {
         x = ci(x);
@@ -966,6 +991,7 @@ function Crunch() {
       return (raw & this.RAWOUT) ? inv(x, y) : co(inv(x, y));
     },
 
+    /* Decrement by 1 */
     dec: function(x, raw) {
       if (!(raw & this.RAWIN)) {
         x = ci(x);
@@ -974,10 +1000,12 @@ function Crunch() {
       return (raw & this.RAWOUT) ? dec(x) : co(dec(x));
     },
 
+    /* XOR */
     xor: function(x, y) {
       return xor(x, y);
     },
 
+    /* Find next prime starting at x */
     nextPrime: function(x, raw) {
       if (!(raw & this.RAWIN)) {
         x = ci(x);
@@ -986,6 +1014,7 @@ function Crunch() {
       return (raw & this.RAWOUT) ? npr(x) : co(npr(x));
     },
 
+    /* Test if x is prime */
     testPrime: function(x, raw) {
       if (!(raw & this.RAWIN)) {
         x = ci(x);
@@ -994,6 +1023,15 @@ function Crunch() {
       return (raw & this.RAWOUT) ? tpr(x) : co(tpr(x));
     },
 
+    /**
+     * Array base conversion
+     *
+     * @example - 8 => 28-bit
+     * crunch.transform(x)
+     *
+     * @example - 28 => 8-bit
+     * crunch.transform(x, crunch.RAWIN)
+     */
     transform: function(x, raw) {
       return (raw & this.RAWIN) ? co(x) : ci(x);
     }
