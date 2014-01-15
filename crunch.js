@@ -894,6 +894,11 @@ function Crunch() {
     RAWIN:  2,
     RAWOUT: 1,
 
+    /* Return zero array length n */
+    zero: function(n) {
+      return zeroes.slice(0, n);
+    },
+
     /* Addition - Safe for signed numbers */
     add: function(x, y, raw) {
       if (!(raw & this.RAWIN)) {
@@ -961,7 +966,7 @@ function Crunch() {
         y = ci(y);
       }
 
-      return (raw & this.RAWOUT) ? mod(x, y) : o(mod(x, y));
+      return (raw & this.RAWOUT) ? mod(x, y) : co(mod(x, y));
     },
 
     /* Garner's Algorithm for Modular Exponentiation */
@@ -991,8 +996,22 @@ function Crunch() {
       return (raw & this.RAWOUT) ? inv(x, y) : co(inv(x, y));
     },
 
+    /* Cut leading zeroes */
+    cut: function(x, raw) {
+      if (!(raw & this.RAWIN)) {
+        x = ci(x);
+      }
+
+      return (raw & this.RAWOUT) ? cut(x) : co(cut(x));
+    },
+
+    /* XOR */
+    xor: function(x, y, raw) {
+      return xor(x, y);
+    },
+
     /* Decrement by 1 */
-    dec: function(x, raw) {
+    decrement: function(x, raw) {
       if (!(raw & this.RAWIN)) {
         x = ci(x);
       }
@@ -1000,9 +1019,9 @@ function Crunch() {
       return (raw & this.RAWOUT) ? dec(x) : co(dec(x));
     },
 
-    /* XOR */
-    xor: function(x, y) {
-      return xor(x, y);
+    /* Compare two arrays */
+    compare: function(x, y, raw) {
+      return cmp(x, y);
     },
 
     /* Find next prime starting at x */
