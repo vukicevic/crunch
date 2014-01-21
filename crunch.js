@@ -1039,7 +1039,7 @@ function Crunch() {
         x = ci(x);
       }
 
-      return (raw & this.RAWOUT) ? tpr(x) : co(tpr(x));
+      return tpr(x);
     },
 
     /**
