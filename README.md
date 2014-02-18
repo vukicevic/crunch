@@ -22,7 +22,8 @@ Crunch accepts both 8 and 28-bit inputs and converts the values. Output can be a
 
 
 **Example 2**
-`b = c.add(x, y, c.RAWOUT);`
+```c = Crunch(false, true);
+b = c.add(x, y);```
 
 The value of `b` is `[256820807]`.
 
@@ -33,45 +34,37 @@ Array radix conversion can be performed via the `transform` function.
 
 
 **Example 3**
-`c.transform([256820807], c.RAWIN);` evaluates to `[15, 78, 198, 71]`, 
+`c.transform([256820807]);` evaluates to `[15, 78, 198, 71]`, 
 the same value as `a`.
 
-The reverse transform takes no second parameter `c.transform([15, 78, 198, 71]);`
+The reverse transform takes a second boolean parameter `c.transform([15, 78, 198, 71], true);`
 and evaluates back to `[256820807]`.
 
-
-Every arithmetic function provided by Crunch accepts a conversion parameter as its last argument.
-
-Conversion Param | Input Conversion | Output Conversion
---- | --- | ---
-*undefined* | 8=>28 | 28=>8
-RAWIN | none | 28=>8
-RAWOUT | 8=>28 | none
-RAWIN \| RAWOUT | none | none
-
-`RAWIN` and `RAWOUT` are constants provided by Crunch, and can be accessed as properties of the crunch object`c.RAWIN`.
 
 Arithmetic Functions
 ----
 
 Function | Input Parameters | Output
 --- | --- | ---
-add | x, y, raw | x + y
-sub | x, y, raw | x - y
-mul | x, y, raw | x * y
-div | x, y, raw | x / y
-sqr | x, raw | x * x
-mod | x, y, raw | x % y
-exp | x, e, n, raw | x^e % n
-gar | x, p, q, d, u, dp1, dq1, raw | x^d % pq
-inv | x, y, raw | 1/x % y
-dec | x, raw | x - 1
-xor | x, y, raw | x XOR y
-nextPrime | x, raw | Next prime number after x
-testPrime | x, raw | Test if x is prime
-transform | x, raw | Array radix conversion
+add | x, y | x + y
+sub | x, y | x - y
+mul | x, y | x * y
+div | x, y | x / y
+sqr | x | x * x
+mod | x, y | x % y
+exp | x, e, n | x^e % n
+gar | x, p, q, d, u, dp1, dq1 | x^d % pq
+inv | x, y | 1/x % y
+xor | x, y | x XOR y
+cut | x | Remove lead zeroes of x
+zero | x | Return zero array of length x
+compare | x, y | Compare x, y. Return -1: x < y, 0: x = y, 1: x > y
+decrement | x | x - 1
+nextPrime | x | Next prime number after x
+testPrime | x | Test if x is prime
+transform | x | Array radix conversion
 
-Crunch also implements left shift `lsh`, right shift `rsh`, Barret modular reduction `bmr`, Miller-Rabin primality testing `mrb`, simple mod `mds`, greatest common divisor `gcd` and signed number arithmetic functions `ssb`, `sad` and `srs`. These are not exposed via the initialized Crunch object. The `raw` parameter is the conversion mode, and can be left blank if 8-bit input and output arrays are desired.
+Crunch also implements left shift `lsh`, right shift `rsh`, Barret modular reduction `bmr`, Miller-Rabin primality testing `mrb`, simple mod `mds`, greatest common divisor `gcd` and signed number arithmetic functions `ssb`, `sad` and `srs`. These are not exposed via the initialized Crunch object.
 
 Web Workers
 ----
