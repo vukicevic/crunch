@@ -1,18 +1,22 @@
-/* Crunch - multi-precision integer arithmetic library | Copyright (C) 2014 Nenad Vukicevic | crunch.secureroom.net/license */
+/* 
+  Crunch - Multi-precision Integer Arithmetic Library 
+  Copyright (C) 2014 Nenad Vukicevic
 
- /**
+  crunch.secureroom.net/license 
+*/
+
+/**
  * @module Crunch
  * Radix: 28 bits
  * Endianness: Big 
+ * 
+ * @param {boolean} rawIn   - expect 28-bit arrays
+ * @param {boolean} rawOut  - return 28-bit arrays
  */
-function Crunch() {
+function Crunch(rawIn, rawOut) {
 
   /**
    * Generate first n primes array
-   *
-   * @method nprimes
-   * @param {integer} n
-   * @return {array} array of primes
    */
   function nprimes(n) {
     for (var j, b, p = [2], l = 1, i = 3; l < n; i += 2) {
@@ -30,10 +34,6 @@ function Crunch() {
 
   /**
    * Generate n-length zero filled array
-   *
-   * @method nzeroes
-   * @param {integer} n
-   * @return {array} array of zeroes
    */
   function nzeroes(n) {
     for (var z = [], i = 0; i < n; i++)
@@ -44,7 +44,7 @@ function Crunch() {
 
   /** 
    * Predefined constants for performance: zeroes for zero-filled arrays, 
-   * primes for sieve, ptests for Miller-Rabin primality
+   * primes for simple mod primality, ptests for Miller-Rabin primality
    */
   const zeroes = nzeroes(500);
   const primes = nprimes(1899);
@@ -52,10 +52,6 @@ function Crunch() {
 
   /**
    * Count number of leading zeroes in MPI
-   *
-   * @method nlz
-   * @param {array} x
-   * @return {integer} number of leading zeroes
    */
   function nlz(x) {
     for (var l = x.length, i = 0; i < l; i++)
@@ -65,28 +61,10 @@ function Crunch() {
     return i;
   }
 
-  /**
-   * Remove leading zeroes from MPI
-   *
-   * @method cut
-   * @param {Array} x
-   * @return {Array} new array without leading zeroes
-   */
   function cut(x) {
     return x.slice(nlz(x));
   }
 
-  /**
-   * Compare values of two MPIs. 
-   * Not safe for signed or leading zero MPI
-   *
-   * @method cmp
-   * @param {array} x
-   * @param {array} y
-   * @return {integer} 1: x > y
-   *                   0: x = y 
-   *                  -1: x < y
-   */
   function cmp(x, y) {
     var xl = x.length,
         yl = y.length; //zero front pad problem
@@ -108,11 +86,7 @@ function Crunch() {
   }
 
   /**
-   * Most significant bit, base 28
-   *
-   * @method msb
-   * @param {integer} x
-   * @return {integer} position of msb, from left
+   * Most significant bit, base 28, position from left
    */
   function msb(x) {
     if (x === 0) return;
@@ -124,11 +98,7 @@ function Crunch() {
   }
 
   /**
-   * Least significant bit, base 28
-   *
-   * @method lsb
-   * @param {integer} x
-   * @return {integer} position of lsb, from right
+   * Least significant bit, base 28, position from right
    */
   function lsb(x) {
     if (x === 0) return;
@@ -140,14 +110,7 @@ function Crunch() {
   }
 
   /**
-   * MPI Addition
-   * Handbook of Applied Cryptography (HAC) 14.7
-   * Not safe for signed MPI, use 'sad' instead
-   *
-   * @method add
-   * @param {array} x
-   * @param {array} y
-   * @return {array} x + y
+   * Addition
    */
   function add(x, y) {
     var n = x.length,
@@ -180,14 +143,7 @@ function Crunch() {
   }
 
   /**
-   * MPI Subtraction
-   * HAC 14.9
-   * Not safe for signed MPI, use 'ssb' instead
-   *
-   * @method sub
-   * @param {array} x
-   * @param {array} y
-   * @return {array} x - y
+   * Subtraction
    */
   function sub(x, y, internal) {
     var n = x.length,
@@ -223,13 +179,67 @@ function Crunch() {
   }
 
   /**
-   * MPI Multiplication
-   * HAC 14.12
-   *
-   * @method mul
-   * @param {array} x
-   * @param {array} y
-   * @return {array} x * y
+   * Signed Addition
+   */
+  function sad(x, y) {
+    var a, b;
+    if (x[0] >= 0) {
+      if (y[0] >= 0) {
+        return add(x, y);
+      } else {
+        b = y.slice();
+        b[0] *= -1;
+        return cut(sub(x, b));
+      }
+    } else {
+      if (y[0] >= 0) {
+        a = x.slice();
+        a[0] *= -1;
+        return cut(sub(y, a));
+      } else {
+        a = x.slice();
+        b = y.slice();
+        a[0] *= -1;
+        b[0] *= -1;
+        a = add(a, b);
+        a[0] *= -1;
+        return a;
+      }
+    }
+  }
+
+  /**
+   * Signed Subtraction
+   */
+  function ssb(x, y) {
+    var a, b;
+    if (x[0] >= 0) {
+      if (y[0] >= 0) {
+        return cut(sub(x, y));
+      } else {
+        b = y.slice();
+        b[0] *= -1;
+        return add(x, b);
+      }
+    } else {
+      if (y[0] >= 0) {
+        a = x.slice();
+        a[0] *= -1;
+        b = add(a, y);
+        b[0] *= -1;
+        return b;
+      } else {
+        a = x.slice();
+        b = y.slice();
+        a[0] *= -1;
+        b[0] *= -1;
+        return cut(sub(b, a));
+      }
+    }
+  }
+
+  /**
+   * Multiplication - HAC 14.12
    */
   function mul(x, y) {
     var yl, yh, xl, xh, t1, t2, c, j,
@@ -264,12 +274,7 @@ function Crunch() {
   }
 
   /**
-   * MPI Squaring
-   * HAC 14.16
-   *
-   * @method sqr
-   * @param {array} x
-   * @return {array} x * x
+   * Squaring - HAC 14.16
    */
   function sqr(x) {
     var l1, l2, h1, h2, t1, t2, j, c,
@@ -306,13 +311,7 @@ function Crunch() {
   }
 
   /**
-   * MPI Right Shift
-   * Not safe for signed MPI, use 'srs' instead
-   *
-   * @method rsh
-   * @param {array} x
-   * @param {integer} s
-   * @return {array} x >> s
+   * Right Shift - Not safe for signed MPI, use 'srs' instead
    */
   function rsh(x, s) {
     var ss = s % 28,
@@ -334,12 +333,22 @@ function Crunch() {
   }
 
   /**
-   * MPI Left Shift
-   *
-   * @method lsh
-   * @param {array} x
-   * @param {integer} s
-   * @return {array} x << s
+   * Signed Right Shift - Safe for signed MPI
+   */
+  function srs(x, s) {
+    if (x[0] < 0) {
+      x[0] *= -1;
+      x = rsh(x, s);
+      x[0] *= -1;
+
+      return x;
+    }
+
+    return rsh(x, s);
+  }
+
+  /**
+   * Left Shift
    */
   function lsh(x, s) {
     var ss = s % 28,
@@ -362,15 +371,7 @@ function Crunch() {
   }
 
   /**
-   * MPI Division
-   * HAC 14.20
-   *
-   * @method div
-   * @param {array} x
-   * @param {array} y
-   * @param {boolean} mod
-   * @return {array} !mod: x / y
-   *                  mod: x % y
+   * Division - HAC 14.20
    */
   function div(x, y, mod) {
     var u, v, xt, yt, d, q, k, i,
@@ -418,14 +419,6 @@ function Crunch() {
     return (mod) ? (s > 0) ? rsh(cut(u), s) : cut(u) : cut(q);
   }
 
-  /**
-   * MPI Modulus
-   *
-   * @method mod
-   * @param {array} x
-   * @param {array} y
-   * @return {array} x % y
-   */
   function mod(x, y) {
     switch(cmp(x, y)) {
     case -1:
@@ -438,106 +431,7 @@ function Crunch() {
   }
 
   /**
-   * MPI Signed Addition
-   * Safe for signed MPI
-   *
-   * @method sad
-   * @param {array} x
-   * @param {array} y
-   * @return {array} x + y
-   */
-  function sad(x, y) {
-    var a, b;
-    if (x[0] >= 0) {
-      if (y[0] >= 0) {
-        return add(x, y);
-      } else {
-        b = y.slice();
-        b[0] *= -1;
-        return cut(sub(x, b));
-      }
-    } else {
-      if (y[0] >= 0) {
-        a = x.slice();
-        a[0] *= -1;
-        return cut(sub(y, a));
-      } else {
-        a = x.slice();
-        b = y.slice();
-        a[0] *= -1;
-        b[0] *= -1;
-        a = add(a, b);
-        a[0] *= -1;
-        return a;
-      }
-    }
-  }
-
-  /**
-   * MPI Signed Subtraction
-   * Safe for signed MPI
-   *
-   * @method ssb
-   * @param {array} x
-   * @param {array} y
-   * @return {array} x - y
-   */
-  function ssb(x, y) {
-    var a, b;
-    if (x[0] >= 0) {
-      if (y[0] >= 0) {
-        return cut(sub(x, y));
-      } else {
-        b = y.slice();
-        b[0] *= -1;
-        return add(x, b);
-      }
-    } else {
-      if (y[0] >= 0) {
-        a = x.slice();
-        a[0] *= -1;
-        b = add(a, y);
-        b[0] *= -1;
-        return b;
-      } else {
-        a = x.slice();
-        b = y.slice();
-        a[0] *= -1;
-        b[0] *= -1;
-        return cut(sub(b, a));
-      }
-    }
-  }
-
-  /**
-   * MPI Signed Right Shift
-   * Safe for signed MPI
-   *
-   * @method srs
-   * @param {array} x
-   * @param {integer} s
-   * @return {array} x >>> s
-   */
-  function srs(x, s) {
-    if (x[0] < 0) {
-      x[0] *= -1;
-      x = rsh(x, s);
-      x[0] *= -1;
-
-      return x;
-    }
-
-    return rsh(x, s);
-  }
-
-  /**
-   * MPI Greatest Common Divisor
-   * HAC 14.61 - Binary Extended GCD
-   *
-   * @method gcd
-   * @param {array} x
-   * @param {array} y
-   * @return {array} gcd x,y
+   * Greatest Common Divisor - HAC 14.61 - Binary Extended GCD
    */
   function gcd(x, y) {
     var s,
@@ -586,12 +480,7 @@ function Crunch() {
   }
 
   /**
-   * MPI Mod Inverse
-   *
-   * @method inv
-   * @param {array} x
-   * @param {array} y
-   * @return {array} 1/x % y
+   * Inverse
    */
   function inv(x, y) {
     var u = gcd(y, x);
@@ -605,14 +494,7 @@ function Crunch() {
   }
 
   /**
-   * MPI Barret Modular Reduction
-   * HAC 14.42
-   *
-   * @method bmr
-   * @param {array} x
-   * @param {array} y
-   * @param {array} [mu]
-   * @return {array} x % y
+   * Barret Modular Reduction - HAC 14.42
    */
   function bmr(x, m, mu) {
     if (cmp(x, m) < 0) return x; 
@@ -648,14 +530,7 @@ function Crunch() {
   }
 
   /**
-   * MPI Modular Exponentiation
-   * HAC 14.76 Right-to-left binary exp
-   *
-   * @method exp
-   * @param {array} x
-   * @param {array} e
-   * @param {array} n
-   * @return {array} x^e % n
+   * Modular Exponentiation - HAC 14.76 Right-to-left binary exp
    */
   function exp(x, e, n) {
     var c, i, j,
@@ -677,18 +552,7 @@ function Crunch() {
   }
 
   /**
-   * MPI Garner's Algorithm
-   * HAC 14.71
-   *
-   * @method gar
-   * @param {array} x
-   * @param {array} p
-   * @param {array} q
-   * @param {array} d
-   * @param {array} u
-   * @param {array} [dp1]
-   * @param {array} [dq1]
-   * @return {array} x^d % pq
+   * Garner's algorithm, modular exponentiation - HAC 14.71
    */
   function gar(x, p, q, d, u, dp1, dq1) {
     var vp, vq, t;
@@ -714,13 +578,7 @@ function Crunch() {
   }
 
   /**
-   * MPI Simple Mod
-   * When n < 2^14
-   *
-   * @method mds
-   * @param {array} x
-   * @param {array} n
-   * @return {array} x % n
+   * Simple Mod - When n < 2^14
    */
   function mds(x, n) {
     for(var i = 0, c = 0, l = x.length; i < l; i++) {
@@ -732,12 +590,7 @@ function Crunch() {
   }
 
   /**
-   * MPI Exclusive-Or
-   *
-   * @method xor
-   * @param {array} x
-   * @param {array} y
-   * @return {array} x xor y
+   * XOR
    */
   function xor(x, y) {
     if (x.length != y.length) return;
@@ -748,13 +601,6 @@ function Crunch() {
     return r;
   }
 
-  /**
-   * MPI Decrement
-   *
-   * @method dec
-   * @param {array} x
-   * @return {array} x - 1
-   */
   function dec(x) {
     if (x[x.length-1] > 0) {
       var o = x.slice();
@@ -767,11 +613,6 @@ function Crunch() {
 
   /**
    * Miller-Rabin Primality Test
-   *
-   * @method mrb
-   * @param {array} n
-   * @param {integer} iterations
-   * @return {boolean} is prime
    */
   function mrb(n, iterations) {
     var m = sub(n, [1]),
@@ -798,12 +639,7 @@ function Crunch() {
   }
 
   /**
-   * Primality Test
-   * Sieve then Miller-Rabin
-   *
-   * @method testPrime
-   * @param {array} n
-   * @return {boolean} is prime
+   * Test prime
    */
   function tpr(n) {
     for (var i = 1, k = primes.length; i < k; i++)
@@ -814,11 +650,7 @@ function Crunch() {
   }
 
   /**
-   * Find Next Prime
-   *
-   * @method nextPrime
-   * @param {array} n
-   * @return {array} 1st prime > n
+   * Find next prime
    */
   function npr(n) {
     var l = n.length - 1;
@@ -833,10 +665,6 @@ function Crunch() {
 
   /**
    * Convert byte array to 28 bit array
-   *
-   * @method ci
-   * @param {array} a
-   * @return {array} 28-bit array
    */
   function ci(a) {
     var i = [0,0,0,0,0,0].slice((a.length-1)%7).concat(a),
@@ -854,10 +682,6 @@ function Crunch() {
 
   /**
    * Convert 28 bit array to byte array
-   *
-   * @method co
-   * @param {array} a
-   * @return {array} byte array
    */
   function co(a) {
     var b = [0].slice((a.length-1)%2).concat(a),
@@ -874,185 +698,249 @@ function Crunch() {
     return cut(o);
   }
 
-  return {
-    
-    /**
-     * Constants for input/output conversion (8 <=> 28 bit array)
-     *
-     * RAWIN: No input conversion, expect 28 bit array
-     * RAWOUT: No output conversion, return 28 bit array
-     *
-     * @default - Input and output conversion performed. 8-bit in, 8-bir out.
-     * crunc.add(x, y)
-     *
-     * @example - no input, no output conversion. 28-bir in, 28-bit out.
-     * crunch.add(x, y, crunch.RAWIN | crunch.RAWOUT)
-     *
-     * @example - only input conversion. 8-bit in, 28-bit out.
-     * crunch.add(x, y, crunch.RAWOUT)
-     */
-    RAWIN:  2,
-    RAWOUT: 1,
+  function transformIn(args) {
+    return (rawIn) ? args : Array.prototype.slice.call(args).map(function(v) { return ci(v) });
+  }
 
-    /* Return zero array length n */
+  function transformOut(val) {
+    return (rawOut) ? val : co(val);
+  }
+
+  return {
+    /**
+     * Return zero array length n 
+     *
+     * @method zero
+     * @param {integer} n
+     * @return {array} 0 length n
+     */
     zero: function(n) {
       return zeroes.slice(0, n);
     },
 
-    /* Addition - Safe for signed numbers */
-    add: function(x, y, raw) {
-      if (!(raw & this.RAWIN)) {
-        x = ci(x);
-        y = ci(y);
-      }
-
-      return (raw & this.RAWOUT) ? sad(x, y) : co(sad(x, y));
+    /**
+     * Signed Addition - Safe for signed MPI
+     *
+     * @method add
+     * @param {array} x
+     * @param {array} y
+     * @return {array} x + y
+     */
+    add: function(x, y) {
+      return transformOut(
+        sad.apply(null, transformIn(arguments))
+      );
     },
 
-    /* Subtraction - Safe for signed numbers */
-    sub: function(x, y, raw) {
-      if (!(raw & this.RAWIN)) {
-        x = ci(x);
-        y = ci(y);
-      }
-
-      return (raw & this.RAWOUT) ? ssb(x, y) : co(ssb(x, y));
+    /**
+     * Signed Subtraction - Safe for signed MPI
+     *
+     * @method sub
+     * @param {array} x
+     * @param {array} y
+     * @return {array} x - y
+     */
+    sub: function(x, y) {
+      return transformOut(
+        ssb.apply(null, transformIn(arguments))
+      );
     },
 
-    /* Multiplication */
-    mul: function(x, y, raw) {
-      if (!(raw & this.RAWIN)) {
-        x = ci(x);
-        y = ci(y);
-      }
-
-      return (raw & this.RAWOUT) ? mul(x, y) : co(mul(x, y));
+    /**
+     * Multiplication
+     *
+     * @method mul
+     * @param {array} x
+     * @param {array} y
+     * @return {array} x * y
+     */
+    mul: function(x, y) {
+      return transformOut(
+        mul.apply(null, transformIn(arguments))
+      );
     },
 
-    /* Squaring */
-    sqr: function(x, raw) {
-      if (!(raw & this.RAWIN)) {
-        x = ci(x);
-      }
-
-      return (raw & this.RAWOUT) ? sqr(x) : co(sqr(x));
+    /**
+     * Squaring
+     *
+     * @method sqr
+     * @param {array} x
+     * @return {array} x * x
+     */
+    sqr: function(x) {
+      return transformOut(
+        sqr.apply(null, transformIn(arguments))
+      );
     },
 
-    /* Modular Exponentiation */
-    exp: function(x, e, n, raw) {
-      if (!(raw & this.RAWIN)) {
-        x = ci(x);
-        e = ci(e);
-        n = ci(n);
-      }
-
-      return (raw & this.RAWOUT) ? exp(x, e, n) : co(exp(x, e, n));
+    /**
+     * Modular Exponentiation
+     *
+     * @method exp
+     * @param {array} x
+     * @param {array} e
+     * @param {array} n
+     * @return {array} x^e % n
+     */
+    exp: function(x, e, n) {
+      return transformOut(
+        exp.apply(null, transformIn(arguments))
+      );
     },
 
-    /* Division */
-    div: function(x, y, raw) {
-      if (!(raw & this.RAWIN)) {
-        x = ci(x);
-        y = ci(y);
-      }
-
-      return (raw & this.RAWOUT) ? div(x, y) : co(div(x, y));
+    /**
+     * Division
+     *
+     * @method div
+     * @param {array} x
+     * @param {array} y
+     * @param {boolean} mod
+     * @return {array} !mod: x / y
+     *                  mod: x % y
+     */
+    div: function(x, y) {
+      return transformOut(
+        div.apply(null, transformIn(arguments))
+      );
     },
 
-    /* Remainder/Modulus */
-    mod: function(x, y, raw) {
-      if (!(raw & this.RAWIN)) {
-        x = ci(x);
-        y = ci(y);
-      }
-
-      return (raw & this.RAWOUT) ? mod(x, y) : co(mod(x, y));
+    /**
+     * Modulus
+     *
+     * @method mod
+     * @param {array} x
+     * @param {array} y
+     * @return {array} x % y
+     */
+    mod: function(x, y) {
+      return transformOut(
+        mod.apply(null, transformIn(arguments))
+      );
     },
 
-    /* Garner's Algorithm for Modular Exponentiation */
-    gar: function(x, p, q, d, u, dp1, dq1, raw) {
-      if (!(raw & this.RAWIN)) {
-        x = ci(x);
-        p = ci(p);
-        q = ci(q);
-        d = ci(d);
-        u = ci(u);
-        if (dp1) {
-          dp1 = ci(dp1);
-          dq1 = ci(dq1);
-        }
-      }
-
-      return (raw & this.RAWOUT) ? gar(x, p, q, d, u, dp1, dq1) : co(gar(x, p, q, d, u, dp1, dq1));
+    /**
+     * Garner's Algorithm
+     *
+     * @method gar
+     * @param {array} x
+     * @param {array} p
+     * @param {array} q
+     * @param {array} d
+     * @param {array} u
+     * @param {array} [dp1]
+     * @param {array} [dq1]
+     * @return {array} x^d % pq
+     */
+    gar: function(x, p, q, d, u, dp1, dq1) {
+      return transformOut(
+        gar.apply(null, transformIn(arguments))
+      );
     },
 
-    /* Modular Inverse */
-    inv: function(x, y, raw) {
-      if (!(raw & this.RAWIN)) {
-        x = ci(x);
-        y = ci(y);
-      }
-
-      return (raw & this.RAWOUT) ? inv(x, y) : co(inv(x, y));
+    /**
+     * Mod Inverse
+     *
+     * @method inv
+     * @param {array} x
+     * @param {array} y
+     * @return {array} 1/x % y
+     */
+    inv: function(x, y) {
+      return transformOut(
+        inv.apply(null, transformIn(arguments))
+      );
     },
 
-    /* Cut leading zeroes */
-    cut: function(x, raw) {
-      if (!(raw & this.RAWIN)) {
-        x = ci(x);
-      }
-
-      return (raw & this.RAWOUT) ? cut(x) : co(cut(x));
+    /**
+     * Remove leading zeroes
+     *
+     * @method cut
+     * @param {Array} x
+     * @return {Array} new array without leading zeroes
+     */
+    cut: function(x) {
+      return transformOut(
+        cut.apply(null, transformIn(arguments))
+      );
     },
 
-    /* XOR */
-    xor: function(x, y, raw) {
+    /**
+     * Exclusive-Or
+     *
+     * @method xor
+     * @param {array} x
+     * @param {array} y
+     * @return {array} x xor y
+     */
+    xor: function(x, y) {
       return xor(x, y);
     },
 
-    /* Decrement by 1 */
-    decrement: function(x, raw) {
-      if (!(raw & this.RAWIN)) {
-        x = ci(x);
-      }
-
-      return (raw & this.RAWOUT) ? dec(x) : co(dec(x));
+    /**
+     * Decrement
+     *
+     * @method decrement
+     * @param {array} x
+     * @return {array} x - 1
+     */
+    decrement: function(x) {
+      return transformOut(
+        dec.apply(null, transformIn(arguments))
+      );
     },
 
-    /* Compare two arrays */
-    compare: function(x, y, raw) {
+    /**
+     * Compare values of two MPIs - Not safe for signed or leading zero MPI
+     *
+     * @method compare
+     * @param {array} x
+     * @param {array} y
+     * @return {integer} 1: x > y
+     *                   0: x = y 
+     *                  -1: x < y
+     */
+    compare: function(x, y) {
       return cmp(x, y);
     },
 
-    /* Find next prime starting at x */
-    nextPrime: function(x, raw) {
-      if (!(raw & this.RAWIN)) {
-        x = ci(x);
-      }
-
-      return (raw & this.RAWOUT) ? npr(x) : co(npr(x));
+    /**
+     * Find Next Prime
+     *
+     * @method nextPrime
+     * @param {array} n
+     * @return {array} 1st prime > n
+     */
+    nextPrime: function(x) {
+      return transformOut(
+        npr.apply(null, transformIn(arguments))
+      );
     },
 
-    /* Test if x is prime */
-    testPrime: function(x, raw) {
-      if (!(raw & this.RAWIN)) {
-        x = ci(x);
-      }
-
-      return tpr(x);
+    /**
+     * Primality Test
+     * Sieve then Miller-Rabin
+     *
+     * @method testPrime
+     * @param {array} n
+     * @return {boolean} is prime
+     */
+    testPrime: function(x) {
+      return transformOut(
+        tpr.apply(null, transformIn(arguments))
+      );
     },
 
     /**
      * Array base conversion
      *
-     * @example - 8 => 28-bit
-     * crunch.transform(x)
-     *
-     * @example - 28 => 8-bit
-     * crunch.transform(x, crunch.RAWIN)
+     * @method transfirn
+     * @param {array} x
+     * @param {boolean} toRaw
+     * @return {array}  toRaw: 8 => 28-bit array
+     *                 !toRaw: 28 => 8-bit array
      */
-    transform: function(x, raw) {
-      return (raw & this.RAWIN) ? co(x) : ci(x);
+    transform: function(x, toRaw) {
+      return (toRaw) ? ci(x) : co(x);
     }
   }
 }
@@ -1064,9 +952,9 @@ function Crunch() {
  * @example
  * 
  * Request: { "func": "add",
- *            "args": [[123], [456]] }
+ *            "args": [[123], [7]] }
  *
- * Respnse: [579]
+ * Respnse: [130]
  */
 if (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope) {
   var crunch = Crunch();

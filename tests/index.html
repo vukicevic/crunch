@@ -11,10 +11,10 @@
 <dl id="results"></dl>
 
 <script>
-var r, w, x, y, mpi = Crunch();
+var r, w, x, y, mpi = Crunch(true, true), mpiNR = Crunch();
 
 function printArray(a, raw) {
-  b = (raw) ? mpi.transform(a, mpi.RAWIN) : a;
+  b = (raw) ? mpi.transform(a, false) : a;
   return b.map(function(v){return ('0'+v.toString(16)).slice(-2);}).join('');
 }
 
@@ -46,31 +46,31 @@ printSection("ADDITION TESTS");
 x = [62014];
 y = [10754];
 r = [72768];
-w = mpi.add(x, y, mpi.RAWIN | mpi.RAWOUT);
+w = mpi.add(x, y);
 printResult(w, r, true);
 
 x = [0x0000611];
 y = [0x0002a02];
 r = [0x0003013];
-w = mpi.add(x, y, mpi.RAWIN | mpi.RAWOUT);
+w = mpi.add(x, y);
 printResult(w, r, true);
   
 x = [0x1, 0xaffe611];
 y = [0x0002a22];
 r = [0x1, 0xb001033];
-w = mpi.add(x, y, mpi.RAWIN | mpi.RAWOUT);
+w = mpi.add(x, y);
 printResult(w, r, true);
 
 x = [0xea22];
 y = [0xf, 0xfffe611];
 r = [0x000010, 0x000D033];
-w = mpi.add(x, y, mpi.RAWIN | mpi.RAWOUT);
+w = mpi.add(x, y);
 printResult(w, r, true);
 
 x = [255, 255, 255, 255, 255, 255];
 y = [255, 255, 255, 255, 255, 255];
 r = [1, 255, 255, 255, 255, 255, 254];
-w = mpi.add(x, y);
+w = mpiNR.add(x, y);
 printResult(w, r);
 
 /* END ADDITION TESTS */
@@ -81,25 +81,25 @@ printSection("SUBTRACTION TESTS");
 x = [0xf23e];
 y = [0x2a02];
 r = [0xc83c];
-w = mpi.sub(x, y, mpi.RAWIN | mpi.RAWOUT);
+w = mpi.sub(x, y);
 printResult(w, r, true);
   
 x = [0x001a];
 y = [0x00ff];
 r = [-0x00e5];
-w = mpi.sub(x, y, mpi.RAWIN | mpi.RAWOUT);
+w = mpi.sub(x, y);
 printResult(w, r, true);
   
 x = [0xaa014, 0xf77f23e];
 y = [0x11f17, 0xbfa2a02];
 r = [0x980fd, 0x37dc83c];
-w = mpi.sub(x, y, mpi.RAWIN | mpi.RAWOUT);
+w = mpi.sub(x, y);
 printResult(w, r, true);
   
 x = [0xf0000, 0x0000000];
 y = [0x0001];
 r = [0xeffff, 0xfffffff];
-w = mpi.sub(x, y, mpi.RAWIN | mpi.RAWOUT);
+w = mpi.sub(x, y);
 printResult(w, r, true);
 /* END SUBTRACTION TESTS */
 
@@ -109,43 +109,43 @@ printSection("MULTIPLICATION TESTS");
 x = [62014];
 y = [10754];
 r = [0x2, 0x7C0107C];
-w = mpi.mul(x, y, mpi.RAWIN | mpi.RAWOUT);
+w = mpi.mul(x, y);
 printResult(w, r, true);
 
 x = [0x0a2335f];
 y = [0x02a12cc];
 r = [0x1aa85, 0x6739db4]; 
-w = mpi.mul(x, y, mpi.RAWIN | mpi.RAWOUT);
+w = mpi.mul(x, y);
 printResult(w, r, true);
 
 x = [0x00ff4, 0x122335f];
 y = [0x02a12cc];
 r = [0x29, 0xf36d98b, 0xc739db4];
-w = mpi.mul(x, y, mpi.RAWIN | mpi.RAWOUT);
+w = mpi.mul(x, y);
 printResult(w, r, true);
 
 x = [0x04df23e];
 y = [0x2a027, 0x12b3941];
 r = [0x000cca, 0x7c85927, 0xd244fbe];
-w = mpi.mul(x, y, mpi.RAWIN | mpi.RAWOUT);
+w = mpi.mul(x, y);
 printResult(w, r, true);
 
 x = [0xf, 0xf11a23e];
 y = [0xf, 0xf11a23e];
 r = [0xfe, 0x24226e7, 0x70e8704];
-w = mpi.mul(x, y, mpi.RAWIN | mpi.RAWOUT);
+w = mpi.mul(x, y);
 printResult(w, r, true);
 
 x = [0xf, 0xfffffff];
 y = [0xf, 0xfffffff];
 r = [0xFF, 0xFFFFFE0, 0x0000001];
-w = mpi.mul(x, y, mpi.RAWIN | mpi.RAWOUT);
+w = mpi.mul(x, y);
 printResult(w, r, true);
 
 x = [0x3, 0xcc147d1];
 y = [0x5, 0xd088fed];
 r = [0x16, 0x143f496, 0x1953b7d];
-w = mpi.mul(x, y, mpi.RAWIN | mpi.RAWOUT);
+w = mpi.mul(x, y);
 printResult(w, r, true);
 /* END MULTIPLICATION TESTS */
 
@@ -154,12 +154,12 @@ printSection("SQUARE TESTS");
 
 x = [0xa23e];
 r = [0x6, 0x6d28704]; 
-w = mpi.sqr(x, mpi.RAWIN | mpi.RAWOUT);
+w = mpi.sqr(x);
 printResult(w, r, true);
 
 x = [0xf, 0xf11a23e];
 r = [0xfe, 0x24226e7, 0x70e8704];
-w = mpi.sqr(x, mpi.RAWIN | mpi.RAWOUT);
+w = mpi.sqr(x);
 printResult(w, r, true);
 /* END SQUARE TESTS */
 
@@ -170,49 +170,49 @@ x = [0x0025ca0];
 y = [0x2d];
 z = [0x0bc0e02];
 r = [0x03aa4ec];
-w = mpi.exp(x, y, z, mpi.RAWIN | mpi.RAWOUT);
+w = mpi.exp(x, y, z);
 printResult(w, r, true);
 
 x = [0x0025ca0];
 y = [0x11be];
 z = [0x0bc0e02];
 r = [0x03231d0];
-w = mpi.exp(x, y, z, mpi.RAWIN | mpi.RAWOUT);
+w = mpi.exp(x, y, z);
 printResult(w, r, true);
 
 x = [0x025c];
 y = [0x11ae];
 z = [0xfc0e];
 r = [0xa732];
-w = mpi.exp(x, y, z, mpi.RAWIN | mpi.RAWOUT);
+w = mpi.exp(x, y, z);
 printResult(w, r, true);
 
 x = [0x006fc53];
 y = [0x3, 0xadb6663];
 z = [0x4, 0xac0ee49];
 r = [0x3, 0x4ae12f5];
-w = mpi.exp(x, y, z, mpi.RAWIN | mpi.RAWOUT);
+w = mpi.exp(x, y, z);
 printResult(w, r, true);
 
 x = [0x00018ee, 0x90ff6c3, 0x73e0ee4, 0xe3f0ad2];
 y = [0x0010001];
 z = [0x000abcd, 0xefabcde, 0xfabefab, 0xcdefdae];
 r = [0x000785c, 0x3e0857f, 0x05d7524, 0xc5901c0];
-w = mpi.exp(x, y, z, mpi.RAWIN | mpi.RAWOUT);
+w = mpi.exp(x, y, z);
 printResult(w, r, true);
 
 x = [0x00012, 0x3651498, 0x1436123, 0x5148afe, 0xff12378, 0x61319ab, 0xcde1387, 0x1461097, 0x4501981, 0x4986128, 0x971246a, 0xbedfefd, 0xbe12873, 0x6149147, 0x6139196, 0x21436af, 0xafabbbb, 0xe123670];
 y = [0x0101];
 z = [0x00087, 0x61234af, 0xe9872ac, 0xb32e890, 0x4718124, 0x617ff13, 0x6ac4eb6, 0x727153f, 0xea10947, 0x3267190, 0x0bbef14, 0x38fe981, 0x2fe5123, 0x7811238, 0x9712461, 0x2985712, 0x6129146, 0x5814612];
 r = [0x00019, 0xf4e7ce5, 0xef7038f, 0xf3b6061, 0x2c82ab8, 0xfbf6841, 0xcdd9fe4, 0x4ceb6b1, 0xd636dfe, 0xd0e2578, 0x82d61e5, 0xbe1808d, 0x99110fe, 0x7ab4a22, 0xd00a2ab, 0x2c2444c, 0x7c814ac, 0xb086428];
-w = mpi.exp(x, y, z, mpi.RAWIN | mpi.RAWOUT);
+w = mpi.exp(x, y, z);
 printResult(w, r, true);
   
 x = [500];
 y = [257];
 z = [0xf67, 0x8654b7a, 0x1953b7d];
 r = [0xab1, 0xc5f5c2c, 0xfb02f31];
-w = mpi.exp(x, y, z, mpi.RAWIN | mpi.RAWOUT);
+w = mpi.exp(x, y, z);
 printResult(w, r, true);
 /* END EXPONENTIATION TESTS */
 
@@ -222,19 +222,19 @@ printSection("DIVISION TESTS");
 x = [0x0aa9988];
 y = [0x1144];
 r = [0x09e1];
-w = mpi.div(x, y, mpi.RAWIN | mpi.RAWOUT);
+w = mpi.div(x, y);
 printResult(w, r, true);
 
 x = [0xaa998, 0x8776655];
 y = [0x1144];
 r = [0x0009e, 0x181ff09];
-w = mpi.div(x, y, mpi.RAWIN | mpi.RAWOUT);
+w = mpi.div(x, y);
 printResult(w, r, true);
 
 x = [0x349ba, 0x8170655];
 y = [0x0131af7];
 r = [0x2c0ea88];
-w = mpi.div(x, y, mpi.RAWIN | mpi.RAWOUT);
+w = mpi.div(x, y);
 printResult(w, r, true);
 /* END DIVISION TESTS */
 
@@ -244,25 +244,25 @@ printSection("MODULO TESTS");
 x = [0x0aa9988];
 y = [0x1144];
 r = [0x08c4];
-w = mpi.mod(x, y, mpi.RAWIN | mpi.RAWOUT);
+w = mpi.mod(x, y);
 printResult(w, r, true);
 
 x = [0xaa998, 0x8776655];
 y = [0x1144];
 r = [0x0ef1];
-w = mpi.mod(x, y, mpi.RAWIN | mpi.RAWOUT);
+w = mpi.mod(x, y);
 printResult(w, r, true);
 
 x = [0x349ba, 0x8170655];
 y = [0x0131af7];
 r = [0x00aed1d];
-w = mpi.mod(x, y, mpi.RAWIN | mpi.RAWOUT);
+w = mpi.mod(x, y);
 printResult(w, r, true);
 
 x = [0x0100];
 y = [0x01f1];
 r = [0x0100];
-w = mpi.mod(x, y, mpi.RAWIN | mpi.RAWOUT);
+w = mpi.mod(x, y);
 printResult(w, r, true);
 /* END MODULO TESTS */
 </script>
