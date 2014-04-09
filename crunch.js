@@ -668,16 +668,12 @@ function Crunch(rawIn, rawOut) {
    */
   function ci(a) {
     var i = [0,0,0,0,0,0].slice((a.length-1)%7).concat(a),
-        o = [], 
-        p;
+        o = [], p;
 
     for (p = 0; p < i.length; p += 7)
       o.push((i[p]*1048576 + i[p+1]*4096 + i[p+2]*16 + (i[p+3]>>4)), ((i[p+3]&15)*16777216 + i[p+4]*65536 + i[p+5]*256 + i[p+6]));
 
-    if (o[0] === 0)
-      o.shift();
-
-    return o;
+    return cut(o);
   }
 
   /**
