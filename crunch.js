@@ -61,10 +61,18 @@ function Crunch(rawIn, rawOut) {
     return i;
   }
 
+  /**
+   * Remove leading zeroes
+   */
   function cut(x) {
-    return x.slice(nlz(x));
+    var y = x.slice(nlz(x));
+    y.negative = x.negative;
+    return y;
   }
 
+  /**
+   * Compare two MPIs
+   */
   function cmp(x, y) {
     var xl = x.length,
         yl = y.length; //zero front pad problem
@@ -169,9 +177,8 @@ function Crunch(rawIn, rawOut) {
       }
     }
 
-    if (c === 1 && typeof internal == "undefined") {
-      w = sub([], w, true);
-      w[nlz(w)] *= -1;
+    if (c === 1 && typeof internal === "undefined") {
+      w = sub(zeroes.slice(0, w.length), w, true);
       w.negative = true;
     }
 
@@ -182,60 +189,48 @@ function Crunch(rawIn, rawOut) {
    * Signed Addition
    */
   function sad(x, y) {
-    var a, b;
-    if (x[0] >= 0) {
-      if (y[0] >= 0) {
-        return add(x, y);
+    var z;
+
+    if (x.negative) {
+      if (y.negative) {
+        z = add(x, y);
+        z.negative = true;
       } else {
-        b = y.slice();
-        b[0] *= -1;
-        return cut(sub(x, b));
+        z = cut(sub(y, x));
       }
     } else {
-      if (y[0] >= 0) {
-        a = x.slice();
-        a[0] *= -1;
-        return cut(sub(y, a));
+      if (y.negative) {
+        z = cut(sub(x, y));
       } else {
-        a = x.slice();
-        b = y.slice();
-        a[0] *= -1;
-        b[0] *= -1;
-        a = add(a, b);
-        a[0] *= -1;
-        return a;
+        z = add(x, y);
       }
     }
+
+    return z;
   }
 
   /**
    * Signed Subtraction
    */
   function ssb(x, y) {
-    var a, b;
-    if (x[0] >= 0) {
-      if (y[0] >= 0) {
-        return cut(sub(x, y));
+    var z;
+
+    if (x.negative) {
+      if (y.negative) {
+        z = cut(sub(y, x));
       } else {
-        b = y.slice();
-        b[0] *= -1;
-        return add(x, b);
+        z = add(x, y);
+        z.negative = true;
       }
     } else {
-      if (y[0] >= 0) {
-        a = x.slice();
-        a[0] *= -1;
-        b = add(a, y);
-        b[0] *= -1;
-        return b;
+      if (y.negative) {
+        z = add(x, y);
       } else {
-        a = x.slice();
-        b = y.slice();
-        a[0] *= -1;
-        b[0] *= -1;
-        return cut(sub(b, a));
+        z = cut(sub(x,y));
       }
     }
+
+    return z;
   }
 
   /**
@@ -311,13 +306,15 @@ function Crunch(rawIn, rawOut) {
   }
 
   /**
-   * Right Shift - Not safe for signed MPI, use 'srs' instead
+   * Right Shift
    */
   function rsh(x, s) {
     var ss = s % 28,
         ls = Math.floor(s/28),
         l  = x.length - ls,
         w  = x.slice(0,l);
+
+    w.negative = x.negative;
 
     if (ss) {
       while (--l) 
@@ -330,21 +327,6 @@ function Crunch(rawIn, rawOut) {
     }
 
     return w;
-  }
-
-  /**
-   * Signed Right Shift - Safe for signed MPI
-   */
-  function srs(x, s) {
-    if (x[0] < 0) {
-      x[0] *= -1;
-      x = rsh(x, s);
-      x[0] *= -1;
-
-      return x;
-    }
-
-    return rsh(x, s);
   }
 
   /**
@@ -398,19 +380,17 @@ function Crunch(rawIn, rawOut) {
     }
 
     for (i = 1; i <= d; i++) {
-      q[i] = (u[i-1] === v[0]) ? 268435455 
-                               : ~~((u[i-1]*268435456 + u[i])/v[0]);
+      q[i] = (u[i-1] === v[0]) ? 268435455 : ~~((u[i-1]*268435456 + u[i])/v[0]);
 
       xt = u[i-1]*72057594037927936 + u[i]*268435456 + u[i+1];
 
-      while (q[i]*yt > xt) //condition check occasionally fails due to precision problem
+      while (q[i]*yt > xt) //condition check can fail due to precision problem at 28-bit radix
         q[i]--;
 
       k = mul(v, [q[i]]).concat(zeroes.slice(0, d-i)); //concat after multiply
       u = sub(u, k);
 
       if (u.negative) {
-        u[nlz(u)] *= -1;
         u = sub(v.concat(zeroes.slice(0, d-i)), u);
         q[i]--;
       }
@@ -445,11 +425,11 @@ function Crunch(rawIn, rawOut) {
       u = rsh(u, s);
       while (s--) {
         if ((a[a.length-1]&1) === 0 && (b[b.length-1]&1) === 0) {
-          a = srs(a, 1);
-          b = srs(b, 1);
+          a = rsh(a, 1);
+          b = rsh(b, 1);
         } else {
-          a = srs(sad(a, y), 1);
-          b = srs(ssb(b, x), 1);
+          a = rsh(sad(a, y), 1);
+          b = rsh(ssb(b, x), 1);
         }
       }
 
@@ -457,11 +437,11 @@ function Crunch(rawIn, rawOut) {
       v = rsh(v, s);
       while (s--) {
         if ((c[c.length-1]&1) === 0 && (d[d.length-1]&1) === 0) {
-          c = srs(c, 1);
-          d = srs(d, 1);
+          c = rsh(c, 1);
+          d = rsh(d, 1);
         } else {
-          c = srs(sad(c, y), 1);
-          d = srs(ssb(d, x), 1);
+          c = rsh(sad(c, y), 1);
+          d = rsh(ssb(d, x), 1);
         }
       }
 
@@ -485,8 +465,7 @@ function Crunch(rawIn, rawOut) {
   function inv(x, y) {
     var u = gcd(y, x);
 
-    while (u[0] < 0) {
-      u[0] *= -1;
+    while (u.negative) {
       u = sub(y, u);
     }
 
@@ -518,10 +497,9 @@ function Crunch(rawIn, rawOut) {
     if (s > 0) r2 = r2.slice(s);
 
     r = cut(sub(r1, r2));
-    if (r[0] < 0) {
-      r[0] *= -1;
+
+    if (r.negative)
       r = cut(sub([1].concat(zeroes.slice(0, k+1)), r));
-    }
 
     while (cmp(r, m) >= 0)
       r = cut(sub(r, m));
@@ -664,14 +642,27 @@ function Crunch(rawIn, rawOut) {
   }
 
   /**
+   * Toggle sign
+   */  
+  function tgl(a) {
+    a[nlz(a)] *= -1;
+    return a;
+  }
+
+  /**
    * Convert byte array to 28 bit array
    */
   function ci(a) {
-    var i = [0,0,0,0,0,0].slice((a.length-1)%7).concat(a),
-        o = [], p;
+    var p, o = [],
+        i = [0,0,0,0,0,0].slice((a.length-1)%7).concat(a);
 
     for (p = 0; p < i.length; p += 7)
       o.push((i[p]*1048576 + i[p+1]*4096 + i[p+2]*16 + (i[p+3]>>4)), ((i[p+3]&15)*16777216 + i[p+4]*65536 + i[p+5]*256 + i[p+6]));
+
+    if (a[nlz(a)] < 0) {
+      o.negative = true;
+      o = tgl(o);
+    }
 
     return cut(o);
   }
@@ -680,9 +671,8 @@ function Crunch(rawIn, rawOut) {
    * Convert 28 bit array to byte array
    */
   function co(a) {
-    var b = [0].slice((a.length-1)%2).concat(a),
-        o = [],
-        c, d, i;
+    var c, d, i, o = [],
+        b = [0].slice((a.length-1)%2).concat(a);
 
     for (i = 0; i < b.length;) {
       c = b[i++]; 
@@ -691,7 +681,7 @@ function Crunch(rawIn, rawOut) {
       o.push((c >> 20), (c >> 12 & 255), (c >> 4 & 255), ((c << 4 | d >> 24) & 255), (d >> 16 & 255), (d >> 8 & 255), (d & 255));
     }
 
-    return cut(o);
+    return a.negative ? tgl(cut(o)) : cut(o);
   }
 
   function transformIn(args) {

@@ -6,15 +6,42 @@
 
   <script src="../crunch.js"></script>
   <script id="template-result" type="html/template">
-    <li><dl><dt>Test #</dt><dd>{{number}}</dd><dt>Function:</dt><dd>{{func}}</dd><dt>Arguments:</dt>{{#args}}<dd>{{array}}</dd>{{/args}}<dt>Expected:</dt><dd>{{chck}}</dd><dt>Result:</dt><dd>{{result}}</dd><dt>Execution Time:</dt><dd>{{time}} ms</dd><dt>Outcome:</dt><dd>{{outcome}}</dd></dl></li>
+    <li class="{{outcome}}"><dl><dt>Test #</dt><dd>{{number}}</dd><dt>Function</dt><dd>{{func}}</dd><dt>Arguments</dt>{{#args}}<dd>{{array}}</dd>{{/args}}<dt>Expected</dt><dd>{{chck}}</dd><dt>Result</dt><dd>{{result}}</dd><dt>Time</dt><dd>{{time}} ms</dd><dt>Outcome</dt><dd>{{outcome}}</dd></dl></li>
   </script>
+
+  <style>
+    ul {
+      list-style: none;
+    }
+
+    li.success {
+      background-color: green;
+    }
+
+    li.failure {
+      background-color: red;
+    }
+
+    dt {
+      font-weight: bold;
+      float: left;
+      clear: left;
+      width: 5em;
+      text-align: right;
+      margin-bottom: 0.25em;
+    }
+
+    dd {
+      margin-left: 6em;
+      margin-bottom: 0.25em;
+    }
+  </style>
 </head>
 <body>
 
 <ul id="results"></ul>
 
 <script>
-
 function TemplateEngine(templ) {
   if (typeof templ !== "undefined")
     templ = document.getElementById(templ).innerHTML.replace(/\n|\r/g, "").replace(/>\s+</g, "><").trim();
@@ -42,8 +69,6 @@ function TemplateEngine(templ) {
   }
 }
 
-var result = TemplateEngine("template-result");
-
 function Test(func, args, chck) {
   this.func = func;
   this.args = args;
@@ -58,7 +83,7 @@ function Test(func, args, chck) {
 Test.prototype.crunch = Crunch();
 
 Test.prototype.verify = function() {
-  if (this.result.length != this.chck.length)
+  if (this.result.length !== this.chck.length)
     return false;
 
   for (var i = 0; i < this.result.length; i++)
@@ -80,154 +105,75 @@ var tests = [];
 /* BEGIN ADDITION SETUP */
 
 tests.push(new Test("add", [[242, 62], [42, 2]], [1, 28, 64]));
-
 tests.push(new Test("add", [[6, 17], [42, 2]], [48, 19]));
-
 tests.push(new Test("add", [[26, 255, 230, 17], [42, 34]], [27, 0, 16, 51]));
-
 tests.push(new Test("add", [[234, 34], [255, 255, 230, 17]], [1, 0, 0, 208, 51]));
-
 tests.push(new Test("add", [[255, 255, 255, 255, 255, 255], [255, 255, 255, 255, 255, 255]], [1, 255, 255, 255, 255, 255, 254]));
 
 /* END ADDITION SETUP */
 /* BEGIN SUBTRACTION SETUP */
 
 tests.push(new Test("sub", [[242, 62], [42, 2]], [200, 60]));
-
 tests.push(new Test("sub", [[26], [255]], [-229])); // failing - conversion of neg problem
-
 tests.push(new Test("sub", [[170, 1, 79, 119, 242, 62], [17, 241, 123, 250, 42, 2]], [152, 15, 211, 125, 200, 60]));
-
 tests.push(new Test("sub", [[240, 0, 0, 0, 0, 0], [1]], [239, 255, 255, 255, 255, 255]));
 
 /* END SUBTRACTION SETUP */
 /* BEGIN MULTIPLICATION SETUP */
 
 tests.push(new Test("mul", [[242, 62], [42, 2]], [39, 192, 16, 124]));
-
 tests.push(new Test("mul", [[162, 51, 95], [42, 18, 204]], [26, 168, 86, 115, 157, 180]));
-
 tests.push(new Test("mul", [[255, 65, 34, 51, 95], [42, 18, 204]], [41, 243, 109, 152, 188, 115, 157, 180]));
-
 tests.push(new Test("mul", [[77, 242, 62], [42, 2, 113, 43, 57, 65]], [12, 202, 124, 133, 146, 125, 36, 79, 190]));
-
 tests.push(new Test("mul", [[255, 17, 162, 62], [255, 17, 162, 62]], [254, 36, 34, 110, 119, 14, 135, 4]));
-
 tests.push(new Test("mul", [[255, 255, 255, 255], [255, 255, 255, 255]], [255, 255, 255, 254, 0, 0, 0, 1]));
-
 tests.push(new Test("mul", [[60, 193, 71, 209], [93, 8, 143, 237]], [22, 20, 63, 73, 97, 149, 59, 125]));
 
 /* END MULTIPLICATION SETUP */
 /* BEGIN SQUARE SETUP */
 
 tests.push(new Test("sqr", [[162, 62]], [102, 210, 135, 4]));
-
 tests.push(new Test("sqr", [[255, 17, 162, 62]], [254, 36, 34, 110, 119, 14, 135, 4]));
 
 /* END SQUARE SETUP */
 /* BEGIN EXPONENTIATION SETUP */
 
 tests.push(new Test("exp", [[2, 92, 160], [45], [188, 14, 2]], [58, 164, 236]));
-
 tests.push(new Test("exp", [[2, 92, 160], [17, 190], [188, 14, 2]], [50, 49, 208]));
+tests.push(new Test("exp", [[2, 92], [17, 174], [252, 14]], [167, 50]));
+tests.push(new Test("exp", [[6, 252, 83], [58, 219, 102, 99], [74, 192, 238, 73]], [52, 174, 18, 245]));
+tests.push(new Test("exp", [[1, 142, 233, 15, 246, 195, 115, 224, 238, 78, 63, 10, 210], [1, 0, 1], [10, 188, 222, 250, 188, 222, 250, 190, 250, 188, 222, 253, 174]], [7, 133, 195, 224, 133, 127, 5, 215, 82, 76, 89, 1, 192]));
+tests.push(new Test("exp", [[1, 35, 101, 20, 152, 20, 54, 18, 53, 20, 138, 254, 255, 18, 55, 134, 19, 25, 171, 205, 225, 56, 113, 70, 16, 151, 69, 1, 152, 20, 152, 97, 40, 151, 18, 70, 171, 237, 254, 253, 190, 18, 135, 54, 20, 145, 71, 97, 57, 25, 98, 20, 54, 175, 175, 171, 187, 190, 18, 54, 112], [1, 1], [8, 118, 18, 52, 175, 233, 135, 42, 203, 50, 232, 144, 71, 24, 18, 70, 23, 255, 19, 106, 196, 235, 103, 39, 21, 63, 234, 16, 148, 115, 38, 113, 144, 11, 190, 241, 67, 143, 233, 129, 47, 229, 18, 55, 129, 18, 56, 151, 18, 70, 18, 152, 87, 18, 97, 41, 20, 101, 129, 70, 18]], [1, 159, 78, 124, 229, 239, 112, 56, 255, 59, 96, 97, 44, 130, 171, 143, 191, 104, 65, 205, 217, 254, 68, 206, 182, 177, 214, 54, 223, 237, 14, 37, 120, 130, 214, 30, 91, 225, 128, 141, 153, 17, 15, 231, 171, 74, 34, 208, 10, 42, 178, 194, 68, 76, 124, 129, 74, 203, 8, 100, 40]));
+tests.push(new Test("exp", [[1, 244], [1, 1], [15, 103, 134, 84, 183, 161, 149, 59, 125]], [10, 177, 197, 245, 194, 207, 176, 47, 49]));
 
 /* END EXPONENTIATION SETUP */
+/* BEGIN DIVISION SETUP */
+
+tests.push(new Test("div", [[170, 153, 136], [17, 68]], [9, 225]));
+tests.push(new Test("div", [[170, 153, 136, 119, 102, 85], [17, 68]], [9, 225, 129, 255, 9]));
+tests.push(new Test("div", [[52, 155, 168, 23, 6, 85], [19, 26, 247]], [2, 192, 234, 136]));
+tests.push(new Test("div", [[52, 155, 168, 23, 6, 85], [19, 26, 247]], [2, 192, 234, 136]));
+
+/* END DIVISION SETUP */
+/* BEGIN MODULO SETUP */
+
+tests.push(new Test("mod", [[170, 153, 136], [17, 68]], [8, 196]));
+tests.push(new Test("mod", [[170, 153, 136, 119, 102, 85], [17, 68]], [14, 241]));
+tests.push(new Test("mod", [[52, 155, 168, 23, 6, 85], [19, 26, 247]], [10, 237, 29]));
+tests.push(new Test("mod", [[1, 0], [1, 241]], [1, 0]));
+
+/* END MODULO SETUP */
+
+/* BEGIN TEST RUN */
+var compile = TemplateEngine("template-result");
 
 tests.forEach(function(test, number) {
   test.number = number + 1;
   test.run();
 
-  document.getElementById("results").insertAdjacentHTML("beforeend", result(test));
+  document.getElementById("results").insertAdjacentHTML("beforeend", compile(test));
 })
-
-
-/*
-
-x = [0x025c];
-y = [0x11ae];
-z = [0xfc0e];
-r = [0xa732];
-w = mpi.exp(x, y, z);
-printResult(w, r, true);
-
-x = [0x006fc53];
-y = [0x3, 0xadb6663];
-z = [0x4, 0xac0ee49];
-r = [0x3, 0x4ae12f5];
-w = mpi.exp(x, y, z);
-printResult(w, r, true);
-
-x = [0x00018ee, 0x90ff6c3, 0x73e0ee4, 0xe3f0ad2];
-y = [0x0010001];
-z = [0x000abcd, 0xefabcde, 0xfabefab, 0xcdefdae];
-r = [0x000785c, 0x3e0857f, 0x05d7524, 0xc5901c0];
-w = mpi.exp(x, y, z);
-printResult(w, r, true);
-
-x = [0x00012, 0x3651498, 0x1436123, 0x5148afe, 0xff12378, 0x61319ab, 0xcde1387, 0x1461097, 0x4501981, 0x4986128, 0x971246a, 0xbedfefd, 0xbe12873, 0x6149147, 0x6139196, 0x21436af, 0xafabbbb, 0xe123670];
-y = [0x0101];
-z = [0x00087, 0x61234af, 0xe9872ac, 0xb32e890, 0x4718124, 0x617ff13, 0x6ac4eb6, 0x727153f, 0xea10947, 0x3267190, 0x0bbef14, 0x38fe981, 0x2fe5123, 0x7811238, 0x9712461, 0x2985712, 0x6129146, 0x5814612];
-r = [0x00019, 0xf4e7ce5, 0xef7038f, 0xf3b6061, 0x2c82ab8, 0xfbf6841, 0xcdd9fe4, 0x4ceb6b1, 0xd636dfe, 0xd0e2578, 0x82d61e5, 0xbe1808d, 0x99110fe, 0x7ab4a22, 0xd00a2ab, 0x2c2444c, 0x7c814ac, 0xb086428];
-w = mpi.exp(x, y, z);
-printResult(w, r, true);
-
-x = [500];
-y = [257];
-z = [0xf67, 0x8654b7a, 0x1953b7d];
-r = [0xab1, 0xc5f5c2c, 0xfb02f31];
-w = mpi.exp(x, y, z);
-printResult(w, r, true);
-/* END EXPONENTIATION TESTS */
-
-/* BEGIN DIVISION TESTS
-printSection("DIVISION TESTS");
-
-x = [0x0aa9988];
-y = [0x1144];
-r = [0x09e1];
-w = mpi.div(x, y);
-printResult(w, r, true);
-
-x = [0xaa998, 0x8776655];
-y = [0x1144];
-r = [0x0009e, 0x181ff09];
-w = mpi.div(x, y);
-printResult(w, r, true);
-
-x = [0x349ba, 0x8170655];
-y = [0x0131af7];
-r = [0x2c0ea88];
-w = mpi.div(x, y);
-printResult(w, r, true);
-/* END DIVISION TESTS */
-
-/* BEGIN MODULO TESTS
-printSection("MODULO TESTS");
-
-x = [0x0aa9988];
-y = [0x1144];
-r = [0x08c4];
-w = mpi.mod(x, y);
-printResult(w, r, true);
-
-x = [0xaa998, 0x8776655];
-y = [0x1144];
-r = [0x0ef1];
-w = mpi.mod(x, y);
-printResult(w, r, true);
-
-x = [0x349ba, 0x8170655];
-y = [0x0131af7];
-r = [0x00aed1d];
-w = mpi.mod(x, y);
-printResult(w, r, true);
-
-x = [0x0100];
-y = [0x01f1];
-r = [0x0100];
-w = mpi.mod(x, y);
-printResult(w, r, true);
-/* END MODULO TESTS */
+/* END TEST RUN */
 
 </script>
 

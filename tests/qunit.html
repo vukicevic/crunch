@@ -1,0 +1,76 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>Crunch - Test Suite</title>
+
+  <link href="http://code.jquery.com/qunit/qunit-1.14.0.css" media="all" rel="stylesheet" type="text/css">
+</head>
+<body>
+  <div id="qunit"></div>
+  <div id="qunit-fixture"></div>
+
+  <script src="http://code.jquery.com/qunit/qunit-1.14.0.js" type="text/javascript"></script>
+  <script src="../crunch.js" type="text/javascript"></script>
+  <script type="text/javascript">
+    var crunch = Crunch();
+
+    module("Crunch");
+    
+    test("Addition", function() {
+      deepEqual(crunch.add([242, 62], [42, 2]), [1, 28, 64]);
+      deepEqual(crunch.add([6, 17], [42, 2]), [48, 19]);
+      deepEqual(crunch.add([26, 255, 230, 17], [42, 34]), [27, 0, 16, 51]);
+      deepEqual(crunch.add([234, 34], [255, 255, 230, 17]), [1, 0, 0, 208, 51]);
+      deepEqual(crunch.add([255, 255, 255, 255, 255, 255], [255, 255, 255, 255, 255, 255]), [1, 255, 255, 255, 255, 255, 254]);
+    });
+
+    test("Subtraction", function() {
+      deepEqual(crunch.sub([242, 62], [42, 2]), [200, 60]);
+      deepEqual(crunch.sub([26], [255]), [-229]);
+      deepEqual(crunch.sub([170, 1, 79, 119, 242, 62], [17, 241, 123, 250, 42, 2]), [152, 15, 211, 125, 200, 60]);
+      deepEqual(crunch.sub([240, 0, 0, 0, 0, 0], [1]), [239, 255, 255, 255, 255, 255]);
+    });
+
+    test("Multiplication", function() {
+      deepEqual(crunch.mul([242, 62], [42, 2]), [39, 192, 16, 124]);
+      deepEqual(crunch.mul([162, 51, 95], [42, 18, 204]), [26, 168, 86, 115, 157, 180]);
+      deepEqual(crunch.mul([255, 65, 34, 51, 95], [42, 18, 204]), [41, 243, 109, 152, 188, 115, 157, 180]);
+      deepEqual(crunch.mul([77, 242, 62], [42, 2, 113, 43, 57, 65]), [12, 202, 124, 133, 146, 125, 36, 79, 190]);
+      deepEqual(crunch.mul([255, 17, 162, 62], [255, 17, 162, 62]), [254, 36, 34, 110, 119, 14, 135, 4]);
+      deepEqual(crunch.mul([255, 255, 255, 255], [255, 255, 255, 255]), [255, 255, 255, 254, 0, 0, 0, 1]);
+      deepEqual(crunch.mul([60, 193, 71, 209], [93, 8, 143, 237]), [22, 20, 63, 73, 97, 149, 59, 125]);
+    });
+
+    test("Squaring", function() {
+      deepEqual(crunch.sqr([162, 62]), [102, 210, 135, 4]);
+      deepEqual(crunch.sqr([255, 17, 162, 62]), [254, 36, 34, 110, 119, 14, 135, 4]);
+    });
+
+    test("Division", function() {
+      deepEqual(crunch.div([170, 153, 136], [17, 68]), [9, 225]);
+      deepEqual(crunch.div([170, 153, 136, 119, 102, 85], [17, 68]), [9, 225, 129, 255, 9]);
+      deepEqual(crunch.div([52, 155, 168, 23, 6, 85], [19, 26, 247]), [2, 192, 234, 136]);
+      deepEqual(crunch.div([52, 155, 168, 23, 6, 85], [19, 26, 247]), [2, 192, 234, 136]);
+    });
+
+    test("Remainder", function() {
+      deepEqual(crunch.mod([170, 153, 136], [17, 68]), [8, 196]);
+      deepEqual(crunch.mod([170, 153, 136, 119, 102, 85], [17, 68]), [14, 241]);
+      deepEqual(crunch.mod([52, 155, 168, 23, 6, 85], [19, 26, 247]), [10, 237, 29]);
+      deepEqual(crunch.mod([1, 0], [1, 241]), [1, 0]);
+    });
+
+    test("Modular Exponentiation", function() {
+      deepEqual(crunch.exp([2, 92, 160], [45], [188, 14, 2]), [58, 164, 236]);
+      deepEqual(crunch.exp([2, 92, 160], [17, 190], [188, 14, 2]), [50, 49, 208]);
+      deepEqual(crunch.exp([2, 92], [17, 174], [252, 14]), [167, 50]);
+      deepEqual(crunch.exp([6, 252, 83], [58, 219, 102, 99], [74, 192, 238, 73]), [52, 174, 18, 245]);
+      deepEqual(crunch.exp([1, 142, 233, 15, 246, 195, 115, 224, 238, 78, 63, 10, 210], [1, 0, 1], [10, 188, 222, 250, 188, 222, 250, 190, 250, 188, 222, 253, 174]), [7, 133, 195, 224, 133, 127, 5, 215, 82, 76, 89, 1, 192]);
+      deepEqual(crunch.exp([1, 35, 101, 20, 152, 20, 54, 18, 53, 20, 138, 254, 255, 18, 55, 134, 19, 25, 171, 205, 225, 56, 113, 70, 16, 151, 69, 1, 152, 20, 152, 97, 40, 151, 18, 70, 171, 237, 254, 253, 190, 18, 135, 54, 20, 145, 71, 97, 57, 25, 98, 20, 54, 175, 175, 171, 187, 190, 18, 54, 112], [1, 1], [8, 118, 18, 52, 175, 233, 135, 42, 203, 50, 232, 144, 71, 24, 18, 70, 23, 255, 19, 106, 196, 235, 103, 39, 21, 63, 234, 16, 148, 115, 38, 113, 144, 11, 190, 241, 67, 143, 233, 129, 47, 229, 18, 55, 129, 18, 56, 151, 18, 70, 18, 152, 87, 18, 97, 41, 20, 101, 129, 70, 18]), [1, 159, 78, 124, 229, 239, 112, 56, 255, 59, 96, 97, 44, 130, 171, 143, 191, 104, 65, 205, 217, 254, 68, 206, 182, 177, 214, 54, 223, 237, 14, 37, 120, 130, 214, 30, 91, 225, 128, 141, 153, 17, 15, 231, 171, 74, 34, 208, 10, 42, 178, 194, 68, 76, 124, 129, 74, 203, 8, 100, 40]);
+      deepEqual(crunch.exp([1, 244], [1, 1], [15, 103, 134, 84, 183, 161, 149, 59, 125]), [10, 177, 197, 245, 194, 207, 176, 47, 49]);
+    });
+
+  </script>
+</body>
+</html>
