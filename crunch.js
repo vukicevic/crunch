@@ -475,11 +475,10 @@ function Crunch(rawIn, rawOut) {
    * Barret Modular Reduction - HAC 14.42
    */
   function bmr(x, m, mu) {
-    if (cmp(x, m) < 0) return x; 
-    //if equal, return 0;
+    var q1, q2, q3, r1, r2, r, s, k = m.length;
 
-    var q1, q2, q3, r1, r2, r, s,
-        k = m.length;
+    if (cmp(x, m) < 0) 
+      return x; 
 
     if (typeof mu === "undefined")
       mu = div([1].concat(zeroes.slice(0, 2*k)), m);
@@ -536,7 +535,7 @@ function Crunch(rawIn, rawOut) {
   function gar(x, p, q, d, u, dp1, dq1) {
     var vp, vq, t;
 
-    if (typeof dp1 == "undefined") {
+    if (typeof dp1 === "undefined") {
       dp1 = mod(d, dec(p));
       dq1 = mod(d, dec(q));
     }
@@ -572,22 +571,30 @@ function Crunch(rawIn, rawOut) {
    * XOR
    */
   function xor(x, y) {
-    if (x.length != y.length) return;
+    var r, i;
 
-    for(var r = [], l = x.length, i = 0; i < l; i++)
-      r[i] = x[i] ^ y[i];
+    if (x.length === y.length)
+      for(r = [], i = 0; i < x.length; i++)
+        r[i] = x[i] ^ y[i];
 
     return r;
   }
 
+  /**
+   * Decrement by 1
+   */
   function dec(x) {
+    var o;
+
     if (x[x.length-1] > 0) {
-      var o = x.slice();
-      o[x.length-1]--;
-      return o;
+      o = x.slice();
+      o[x.length-1] -= 1;
+      o.negative = x.negative;
+    } else {
+      o = sub(x, [1]);
     }
 
-    return sub(x, [1]);
+    return o;
   }
 
   /**
@@ -784,14 +791,14 @@ function Crunch(rawIn, rawOut) {
      * @method div
      * @param {array} x
      * @param {array} y
-     * @param {boolean} mod
-     * @return {array} !mod: x / y
-     *                  mod: x % y
+     * @return {array} x / y
      */
     div: function(x, y) {
-      return transformOut(
-        div.apply(null, transformIn(arguments))
-      );
+      if (y.length !== 1 || y[0] !== 0) {
+        return transformOut(
+          div.apply(null, transformIn(arguments))
+        );
+      }
     },
 
     /**
@@ -805,6 +812,21 @@ function Crunch(rawIn, rawOut) {
     mod: function(x, y) {
       return transformOut(
         mod.apply(null, transformIn(arguments))
+      );
+    },
+
+    /**
+     * Barret Modular Reduction
+     *
+     * @method bmr
+     * @param {array} x
+     * @param {array} y
+     * @param {array} [mu]
+     * @return {array} x % y
+     */
+    bmr: function(x, y, mu) {
+      return transformOut(
+        bmr.apply(null, transformIn(arguments))
       );
     },
 
