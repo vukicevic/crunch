@@ -51,22 +51,18 @@ function Crunch(rawIn, rawOut) {
   const ptests = primes.slice(0, 10).map(function(v){return [v]});
 
   /**
-   * Count number of leading zeroes in MPI
-   */
-  function nlz(x) {
-    for (var l = x.length, i = 0; i < l; i++)
-      if (x[i] !== 0)
-        break;
-
-    return i;
-  }
-
-  /**
    * Remove leading zeroes
    */
   function cut(x) {
-    var y = x.slice(nlz(x));
+    var i, l, y;
+
+    for (l = x.length - 1, i = 0; i < l; i++)
+      if (x[i] !== 0)
+        break;
+
+    y = x.slice(i); //check if slice is needed, otherwise unshift in loop
     y.negative = x.negative;
+
     return y;
   }
 
@@ -199,11 +195,7 @@ function Crunch(rawIn, rawOut) {
         z = cut(sub(y, x));
       }
     } else {
-      if (y.negative) {
-        z = cut(sub(x, y));
-      } else {
-        z = add(x, y);
-      }
+      z = y.negative ? cut(sub(x, y)) : add(x, y);
     }
 
     return z;
@@ -223,11 +215,7 @@ function Crunch(rawIn, rawOut) {
         z.negative = true;
       }
     } else {
-      if (y.negative) {
-        z = add(x, y);
-      } else {
-        z = cut(sub(x,y));
-      }
+      z = y.negative ? add(x, y) : cut(sub(x,y));
     }
 
     return z;
@@ -264,6 +252,8 @@ function Crunch(rawIn, rawOut) {
 
     if (w[0] === 0)
       w.shift();
+
+    w.negative = (x.negative ^ y.negative) ? true : false;
 
     return w;
   }
@@ -314,8 +304,6 @@ function Crunch(rawIn, rawOut) {
         l  = x.length - ls,
         w  = x.slice(0,l);
 
-    w.negative = x.negative;
-
     if (ss) {
       while (--l) 
         w[l] = ((w[l] >> ss) | (w[l-1] << (28-ss))) & 268435455;
@@ -325,6 +313,8 @@ function Crunch(rawIn, rawOut) {
       if (w[0] === 0)
         w.shift();
     }
+
+    w.negative = x.negative;
 
     return w;
   }
@@ -348,6 +338,8 @@ function Crunch(rawIn, rawOut) {
       if (t !== 0)
         w.unshift(t);
     }
+
+    w.negative = x.negative;
 
     return (ls) ? w.concat(zeroes.slice(0, ls)) : w;
   }
@@ -396,7 +388,14 @@ function Crunch(rawIn, rawOut) {
       }
     }
 
-    return (mod) ? (s > 0) ? rsh(cut(u), s) : cut(u) : cut(q);
+    if (mod) {
+      v = (s > 0) ? rsh(cut(u), s) : cut(u);
+    } else {
+      v = cut(q);
+      v.negative = (x.negative ^ y.negative) ? true : false;
+    }
+
+    return v;
   }
 
   function mod(x, y) {
@@ -445,7 +444,7 @@ function Crunch(rawIn, rawOut) {
         }
       }
 
-      if ( cmp(u, v) >= 0 ) {
+      if (cmp(u, v) >= 0) {
         u = sub(u, v);
         a = ssb(a, c);
         b = ssb(b, d);
@@ -460,7 +459,7 @@ function Crunch(rawIn, rawOut) {
   }
 
   /**
-   * Inverse
+   * Inverse 1/y mod x
    */
   function inv(x, y) {
     var u = gcd(y, x);
@@ -482,7 +481,7 @@ function Crunch(rawIn, rawOut) {
     var q1, q2, q3, r1, r2, r, s,
         k = m.length;
 
-    if (typeof mu == "undefined")
+    if (typeof mu === "undefined")
       mu = div([1].concat(zeroes.slice(0, 2*k)), m);
 
     q1 = x.slice(0, x.length-(k-1));
@@ -494,7 +493,9 @@ function Crunch(rawIn, rawOut) {
 
     r2 = mul(q3, m);
     s  = r2.length-(k+1);
-    if (s > 0) r2 = r2.slice(s);
+    
+    if (s > 0)
+      r2 = r2.slice(s);
 
     r = cut(sub(r1, r2));
 
@@ -645,7 +646,7 @@ function Crunch(rawIn, rawOut) {
    * Toggle sign
    */  
   function tgl(a) {
-    a[nlz(a)] *= -1;
+    a[0] *= -1;
     return a;
   }
 
@@ -654,16 +655,19 @@ function Crunch(rawIn, rawOut) {
    */
   function ci(a) {
     var p, o = [],
-        i = [0,0,0,0,0,0].slice((a.length-1)%7).concat(a);
+        i = [0,0,0,0,0,0].slice((a.length-1)%7);
+
+    if (a[0] < 0) {
+      i = i.concat(tgl(a));
+      o.negative = true;
+    } else {
+      i = i.concat(a);
+      o.negative = false;
+    }
 
     for (p = 0; p < i.length; p += 7)
       o.push((i[p]*1048576 + i[p+1]*4096 + i[p+2]*16 + (i[p+3]>>4)), ((i[p+3]&15)*16777216 + i[p+4]*65536 + i[p+5]*256 + i[p+6]));
-
-    if (a[nlz(a)] < 0) {
-      o.negative = true;
-      o = tgl(o);
-    }
-
+    
     return cut(o);
   }
 
@@ -829,7 +833,7 @@ function Crunch(rawIn, rawOut) {
      * @method inv
      * @param {array} x
      * @param {array} y
-     * @return {array} 1/x % y
+     * @return {array} 1/y % x
      */
     inv: function(x, y) {
       return transformOut(

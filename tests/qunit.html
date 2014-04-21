@@ -23,6 +23,11 @@
       deepEqual(crunch.add([26, 255, 230, 17], [42, 34]), [27, 0, 16, 51]);
       deepEqual(crunch.add([234, 34], [255, 255, 230, 17]), [1, 0, 0, 208, 51]);
       deepEqual(crunch.add([255, 255, 255, 255, 255, 255], [255, 255, 255, 255, 255, 255]), [1, 255, 255, 255, 255, 255, 254]);
+      deepEqual(crunch.add([51, 254, 144, 207], [-20, 89, 145, 32]), [31, 164, 255, 175]);
+      deepEqual(crunch.add([242, 62], [-42, 2]), [200, 60]);
+      deepEqual(crunch.add([-42, 2], [242, 62]), [200, 60]);
+      deepEqual(crunch.add([-242, 62], [-42, 2]), [-1, 28, 64]);
+      deepEqual(crunch.add([26, 255, 230, 17], [0]), [26, 255, 230, 17]);
     });
 
     test("Subtraction", function() {
@@ -30,6 +35,12 @@
       deepEqual(crunch.sub([26], [255]), [-229]);
       deepEqual(crunch.sub([170, 1, 79, 119, 242, 62], [17, 241, 123, 250, 42, 2]), [152, 15, 211, 125, 200, 60]);
       deepEqual(crunch.sub([240, 0, 0, 0, 0, 0], [1]), [239, 255, 255, 255, 255, 255]);
+      deepEqual(crunch.sub([240, 0, 0, 0, 0, 0], [-1]), [240, 0, 0, 0, 0, 1]);
+      deepEqual(crunch.sub([-240, 0, 0, 0, 0, 0], [1]), [-240, 0, 0, 0, 0, 1]);
+      deepEqual(crunch.sub([-240, 0, 0, 0, 0, 0], [-1]), [-239, 255, 255, 255, 255, 255]);
+      deepEqual(crunch.sub([244, 137, 7, 161], [2, 59, 86]), [244, 134, 204, 75]);
+      deepEqual(crunch.sub([244, 137, 7, 161], [0]), [244, 137, 7, 161]);
+      deepEqual(crunch.sub([20], [20]), [0]);
     });
 
     test("Multiplication", function() {
@@ -71,6 +82,14 @@
       deepEqual(crunch.exp([1, 244], [1, 1], [15, 103, 134, 84, 183, 161, 149, 59, 125]), [10, 177, 197, 245, 194, 207, 176, 47, 49]);
     });
 
+    test("Modular Inverse", function() {
+      deepEqual(crunch.inv([170, 153, 149], [63, 253]), [38, 133]);
+      deepEqual(crunch.inv([147, 221, 12, 0, 9], [11, 58, 199, 45]), [1, 90, 87, 231]);
+    });
+
+    //prime test
+    //conversion test
+    //bmr, gar, gcd ?
   </script>
 </body>
 </html>
