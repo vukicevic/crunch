@@ -1,7 +1,6 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
   <title>Crunch - Test Suite</title>
 
   <link href="qunit.css" media="all" rel="stylesheet" type="text/css">
@@ -161,10 +160,16 @@
       deepEqual(crunch.nextPrime([5, 57, 84, 76, 233, 0, 120, 91, 180, 180, 8]), [5, 57, 84, 76, 233, 0, 120, 91, 180, 180, 107]);
     });
 
-    test("Miscellaneous", function() {
+    test("Compare", function() {
       equal(crunch.compare([5, 57, 84, 76], [5, 57, 84, 76]), 0);
       equal(crunch.compare([5, 57, 84, 76], [57, 84, 75]), 1);
       equal(crunch.compare([5, 76], [6, 57, 84, 75]), -1);
+      equal(crunch.compare([-5, 10], [-5, 10]), 0);
+      equal(crunch.compare([5, 10], [-5, 10]), 1);
+      equal(crunch.compare([-5, 10], [5, 10]), -1);
+    });
+
+    test("Miscellaneous", function() {
       deepEqual(crunch.decrement([5, 76]), [5, 75]);
       deepEqual(crunch.decrement([5, 0]), [4, 255]);
       deepEqual(crunch.cut([0, 0, 0, 5, 76]), [5, 76]);

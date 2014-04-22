@@ -1,0 +1,126 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Crunch - Examples - RSA</title>
+
+  <script src="../crunch.js" type="text/javascript"></script>
+
+  <style>
+  	fieldset {
+  		margin: 15px;
+  		border: none;
+  	}
+
+  	fieldset.vertical>label {
+  		float: left;
+  		clear: left;
+  		width: 50px;
+  		padding-top: 4px;
+  	}
+  	
+  	fieldset.vertical>input {
+  		float: left;
+  		width: 600px;
+  	}
+
+  	fieldset.vertical>span {
+  		float: left;
+  		width: 100px;
+  		padding: 4px 10px;
+  	}
+  </style>
+</head>
+<body>
+
+<fieldset class="vertical">
+	<h2>Generate Key</h2>
+	<label for="size">Size</label>
+	<select id="size">
+		<option value="128">128</option>
+		<option value="256">256</option>
+		<option value="512">512</option>
+		<option value="1024" selected="selected">1024</option>
+		<option value="1536">1536</option>
+		<option value="2048">2048</option>
+		<option value="4096">4096</option>
+	</select>
+	<button onclick="generateKey(document.getElementById('size').value)">Generate</button>
+</fieldset>
+
+
+<fieldset class="vertical">
+	<h2>Private Key Material</h2>
+	<label for="p">p</label><input type="text" name="p" id="p" readonly="readonly"><span id="p-time"></span>
+	<label for="q">q</label><input type="text" name="q" id="q" readonly="readonly"><span id="q-time"></span>
+	<label for="f">f</label><input type="text" name="f" id="f" readonly="readonly"><span id="f-time"></span>
+	<label for="d">d</label><input type="text" name="d" id="d" readonly="readonly"><span id="d-time"></span>
+	<label for="u">u</label><input type="text" name="u" id="u" readonly="readonly"><span id="u-time"></span>
+</fieldset>
+
+<fieldset class="vertical">
+	<h2>Public Key Material</h2>
+	<label for="e">e</label><input type="text" name="e" id="e" readonly="readonly"><span id="e-time"></span>
+	<label for="n">n</label><input type="text" name="n" id="n" readonly="readonly"><span id="n-time"></span>
+</fieldset>
+
+<fieldset>
+	<h2>Modular Exponentiation (Encyption/Decryption)</h2>
+	<label for="in">In</label><input type="text" name="in" id="in" value="1,2,3,4,5,6,7,8">
+	<button onclick="document.getElementById('out').value = crunch.exp(document.getElementById('in').value.split(',').map(function(v){return parseInt(v)}), e, n); document.getElementById('in').value = ''">^e mod n [Encrypt] &rarr;</button>
+	<button onclick="document.getElementById('in').value = crunch.gar(document.getElementById('out').value.split(',').map(function(v){return parseInt(v)}), p, q, d, u); document.getElementById('out').value = ''">&larr; ^d mod n [Decrypt]</button>
+	<input type="text" name="out" id="out"><label for="out">Out</label>
+</fieldset>
+
+<script type="text/javascript">
+    var p, q, e, n, f, d, u, crunch = Crunch();
+
+    function generateRandom(size) {
+      var t = new Uint8Array(Math.ceil(size/8));
+
+      (window.crypto || window.msCrypto).getRandomValues(t);
+
+      return Array.prototype.slice.call(t);
+    }
+
+	function generateKey(size) {
+		var t;
+
+		t = performance.now();
+		p = crunch.nextPrime(generateRandom(size/2));
+		document.getElementById("p").value = p;
+		document.getElementById("p-time").textContent = (performance.now() - t).toFixed(2) + ' ms';
+
+		t = performance.now();
+		q = crunch.nextPrime(generateRandom(size/2));
+		document.getElementById("q").value = q;
+		document.getElementById("q-time").textContent = (performance.now() - t).toFixed(2) + ' ms';
+		
+		t = performance.now();
+		e = crunch.nextPrime(generateRandom(size/32));
+		document.getElementById("e").value = e;
+		document.getElementById("e-time").textContent = (performance.now() - t).toFixed(2) + ' ms';
+		
+		t = performance.now();
+		n = crunch.mul(p, q);
+		document.getElementById("n").value = n;
+		document.getElementById("n-time").textContent = (performance.now() - t).toFixed(2) + ' ms';
+		
+		t = performance.now();
+		f = crunch.mul(crunch.decrement(p), crunch.decrement(q));
+		document.getElementById("f").value = f;
+		document.getElementById("f-time").textContent = (performance.now() - t).toFixed(2) + ' ms';
+		
+		t = performance.now();
+		d = crunch.inv(e, f);
+		document.getElementById("d").value = d;
+		document.getElementById("d-time").textContent = (performance.now() - t).toFixed(2) + ' ms';
+		
+		t = performance.now();
+		u = crunch.cut(crunch.inv(p, q));
+        document.getElementById("u").value = u;
+        document.getElementById("u-time").textContent = (performance.now() - t).toFixed(2) + ' ms';
+	}
+</script>
+
+</body>
+</html>
