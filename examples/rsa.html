@@ -82,21 +82,29 @@
       return Array.prototype.slice.call(t);
     }
 
-	function generateKey(size) {
+	function generateKey(size, a, b, c) {
 		var t;
 
+		if (typeof a === "undefined") {
+			a = generateRandom(size/2);
+			b = generateRandom(size/2);
+			c = generateRandom(size/32);
+
+			console.log(a,b,c);
+		}
+
 		t = performance.now();
-		p = crunch.nextPrime(generateRandom(size/2));
+		p = crunch.nextPrime(a);
 		document.getElementById("p").value = p;
 		document.getElementById("p-time").textContent = (performance.now() - t).toFixed(2) + ' ms';
 
 		t = performance.now();
-		q = crunch.nextPrime(generateRandom(size/2));
+		q = crunch.nextPrime(b);
 		document.getElementById("q").value = q;
 		document.getElementById("q-time").textContent = (performance.now() - t).toFixed(2) + ' ms';
 		
 		t = performance.now();
-		e = crunch.nextPrime(generateRandom(size/32));
+		e = crunch.nextPrime(c);
 		document.getElementById("e").value = e;
 		document.getElementById("e-time").textContent = (performance.now() - t).toFixed(2) + ' ms';
 		
@@ -120,6 +128,8 @@
         document.getElementById("u").value = u;
         document.getElementById("u-time").textContent = (performance.now() - t).toFixed(2) + ' ms';
 	}
+
+	//generateKey(1024, [252, 12, 167, 119, 180, 126, 78, 247, 162, 255, 46, 104, 240, 184, 195, 112, 131, 235, 152, 123, 154, 86, 198, 161, 58, 48, 83, 144, 90, 61, 196, 16, 98, 133, 63, 71, 132, 114, 27, 101, 141, 181, 224, 0, 252, 206, 165, 170, 17, 13, 127, 124, 153, 91, 245, 102, 60, 187, 224, 106, 66, 74, 109, 156], [242, 124, 66, 125, 119, 90, 0, 50, 31, 183, 253, 242, 160, 107, 173, 143, 54, 30, 163, 198, 77, 216, 103, 127, 39, 70, 187, 121, 64, 134, 182, 32, 153, 183, 240, 81, 221, 8, 91, 231, 82, 212, 205, 22, 122, 107, 247, 100, 125, 142, 239, 227, 50, 252, 37, 145, 76, 12, 7, 89, 7, 240, 236, 15], [15, 143, 108, 247])
 </script>
 
 </body>
