@@ -937,9 +937,7 @@ function Crunch(rawIn, rawOut) {
      * @return {boolean} is prime
      */
     testPrime: function(x) {
-      return transformOut(
-        tpr.apply(null, transformIn(arguments))
-      );
+      return tpr.apply(null, transformIn(arguments));
     },
 
     /**
