@@ -1,0 +1,55 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Crunch - Examples - Prime Numbers</title>
+
+  <script src="../crunch.js" type="text/javascript"></script>
+
+  <style>
+  	fieldset {
+      margin: 15px;
+      border: none;
+    }
+
+  </style>
+</head>
+<body>
+<h1>Crunch RSA Example</h1>
+<p>A prime number (or a prime) is a natural number greater than 1 that has no positive divisors other than 1 and itself. There are various methods to determine whether a given number n is prime. The Crunch arbitrary precision arithmetic library uses the Miller-Rabin primality test to find prime numbers. It is demonstrated here.</p>
+
+<fieldset>
+  <h2>Find Prime Sequence</h2>
+  <label for="start">Start at </label><input type="text" name="start" id="start">
+  <label for="count">Find this many </label><input type="text" name="count" id="count">
+
+  <ul id="prime-sequence">
+  </ul>
+</fieldset>
+
+<fieldset>
+  <h2>Find A Large Prime Number</h2>
+  <label for="length">Bit Length </label>
+  <input type="text" name="length" id="length">
+  <button onclick="largePrime()">Find Large Prime</button>
+
+  <p id="large-prime"></p>
+</fieldset>
+
+<script type="text/javascript">
+  var crunch = Crunch();
+
+  function generateRandom(size) {
+    var t = new Uint8Array(Math.ceil(size/8));
+
+    (window.crypto || window.msCrypto).getRandomValues(t);
+
+    return Array.prototype.slice.call(t);
+  }
+
+  function largePrime() {
+    document.getElementById("large-prime").textContent = crunch.nextPrime(generateRandom(document.getElementById("length").value || 256)).join(", ");
+  } 
+</script>
+
+</body>
+</html>
