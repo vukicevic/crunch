@@ -153,14 +153,16 @@
     });
 
     test("Test Prime", function() {
-      ok( crunch.testPrime([58, 222, 61, 77]));
       ok( crunch.testPrime([254, 87, 121, 7, 0, 217]));
+      ok( crunch.testPrime([1993]));
       ok(!crunch.testPrime([58, 222, 67]));
+      ok(!crunch.testPrime([9]));
+      ok(!crunch.testPrime([44, 78, 64, 128]));
     });
 
     test("Next Prime", function() {
       deepEqual(crunch.nextPrime([5, 57, 84, 76]), [5, 57, 84, 81]);
-      deepEqual(crunch.nextPrime([18, 214, 135]), [18, 214, 145]);
+      deepEqual(crunch.nextPrime([18, 214, 136]), [18, 214, 145]);
       deepEqual(crunch.nextPrime([5, 57, 84, 76, 233, 0, 120, 91, 180, 180, 8]), [5, 57, 84, 76, 233, 0, 120, 91, 180, 180, 107]);
     });
 

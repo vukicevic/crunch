@@ -627,6 +627,9 @@ function Crunch(rawIn, rawOut) {
    * Test prime
    */
   function tpr(n) {
+    if (n.length === 1 && n[0] < 16384 && primes.indexOf(n[0]) >= 0)
+      return true;
+
     for (var i = 1, k = primes.length; i < k; i++)
       if (mds(n, primes[i]) === 0)
         return false;
@@ -643,7 +646,7 @@ function Crunch(rawIn, rawOut) {
     n[l] |= 1;
 
     while (!tpr(n))
-      n[l] = (n[l]+2) % 268435456;
+      n[l] = (n[l]+2) % 268435456; //goes backwards on boundary
 
     return n;
   }
@@ -936,7 +939,7 @@ function Crunch(rawIn, rawOut) {
      * @return {boolean} is prime
      */
     testPrime: function(x) {
-      return tpr.apply(null, transformIn(arguments));
+      return (x[x.length-1] % 2 === 0) ? false : tpr.apply(null, transformIn(arguments));
     },
 
     /**

@@ -14,26 +14,32 @@
   </style>
 </head>
 <body>
-<h1>Crunch RSA Example</h1>
-<p>A prime number (or a prime) is a natural number greater than 1 that has no positive divisors other than 1 and itself. There are various methods to determine whether a given number n is prime. The Crunch arbitrary precision arithmetic library uses the Miller-Rabin primality test to find prime numbers. It is demonstrated here.</p>
+<h1>Crunch Prime Number Generation Example</h1>
+<p>A prime number is a natural number greater than 1 that has no positive divisors other than 1 and itself. There are various methods to determine whether a given number n is prime. The Crunch arbitrary precision arithmetic library uses a combination of the Miller-Rabin primality test and a simple divisor test to find prime numbers. Two functions are demonstrated here, <em>crunch.nextPrime()</em> and <em>crunch.TestPrime()</em>.</p>
 
 <fieldset>
-  <h2>Find Prime Sequence</h2>
+  <h2>Find a Sequence of Primes</h2>
+  <p>Enter a number less than 268000000 as the start value and the length of the desired sequence, then press Go.</p>
   <label for="start">Start at </label><input type="text" name="start" id="start">
-  <label for="count">Find this many </label><input type="text" name="count" id="count">
+  <label for="count">and find <input type="text" name="count" id="count" value="10" > primes</label>
+  <button onclick="sequencePrimes()">Go!</button>
 
   <ul id="prime-sequence">
   </ul>
 </fieldset>
 
 <fieldset>
-  <h2>Find A Large Prime Number</h2>
+  <h2>Find a Large Prime</h2>
+  <p>Find a prime of length about N bits. Just enter the desired number of bits and click Go! A prime in byte-array representation will be generated.</p>
   <label for="length">Bit Length </label>
-  <input type="text" name="length" id="length">
-  <button onclick="largePrime()">Find Large Prime</button>
+  <input type="text" name="length" id="length" value="256">
+  <button onclick="largePrime()">Go!</button>
 
-  <p id="large-prime"></p>
+  <ul id="large-prime"></ul>
 </fieldset>
+
+<p>The calculations on this page are executed sequentially. Because Crunch is web-worker enabled, some of the above operations could be parallelized for even better performance.</p>
+<p>The large primes are displayed using byte-arrays which represent a multi-precision integer.</p>
 
 <script type="text/javascript">
   var crunch = Crunch();
@@ -47,8 +53,26 @@
   }
 
   function largePrime() {
-    document.getElementById("large-prime").textContent = crunch.nextPrime(generateRandom(document.getElementById("length").value || 256)).join(", ");
-  } 
+    document.getElementById("large-prime").insertAdjacentHTML("beforeend", "<li>" + crunch.nextPrime(generateRandom(document.getElementById("length").value || 256)).join(", ") + "</li>");
+  }
+
+  function sequencePrimes() {
+    var s = parseInt(document.getElementById("start").value),
+        i = parseInt(document.getElementById("count").value),
+        l = document.getElementById("prime-sequence");
+
+    s = (s > 268000000) ? 268000000 : s;
+    document.getElementById("start").value = s;
+    l.innerHTML = "";
+
+    while (i--) {
+      s = crunch.transform(crunch.nextPrime(crunch.transform([s])), true);
+      l.insertAdjacentHTML("beforeend", "<li>" + s + "</li>");
+      s[0] += 2;
+    }
+  }
+
+  document.getElementById("start").value = crunch.transform(generateRandom(24), true);
 </script>
 
 </body>
