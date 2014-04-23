@@ -36,9 +36,7 @@ function Crunch(rawIn, rawOut) {
    * Generate n-length zero filled array
    */
   function nzeroes(n) {
-    for (var z = [], i = 0; i < n; i++)
-      z.push(0);
-
+    for (var z = []; z.push(0) < n;);
     return z;
   }
 
@@ -53,17 +51,22 @@ function Crunch(rawIn, rawOut) {
   /**
    * Remove leading zeroes
    */
+  // function cut(x) {
+  //   for (var y, l = x.length - 1, i = 0; i < l; i++)
+  //     if (x[i] !== 0)
+  //       break;
+
+  //   y = x.slice(i); //check if slice is needed, otherwise unshift in loop
+  //   y.negative = x.negative;
+
+  //   return y;
+  // }
+
   function cut(x) {
-    var i, l, y;
+    while (x[0] === 0 && x.length > 1)
+      x.shift();
 
-    for (l = x.length - 1, i = 0; i < l; i++)
-      if (x[i] !== 0)
-        break;
-
-    y = x.slice(i); //check if slice is needed, otherwise unshift in loop
-    y.negative = x.negative;
-
-    return y;
+    return x;
   }
 
   /**
@@ -71,17 +74,15 @@ function Crunch(rawIn, rawOut) {
    */
   function cmp(x, y) {
     var xl = x.length,
-        yl = y.length; //zero front pad problem
+        yl = y.length, i; //zero front pad problem
 
-    //check negative flag here
-
-    if (xl < yl) {
+    if ((x.negative && !y.negative) || xl < yl) {
       return -1;
-    } else if (xl > yl) {
+    } else if ((!x.negative && y.negative) || xl > yl) {
       return 1;
     }
 
-    for (var i = 0; i < xl; i++) {
+    for (i = 0; i < xl; i++) {
       if (x[i] < y[i]) return -1;
       if (x[i] > y[i]) return 1;
     }
@@ -93,24 +94,24 @@ function Crunch(rawIn, rawOut) {
    * Most significant bit, base 28, position from left
    */
   function msb(x) {
-    if (x === 0) return;
+    if (x !== 0) {
+      for (var i = 134217728, l = 0; i > x; l++)
+        i /= 2;
 
-    for (var i = 134217728, l = 0; i > x; l++)
-      i /= 2;
-
-    return l;
+      return l;
+    }
   }
 
   /**
    * Least significant bit, base 28, position from right
    */
   function lsb(x) {
-    if (x === 0) return;
+    if (x !== 0) {
+      for (var l = 0; !(x & 1); l++)
+        x /= 2;
 
-    for (var l = 0; !(x & 1); l++)
-      x /= 2;
-
-    return l;
+      return l;
+    }
   }
 
   /**
@@ -347,7 +348,7 @@ function Crunch(rawIn, rawOut) {
   /**
    * Division - HAC 14.20
    */
-  function div(x, y, mod) {
+  function div(x, y, internal) {
     var u, v, xt, yt, d, q, k, i,
         s = msb(y[0]) - 1;
 
@@ -364,8 +365,7 @@ function Crunch(rawIn, rawOut) {
     k  = v.concat(zeroes.slice(0, d));
     yt = v[0]*268435456 + v[1];
 
-    // only mmcp as last resort. if x0 > k0 then do, 
-    // if x0 < k0 then dont, check only if x0 = k0
+    // only cmp as last resort
     while (u[0] > k[0] || (u[0] === k[0] && cmp(u, k) > -1)) {
       q[0]++;
       u = sub(u, k);
@@ -379,7 +379,7 @@ function Crunch(rawIn, rawOut) {
       while (q[i]*yt > xt) //condition check can fail due to precision problem at 28-bit radix
         q[i]--;
 
-      k = mul(v, [q[i]]).concat(zeroes.slice(0, d-i)); //concat after multiply
+      k = mul(v, [q[i]]).concat(zeroes.slice(0, d-i)); //concat after multiply, save cycles
       u = sub(u, k);
 
       if (u.negative) {
@@ -388,7 +388,7 @@ function Crunch(rawIn, rawOut) {
       }
     }
 
-    if (mod) {
+    if (internal) {
       v = (s > 0) ? rsh(cut(u), s) : cut(u);
     } else {
       v = cut(q);
@@ -403,7 +403,7 @@ function Crunch(rawIn, rawOut) {
     case -1:
       return x;
     case 0:
-      return 0;
+      return [0];
     default:
       return div(x, y, true);
     }
@@ -413,11 +413,10 @@ function Crunch(rawIn, rawOut) {
    * Greatest Common Divisor - HAC 14.61 - Binary Extended GCD
    */
   function gcd(x, y) {
-    var s,
-        g = Math.min(lsb(x[x.length-1]), lsb(y[y.length-1])),
+    var g = Math.min(lsb(x[x.length-1]), lsb(y[y.length-1])),
         u = rsh(x, g),
         v = rsh(y, g),
-        a = [1], b = [0], c = [0], d = [1];
+        a = [1], b = [0], c = [0], d = [1], s;
 
     while (u.length !== 1 || u[0] !== 0) {
       s = lsb(u[u.length-1]);
@@ -455,20 +454,21 @@ function Crunch(rawIn, rawOut) {
       }
     }
 
-    return (v.length === 1 && v[0] === 1) ? d : [];
+    if (v.length === 1 && v[0] === 1)
+      return d;
   }
 
   /**
    * Inverse 1/y mod x
    */
   function inv(x, y) {
-    var u = gcd(y, x);
+    var z = gcd(y, x); //flip input arguments
 
-    while (u.negative) {
-      u = sub(y, u);
+    while (z.negative) {
+      z = sub(y, z);
     }
 
-    return u;
+    return z;
   }
 
   /**
@@ -559,7 +559,7 @@ function Crunch(rawIn, rawOut) {
    * Simple Mod - When n < 2^14
    */
   function mds(x, n) {
-    for(var i = 0, c = 0, l = x.length; i < l; i++) {
+    for (var i = 0, c = 0, l = x.length; i < l; i++) {
       c = ((x[i] >> 14) + (c << 14)) % n;
       c = ((x[i] & 16383) + (c << 14)) % n;
     }
@@ -571,37 +571,36 @@ function Crunch(rawIn, rawOut) {
    * XOR
    */
   function xor(x, y) {
-    var r, i;
-
-    if (x.length === y.length)
-      for(r = [], i = 0; i < x.length; i++)
-        r[i] = x[i] ^ y[i];
-
-    return r;
+    if (x.length === y.length) {
+      for (var z = [], i = 0; i < x.length; i++)
+        z[i] = x[i] ^ y[i];
+    
+      return z;
+    }
   }
 
   /**
    * Decrement by 1
    */
   function dec(x) {
-    var o;
+    var z;
 
     if (x[x.length-1] > 0) {
-      o = x.slice();
-      o[x.length-1] -= 1;
-      o.negative = x.negative;
+      z = x.slice();
+      z[z.length-1] -= 1;
+      z.negative = x.negative;
     } else {
-      o = sub(x, [1]);
+      z = sub(x, [1]);
     }
 
-    return o;
+    return z;
   }
 
   /**
    * Miller-Rabin Primality Test
    */
   function mrb(n, iterations) {
-    var m = sub(n, [1]),
+    var m = dec(n),
         s = lsb(m[n.length-1]),
         r = rsh(n, s),
         y, t, j, i;
