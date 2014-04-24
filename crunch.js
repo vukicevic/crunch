@@ -676,17 +676,20 @@ function Crunch(rawIn, rawOut) {
    * Convert 28 bit array to byte array
    */
   function co(a) {
-    var c, d, i, o = [],
-        b = [0].slice((a.length-1)%2).concat(a);
+    var c, d, i, b, o = [];
+        
+    if (typeof a !== "undefined") {
+      b = [0].slice((a.length-1)%2).concat(a);
 
-    for (i = 0; i < b.length;) {
-      c = b[i++]; 
-      d = b[i++];
+      for (i = 0; i < b.length;) {
+        c = b[i++]; 
+        d = b[i++];
 
-      o.push((c >> 20), (c >> 12 & 255), (c >> 4 & 255), ((c << 4 | d >> 24) & 255), (d >> 16 & 255), (d >> 8 & 255), (d & 255));
+        o.push((c >> 20), (c >> 12 & 255), (c >> 4 & 255), ((c << 4 | d >> 24) & 255), (d >> 16 & 255), (d >> 8 & 255), (d & 255));
+      }
+
+      return a.negative ? tgl(cut(o)) : cut(o);
     }
-
-    return a.negative ? tgl(cut(o)) : cut(o);
   }
 
   function transformIn(args) {
