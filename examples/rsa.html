@@ -90,6 +90,8 @@
 <p>The calculations on this page are executed sequentially. Because Crunch is web-worker enabled, some of the above operations could be parallelized for even better performance.</p>
 <p>All numbers on this page are byte-arrays which represent multi-precision integers.</p>
 
+<p><a href="./">&laquo; Back to Examples</a></p>
+
 <script type="text/javascript">
     var p, q, e, n, f, d, u, crunch = Crunch();
 
@@ -108,8 +110,6 @@
 			a = generateRandom(size/2);
 			b = generateRandom(size/2);
 			c = generateRandom(size/32);
-
-			console.log(a,b,c);
 		}
 
 		t = performance.now();

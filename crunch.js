@@ -2,7 +2,7 @@
   Crunch - Multi-precision Integer Arithmetic Library 
   Copyright (C) 2014 Nenad Vukicevic
 
-  crunch.secureroom.net/license 
+  crunch.secureroom.net/license
 */
 
 /**
@@ -31,7 +31,6 @@ function Crunch(rawIn, rawOut) {
     return p;
   }
 
-
   /**
    * Generate n-length zero filled array
    */
@@ -51,17 +50,6 @@ function Crunch(rawIn, rawOut) {
   /**
    * Remove leading zeroes
    */
-  // function cut(x) {
-  //   for (var y, l = x.length - 1, i = 0; i < l; i++)
-  //     if (x[i] !== 0)
-  //       break;
-
-  //   y = x.slice(i); //check if slice is needed, otherwise unshift in loop
-  //   y.negative = x.negative;
-
-  //   return y;
-  // }
-
   function cut(x) {
     while (x[0] === 0 && x.length > 1)
       x.shift();
@@ -511,8 +499,7 @@ function Crunch(rawIn, rawOut) {
    * Modular Exponentiation - HAC 14.76 Right-to-left binary exp
    */
   function exp(x, e, n) {
-    var c, i, j,
-        r = [1],
+    var c, i, j, r = [1],
         u = div(r.concat(zeroes.slice(0, 2*n.length)), n);
 
     for (c = 268435456, i = e.length-1; i >= 0; i--) {
@@ -607,16 +594,21 @@ function Crunch(rawIn, rawOut) {
 
     for (i = 0; i < iterations; i++) {
       y = exp(ptests[i], r, n);
+
       if ( (y.length > 1 || y[0] !== 1) && cmp(y,m) !== 0 ) {
-        j = 1; t = true;
+        j = 1;
+        t = true;
+        
         while (t && s > j++) {
           y = mod(sqr(y), n);
           if (y.length === 1 && y[0] === 1) 
             return false;
 
-          t = (cmp(y,m) !== 0);
+          t = (cmp(y, m) !== 0);
         }
-        if (t) return false;
+
+        if (t)
+          return false;
       }
     }
 
@@ -646,7 +638,7 @@ function Crunch(rawIn, rawOut) {
     n[l] |= 1;
 
     while (!tpr(n))
-      n[l] = (n[l]+2) % 268435456; //goes backwards on boundary
+      n[l] = (n[l]+2) % 268435456; //backwards on boundary
 
     return n;
   }
