@@ -1,0 +1,84 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Crunch - Examples - Web Worker</title>
+
+  <script src="../crunch.js" type="text/javascript"></script>
+
+  <style>
+  	fieldset {
+  		margin: 15px;
+  		border: none;
+  	}
+
+  	fieldset.vertical>label {
+  		float: left;
+  		clear: left;
+  		width: 50px;
+  		padding-top: 4px;
+  	}
+  	
+  	fieldset.vertical>input {
+  		float: left;
+  		width: 600px;
+  	}
+
+  	fieldset.vertical>span {
+  		float: left;
+  		width: 100px;
+  		padding: 4px 10px;
+  	}
+
+  	fieldset.vertical>span.small {
+  		float: left;
+  		width: 350px;
+  		padding: 4px 10px;
+  		color: #999;
+  	}
+  </style>
+</head>
+<body>
+
+<h1>Crunch Web Worker Example</h1>
+<p>Dedicated Web Workers provide a simple means for web content to run scripts in background threads. Web workers are able to utilize multi-core CPUs more effectively.</p>
+<p>Crunch can be loaded as a web worker, simply by providing the crunch script <em>new Worker("crunch.js")</em>. Messages are then used to request calculations and return results.</p>
+<p>Using a web worker allows for several calculations to be done in parallel while not affecting page responsiveness.</p>
+
+<fieldset>
+  <h2>Find Large Prime via Web Worker</h2>
+  <p>Crunch is being used in web worker mode. To request a calculation a message is sent to the worker: <em>worker.postMessage({"func": "nextPrime", "args": [Random N bit number]})</em>.</p> 
+  <p>Once the calculation is complete, a message containing the result is sent back. This is demonstrated below.</p> 
+  <button onclick="findPrime()" id="find-prime">Find Random 1024-bit Prime</button>
+  <ul id="worker-result"></ul>
+</fieldset>
+
+<p>The large primes are displayed using byte-arrays which represent a multi-precision integer.</p>
+
+<p><a href="./">&laquo; Back to Examples</a></p>
+
+<script>
+  var worker = new Worker("../crunch.js");
+
+  worker.onmessage = function (e) {
+    document.getElementById("find-prime").disabled = false;
+    document.getElementById("worker-result").insertAdjacentHTML("beforeend", "<li>" + e.data.join(", ") + "</li>");
+  }
+
+  function generateRandom(size) {
+    var t = new Uint8Array(Math.ceil(size/8));
+
+    (window.crypto || window.msCrypto).getRandomValues(t);
+
+    return Array.prototype.slice.call(t);
+  }
+
+  function findPrime() {
+    document.getElementById("find-prime").disabled = true;
+    worker.postMessage({"func": "nextPrime", "args": [generateRandom(1024)]});
+  }
+
+
+</script>
+
+</body>
+</html>
