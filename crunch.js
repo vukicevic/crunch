@@ -452,9 +452,9 @@ function Crunch(rawIn, rawOut) {
   function inv(x, y) {
     var z = gcd(y, x); //flip input arguments
 
-    while (z.negative) {
-      z = sub(y, z);
-    }
+    if (typeof z !== "undefined") 
+      while (z.negative)
+        z = sub(y, z);
 
     return z;
   }
