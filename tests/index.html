@@ -15,15 +15,27 @@
     var crunch = Crunch();
 
     module("Crunch");
-   
-    test("Transform 8-to-28", function() {
+
+    test("Basic Functions", function() {
       deepEqual(crunch.transform([242, 62, 42, 2], true), [15, 37628418]);
       deepEqual(crunch.transform([255, 255, 255, 255, 255, 255], true), [1048575, 268435455]);
-    });
-
-    test("Transform 28-to-8", function() {
       deepEqual(crunch.transform([15, 37628418]), [242, 62, 42, 2]);
       deepEqual(crunch.transform([1048575, 268435455]), [255, 255, 255, 255, 255, 255]);
+      deepEqual(crunch.decrement([5, 76]), [5, 75]);
+      deepEqual(crunch.decrement([5, 0]), [4, 255]);
+      deepEqual(crunch.cut([0, 0, 0, 5, 76]), [5, 76]);
+      deepEqual(crunch.cut([0, 0]), [0]);
+      deepEqual(crunch.xor([22, 11], [255, 189]), [233, 182]);
+      deepEqual(crunch.zero(5), [0, 0, 0, 0, 0]);
+    });
+
+    test("Compare", function() {
+      equal(crunch.compare([5, 57, 84, 76], [5, 57, 84, 76]), 0);
+      equal(crunch.compare([5, 57, 84, 76], [57, 84, 75]), 1);
+      equal(crunch.compare([5, 76], [6, 57, 84, 75]), -1);
+      equal(crunch.compare([-5, 10], [-5, 10]), 0);
+      equal(crunch.compare([5, 10], [-5, 10]), 1);
+      equal(crunch.compare([-5, 10], [5, 10]), -1);
     });
 
     test("Addition Unsigned", function() {
@@ -168,24 +180,6 @@
       deepEqual(crunch.nextPrime([5, 57, 84, 76, 233, 0, 120, 91, 180, 180, 8]), [5, 57, 84, 76, 233, 0, 120, 91, 180, 180, 107]);
       deepEqual(crunch.nextPrime([17]), [17]);
       deepEqual(crunch.nextPrime([7, 200]), [7, 201]);
-    });
-
-    test("Compare", function() {
-      equal(crunch.compare([5, 57, 84, 76], [5, 57, 84, 76]), 0);
-      equal(crunch.compare([5, 57, 84, 76], [57, 84, 75]), 1);
-      equal(crunch.compare([5, 76], [6, 57, 84, 75]), -1);
-      equal(crunch.compare([-5, 10], [-5, 10]), 0);
-      equal(crunch.compare([5, 10], [-5, 10]), 1);
-      equal(crunch.compare([-5, 10], [5, 10]), -1);
-    });
-
-    test("Miscellaneous", function() {
-      deepEqual(crunch.decrement([5, 76]), [5, 75]);
-      deepEqual(crunch.decrement([5, 0]), [4, 255]);
-      deepEqual(crunch.cut([0, 0, 0, 5, 76]), [5, 76]);
-      deepEqual(crunch.cut([0, 0]), [0]);
-      deepEqual(crunch.xor([22, 11], [255, 189]), [233, 182]);
-      deepEqual(crunch.zero(5), [0, 0, 0, 0, 0]);
     });
   </script>
 </body>
