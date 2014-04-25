@@ -64,9 +64,9 @@ function Crunch(rawIn, rawOut) {
     var xl = x.length,
         yl = y.length, i; //zero front pad problem
 
-    if ((x.negative && !y.negative) || xl < yl) {
+    if (x.negative && !y.negative || xl < yl) {
       return -1;
-    } else if ((!x.negative && y.negative) || xl > yl) {
+    } else if (!x.negative && y.negative || xl > yl) {
       return 1;
     }
 
@@ -83,10 +83,10 @@ function Crunch(rawIn, rawOut) {
    */
   function msb(x) {
     if (x !== 0) {
-      for (var i = 134217728, l = 0; i > x; l++)
+      for (var i = 134217728, z = 0; i > x; z++)
         i /= 2;
 
-      return l;
+      return z;
     }
   }
 
@@ -95,10 +95,10 @@ function Crunch(rawIn, rawOut) {
    */
   function lsb(x) {
     if (x !== 0) {
-      for (var l = 0; !(x & 1); l++)
+      for (var z = 0; !(x & 1); z++)
         x /= 2;
 
-      return l;
+      return z;
     }
   }
 
@@ -110,7 +110,7 @@ function Crunch(rawIn, rawOut) {
         t = y.length,
         i = Math.max(n, t),
         c = 0,
-        w = zeroes.slice(0, i);
+        z = zeroes.slice(0, i);
 
     if (n < t) {
       x = zeroes.slice(0, t-n).concat(x);
@@ -119,20 +119,20 @@ function Crunch(rawIn, rawOut) {
     }
 
     for (i -= 1; i >= 0; i--) {
-      w[i] = x[i] + y[i] + c;
+      z[i] = x[i] + y[i] + c;
 
-      if (w[i] > 268435455) {
+      if (z[i] > 268435455) {
         c = 1;
-        w[i] -= 268435456;
+        z[i] -= 268435456;
       } else {
         c = 0;
       }
     }
 
     if (c === 1)
-      w.unshift(c);
+      z.unshift(c);
 
-    return w;
+    return z;
   }
 
   /**
@@ -143,7 +143,7 @@ function Crunch(rawIn, rawOut) {
         t = y.length,
         i = Math.max(n, t),
         c = 0,
-        w = zeroes.slice(0, i);
+        z = zeroes.slice(0, i);
 
     if (n < t) {
       x = zeroes.slice(0, t-n).concat(x);
@@ -152,22 +152,22 @@ function Crunch(rawIn, rawOut) {
     }
 
     for (i -= 1; i >= 0; i--) {
-      w[i] = x[i] - y[i] - c;
+      z[i] = x[i] - y[i] - c;
 
-      if ( w[i] < 0 ) {
+      if (z[i] < 0) {
         c = 1;
-        w[i] += 268435456;
+        z[i] += 268435456;
       } else {
         c = 0;
       }
     }
 
     if (c === 1 && typeof internal === "undefined") {
-      w = sub(zeroes.slice(0, w.length), w, true);
-      w.negative = true;
+      z = sub(zeroes.slice(0, z.length), z, true);
+      z.negative = true;
     }
 
-    return w;
+    return z;
   }
 
   /**
@@ -217,7 +217,7 @@ function Crunch(rawIn, rawOut) {
     var yl, yh, xl, xh, t1, t2, c, j,
         n = x.length,
         i = y.length,
-        w = zeroes.slice(0, n+i);
+        z = zeroes.slice(0, n+i);
 
     while (i--) {
       c = 0;
@@ -230,21 +230,21 @@ function Crunch(rawIn, rawOut) {
         xh = x[j] >> 14;
 
         t1 = yh*xl + xh*yl;
-        t2 = yl*xl + ((t1 & 16383) << 14) + w[j+i+1] + c;
+        t2 = yl*xl + ((t1 & 16383) << 14) + z[j+i+1] + c;
 
-        w[j+i+1] = t2 & 268435455;
+        z[j+i+1] = t2 & 268435455;
         c = yh*xh + (t1 >> 14) + (t2 >> 28);
       }
 
-      w[i] = c;
+      z[i] = c;
     }
 
-    if (w[0] === 0)
-      w.shift();
+    if (z[0] === 0)
+      z.shift();
 
-    w.negative = (x.negative ^ y.negative) ? true : false;
+    z.negative = (x.negative ^ y.negative) ? true : false;
 
-    return w;
+    return z;
   }
 
   /**
@@ -253,16 +253,16 @@ function Crunch(rawIn, rawOut) {
   function sqr(x) {
     var l1, l2, h1, h2, t1, t2, j, c,
         i = x.length,
-        w = zeroes.slice(0, 2*i);
+        z = zeroes.slice(0, 2*i);
 
     while (i--) {
       l1 = x[i] & 16383;
       h1 = x[i] >> 14;
 
       t1 = 2*h1*l1;
-      t2 = l1*l1 + ((t1 & 16383) << 14) + w[2*i+1];
+      t2 = l1*l1 + ((t1 & 16383) << 14) + z[2*i+1];
 
-      w[2*i+1] = t2 & 268435455;
+      z[2*i+1] = t2 & 268435455;
       c = h1*h1 + (t1 >> 14) + (t2 >> 28);
 
       for (j = i-1; j>=0; j--) {
@@ -270,18 +270,18 @@ function Crunch(rawIn, rawOut) {
         h2 = x[j] >> 13;
 
         t1 = h2*l1 + h1*l2;
-        t2 = l2*l1 + ((t1 & 16383) << 14) + w[j+i+1] + c;
-        w[j+i+1] = t2 & 268435455;
+        t2 = l2*l1 + ((t1 & 16383) << 14) + z[j+i+1] + c;
+        z[j+i+1] = t2 & 268435455;
         c = h2*h1 + (t1 >> 14) + (t2 >> 28);
       }
 
-      w[i] = c;
+      z[i] = c;
     }
 
-    if (w[0] === 0)
-      w.shift();
+    if (z[0] === 0)
+      z.shift();
     
-    return w;
+    return z;
   }
 
   /**
@@ -291,21 +291,21 @@ function Crunch(rawIn, rawOut) {
     var ss = s % 28,
         ls = Math.floor(s/28),
         l  = x.length - ls,
-        w  = x.slice(0,l);
+        z  = x.slice(0,l);
 
     if (ss) {
       while (--l) 
-        w[l] = ((w[l] >> ss) | (w[l-1] << (28-ss))) & 268435455;
+        z[l] = ((z[l] >> ss) | (z[l-1] << (28-ss))) & 268435455;
 
-      w[l] = (w[l] >> ss);
+      z[l] = z[l] >> ss;
 
-      if (w[0] === 0)
-        w.shift();
+      if (z[0] === 0)
+        z.shift();
     }
 
-    w.negative = x.negative;
+    z.negative = x.negative;
 
-    return w;
+    return z;
   }
 
   /**
@@ -315,29 +315,29 @@ function Crunch(rawIn, rawOut) {
     var ss = s % 28,
         ls = Math.floor(s/28),
         l  = x.length,
-        w  = [],
+        z  = [],
         t  = 0;
 
     if (ss) {
       while (l--) {
-        w[l] = ((x[l] << ss) + t) & 268435455;
+        z[l] = ((x[l] << ss) + t) & 268435455;
         t    = x[l] >>> (28-ss);
       }
 
       if (t !== 0)
-        w.unshift(t);
+        z.unshift(t);
     }
 
-    w.negative = x.negative;
+    z.negative = x.negative;
 
-    return (ls) ? w.concat(zeroes.slice(0, ls)) : w;
+    return (ls) ? z.concat(zeroes.slice(0, ls)) : z;
   }
 
   /**
    * Division - HAC 14.20
    */
   function div(x, y, internal) {
-    var u, v, xt, yt, d, q, k, i,
+    var u, v, xt, yt, d, q, k, i, z,
         s = msb(y[0]) - 1;
 
     if (s > 0) {
@@ -377,28 +377,28 @@ function Crunch(rawIn, rawOut) {
     }
 
     if (internal) {
-      v = (s > 0) ? rsh(cut(u), s) : cut(u);
+      z = (s > 0) ? rsh(cut(u), s) : cut(u);
     } else {
-      v = cut(q);
-      v.negative = (x.negative ^ y.negative) ? true : false;
+      z = cut(q);
+      z.negative = (x.negative ^ y.negative) ? true : false;
     }
 
-    return v;
+    return z;
   }
 
   function mod(x, y) {
-    switch(cmp(x, y)) {
-    case -1:
-      return x;
-    case 0:
-      return [0];
-    default:
-      return div(x, y, true);
+    switch (cmp(x, y)) {
+      case -1:
+        return x;
+      case 0:
+        return [0];
+      default:
+        return div(x, y, true);
     }
   }
 
   /**
-   * Greatest Common Divisor - HAC 14.61 - Binary Extended GCD
+   * Greatest Common Divisor - HAC 14.61 - Binary Extended GCD, used to calc inverse, x <= modulo, y <= exponent
    */
   function gcd(x, y) {
     var g = Math.min(lsb(x[x.length-1]), lsb(y[y.length-1])),
@@ -447,23 +447,18 @@ function Crunch(rawIn, rawOut) {
   }
 
   /**
-   * Inverse 1/y mod x
+   * Inverse 1/x mod y
    */
   function inv(x, y) {
-    var z = gcd(y, x); //flip input arguments
-
-    if (typeof z !== "undefined") 
-      while (z.negative)
-        z = sub(y, z);
-
-    return z;
+    var z = gcd(y, x);
+    return (typeof z !== "undefined" && z.negative) ? sub(y, z) : z;
   }
 
   /**
    * Barret Modular Reduction - HAC 14.42
    */
   function bmr(x, m, mu) {
-    var q1, q2, q3, r1, r2, r, s, k = m.length;
+    var q1, q2, q3, r1, r2, z, s, k = m.length;
 
     if (cmp(x, m) < 0) 
       return x; 
@@ -484,15 +479,15 @@ function Crunch(rawIn, rawOut) {
     if (s > 0)
       r2 = r2.slice(s);
 
-    r = cut(sub(r1, r2));
+    z = cut(sub(r1, r2));
 
-    if (r.negative)
-      r = cut(sub([1].concat(zeroes.slice(0, k+1)), r));
+    if (z.negative)
+      z = cut(sub([1].concat(zeroes.slice(0, k+1)), z));
 
-    while (cmp(r, m) >= 0)
-      r = cut(sub(r, m));
+    while (cmp(z, m) >= 0)
+      z = cut(sub(z, m));
 
-    return r;
+    return z;
   }
 
   /**
@@ -546,12 +541,12 @@ function Crunch(rawIn, rawOut) {
    * Simple Mod - When n < 2^14
    */
   function mds(x, n) {
-    for (var i = 0, c = 0, l = x.length; i < l; i++) {
-      c = ((x[i] >> 14) + (c << 14)) % n;
-      c = ((x[i] & 16383) + (c << 14)) % n;
+    for (var i = 0, z = 0, l = x.length; i < l; i++) {
+      z = ((x[i] >> 14) + (z << 14)) % n;
+      z = ((x[i] & 16383) + (z << 14)) % n;
     }
 
-    return c;
+    return z;
   }
 
   /**
@@ -586,21 +581,21 @@ function Crunch(rawIn, rawOut) {
   /**
    * Miller-Rabin Primality Test
    */
-  function mrb(n, iterations) {
-    var m = dec(n),
-        s = lsb(m[n.length-1]),
-        r = rsh(n, s),
+  function mrb(x, iterations) {
+    var m = dec(x),
+        s = lsb(m[x.length-1]),
+        r = rsh(x, s),
         y, t, j, i;
 
     for (i = 0; i < iterations; i++) {
-      y = exp(ptests[i], r, n);
+      y = exp(ptests[i], r, x);
 
       if ( (y.length > 1 || y[0] !== 1) && cmp(y,m) !== 0 ) {
         j = 1;
         t = true;
         
         while (t && s > j++) {
-          y = mod(sqr(y), n);
+          y = mod(sqr(y), x);
           if (y.length === 1 && y[0] === 1) 
             return false;
 
@@ -618,65 +613,65 @@ function Crunch(rawIn, rawOut) {
   /**
    * Test prime
    */
-  function tpr(n) {
-    if (n.length === 1 && n[0] < 16384 && primes.indexOf(n[0]) >= 0)
+  function tpr(x) {
+    if (x.length === 1 && x[0] < 16384 && primes.indexOf(x[0]) >= 0)
       return true;
 
     for (var i = 1, k = primes.length; i < k; i++)
-      if (mds(n, primes[i]) === 0)
+      if (mds(x, primes[i]) === 0)
         return false;
 
-    return mrb(n, 3);
+    return mrb(x, 3);
   }
 
   /**
    * Find next prime
    */
-  function npr(n) {
-    var l = n.length - 1;
+  function npr(x) {
+    var l = x.length - 1;
 
-    n[l] |= 1;
+    x[l] |= 1;
 
-    while (!tpr(n))
-      n[l] = (n[l]+2) % 268435456; //backwards on boundary
+    while (!tpr(x))
+      x[l] = (x[l]+2) % 268435456; //backwards on boundary
 
-    return n;
+    return x;
   }
 
   /**
    * Toggle sign
    */  
-  function tgl(a) {
-    a[0] *= -1;
-    return a;
+  function tgl(x) {
+    x[0] *= -1;
+    return x;
   }
 
   /**
    * Convert byte array to 28 bit array
    */
   function ci(a) {
-    var p, o = [],
+    var p, z = [],
         i = [0,0,0,0,0,0].slice((a.length-1)%7);
 
     if (a[0] < 0) {
       i = i.concat(tgl(a));
-      o.negative = true;
+      z.negative = true;
     } else {
       i = i.concat(a);
-      o.negative = false;
+      z.negative = false;
     }
 
     for (p = 0; p < i.length; p += 7)
-      o.push((i[p]*1048576 + i[p+1]*4096 + i[p+2]*16 + (i[p+3]>>4)), ((i[p+3]&15)*16777216 + i[p+4]*65536 + i[p+5]*256 + i[p+6]));
+      z.push((i[p]*1048576 + i[p+1]*4096 + i[p+2]*16 + (i[p+3]>>4)), ((i[p+3]&15)*16777216 + i[p+4]*65536 + i[p+5]*256 + i[p+6]));
     
-    return cut(o);
+    return cut(z);
   }
 
   /**
    * Convert 28 bit array to byte array
    */
   function co(a) {
-    var c, d, i, b, o = [];
+    var c, d, i, b, z = [];
         
     if (typeof a !== "undefined") {
       b = [0].slice((a.length-1)%2).concat(a);
@@ -685,19 +680,19 @@ function Crunch(rawIn, rawOut) {
         c = b[i++]; 
         d = b[i++];
 
-        o.push((c >> 20), (c >> 12 & 255), (c >> 4 & 255), ((c << 4 | d >> 24) & 255), (d >> 16 & 255), (d >> 8 & 255), (d & 255));
+        z.push((c >> 20), (c >> 12 & 255), (c >> 4 & 255), ((c << 4 | d >> 24) & 255), (d >> 16 & 255), (d >> 8 & 255), (d & 255));
       }
 
-      return a.negative ? tgl(cut(o)) : cut(o);
+      return a.negative ? tgl(cut(z)) : cut(z);
     }
   }
 
-  function transformIn(args) {
-    return (rawIn) ? args : Array.prototype.slice.call(args).map(function(v) { return ci(v) });
+  function transformIn(a) {
+    return (rawIn) ? a : Array.prototype.slice.call(a).map(function(v) { return ci(v) });
   }
 
-  function transformOut(val) {
-    return (rawOut) ? val : co(val);
+  function transformOut(x) {
+    return (rawOut) ? x : co(x);
   }
 
   return {
@@ -852,7 +847,7 @@ function Crunch(rawIn, rawOut) {
      * @method inv
      * @param {array} x
      * @param {array} y
-     * @return {array} 1/y % x
+     * @return {array} 1/x % y
      */
     inv: function(x, y) {
       return transformOut(
