@@ -948,15 +948,15 @@ function Crunch(rawIn, rawOut) {
 }
 
 /**
- * Crunch is runnable within a web worker.
- * Invoked by messaging.
+ * Crunch is runnable within a web worker or as a node module.
  *
- * @example
- * 
+ * @example WebWorker invocation
  * Request: { "func": "add",
  *            "args": [[123], [7]] }
- *
  * Respnse: [130]
+ *
+ * @example Node include
+ * var crunch = require("crunch");
  */
 if (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope) {
   var crunch = Crunch();
@@ -964,4 +964,6 @@ if (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScop
   self.onmessage = function(e) {
     self.postMessage(crunch[e.data.func].apply(crunch, e.data.args));
   }
+} else if (typeof module !== 'undefined' && module.exports) {
+  module.exports = Crunch();
 }
