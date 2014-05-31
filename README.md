@@ -11,49 +11,46 @@ Crunch can be loaded as a classic script
 
 ```javascript
 <script src="crunch.js"></script>
+<script>
+var crunch = Crunch();
+</script>
 ```
 
 or in a web worker
 
 ```javascript
-new Worker("crunch.js")
+var crunch = new Worker("crunch.js");
 ```
 
-An arbitrary-precision integer is stored as an array of 8 or 28-bit integers. Internally, calculations are computed using 28-bit elements. 
+or it can be used as a node module
 
+```javascript
+npm install number-crunch
+```
+
+```javascript
+var crunch = require("number-crunch");
+```
 
 **Example 1**
 ```javascript
-c = Crunch();
 x = [10, 123, 21, 127];
 y = [4, 211, 176, 200];
-a = c.add(x, y); //[15, 78, 198, 71]
+a = crunch.add(x, y); //[15, 78, 198, 71]
 ```
 
-Crunch accepts both 8 and 28-bit inputs and converts the values. Output can be an array of either 8 or 28-bit integer elements, depending on user preference.
+Crunch accepts and returns 8-bit integer arrays which represent artbitrary-precision (big) integers, but internally it uses 28-bit arrays and performs the conversions automatically. Array radix conversion can also be performed via the `transform` function.
 
 
 **Example 2**
-
 ```javascript
-c = Crunch(false, true);
-b = c.add(x, y); //[256820807]
-```
-
-The results of examples 1 and 2 are equivalent. 
-
-Array radix conversion can be performed via the `transform` function.
-
-
-**Example 3**
-```javascript
-c.transform([256820807]); //[15, 78, 198, 71]
+crunch.transform([256820807]); //[15, 78, 198, 71]
 ```
 
 The reverse transform takes a second boolean parameter 
 
 ```javascript
-c.transform([15, 78, 198, 71], true); //[256820807]
+crunch.transform([15, 78, 198, 71], true); //[256820807]
 ```
 
 
@@ -91,11 +88,15 @@ Crunch can be loaded to a Web Worker. Instructions to the worker take the follow
 {func: "", args: []}
 ```
 
-**Example 4**
+**Example 3**
 
 ```javascript
-w = new Worker("crunch.js");
-w.onmessage = function(m) { /* do something with result */ };
-m = {func: "add", args: [[10, 123, 21, 127], [4, 211, 176, 200]]};
-w.postMessage(m);
+var crunch = new Worker("crunch.js");
+var message = {func: "add", args: [[10, 123, 21, 127], [4, 211, 176, 200]]};
+
+crunch.onmessage = function(m) { 
+	console.log(m); 
+};
+
+crunch.postMessage(message);
 ```
