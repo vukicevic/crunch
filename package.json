@@ -3,6 +3,9 @@
   "version": "1.0.2",
   "description": "Fast arbitraty-precision integer arithmetic library. Used for large-number calculations including finding large prime numbers, performing modular exponentiation and other arithmetic operations.",
   "main": "crunch.js",
+  "scripts": {
+    "test": "make test"
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/vukicevic/crunch.git"
