@@ -11,6 +11,17 @@
       border: none;
     }
 
+    ul {
+      font-family: mono;
+      margin-top: 30px;
+    }
+
+    ul>li {
+      word-wrap: break-word;
+      width: 850px;
+      margin-bottom: 5px;
+    }
+
   </style>
 </head>
 <body>
@@ -19,8 +30,8 @@
 
 <fieldset>
   <h2>Find a Sequence of Primes</h2>
-  <p>Enter a number less than 268000000 as the start value and the length of the desired sequence, then press Go.</p>
-  <label for="start">Start at </label><input type="text" name="start" id="start">
+  <p>Enter a number as the start value and the length of the desired sequence, then press Go.</p>
+  <label for="start">Start at </label><input type="text" name="start" id="start" style="width:300px">
   <label for="count">and find <input type="text" name="count" id="count" value="10" > primes</label>
   <button onclick="sequencePrimes()">Go!</button>
 
@@ -38,13 +49,83 @@
   <ul id="large-prime"></ul>
 </fieldset>
 
-<p>The calculations on this page are executed sequentially. Because Crunch is web-worker enabled, some of the above operations could be parallelized for even better performance.</p>
-<p>The large primes are displayed using byte-arrays which represent a multi-precision integer.</p>
+<p>The prime numbers generated on this page can be verified using the openssl library, for example: <em>openssl prime NUMBER</em></p>
+
 
 <p><a href="./">&laquo; Back to Examples</a></p>
 
 <script type="text/javascript">
   var crunch = Crunch();
+
+  //Modified from http://danvk.org/hex2dec.html
+  function convert(input) {
+    function add(x, y, base) {
+      var z = [],
+          n = Math.max(x.length, y.length),
+          c = 0,
+          i = -1,
+          xi, yi, zi;
+
+      while (++i < n || c) {
+        xi = i < x.length ? x[i] : 0;
+        yi = i < y.length ? y[i] : 0;
+        zi = c + xi + yi;
+
+        z.push(zi % base);
+        c = Math.floor(zi / base);
+      }
+
+      return z;
+    }
+
+    function multiply(num, x, base) {
+      var result = [],
+          power = x;
+
+      if (num != 0) {
+        while (true) {
+          if (num & 1)
+            result = add(result, power, base);
+
+          num = num >> 1;
+
+          if (num === 0)
+            break;
+
+          power = add(power, power, base);
+        }
+      }
+
+      return result;
+    }
+
+    function convertBase(str, fromBase, toBase) {
+      var digits = str.split('').map(function(v) { return parseInt(v, fromBase) }).reverse(),
+          result = [],
+          power = [1],
+          i;
+
+      for (i = 0; i < digits.length; i++) {
+        if (digits[i]) {
+          result = add(result, multiply(digits[i], power, toBase), toBase);
+        }
+        power = multiply(fromBase, power, toBase);
+      }
+
+      return result.reverse().map(function(v) { return v.toString(toBase) }).join("");
+    }
+
+    if (Array.isArray(input)) {
+      return convertBase(input.map(function(v) { return ("0"+v.toString(16)).slice(-2) }).join(""), 16, 10);
+    } else {
+      var hexStr = convertBase(input, 10, 16);
+
+      if (hexStr.length % 2) 
+        hexStr = "0" + hexStr;
+
+      return hexStr.match(/.{2}/g).map(function(v) { return parseInt(v, 16) });
+    }
+  }
 
   function generateRandom(size) {
     var t = new Uint8Array(Math.ceil(size/8));
@@ -55,26 +136,24 @@
   }
 
   function largePrime() {
-    document.getElementById("large-prime").insertAdjacentHTML("beforeend", "<li>" + crunch.nextPrime(generateRandom(document.getElementById("length").value || 256)).join(", ") + "</li>");
+    document.getElementById("large-prime").insertAdjacentHTML("beforeend", "<li>" + convert(crunch.nextPrime(generateRandom(document.getElementById("length").value || 256))) + "</li>");
   }
 
   function sequencePrimes() {
-    var s = parseInt(document.getElementById("start").value),
+    var a = convert(document.getElementById("start").value),
         i = parseInt(document.getElementById("count").value),
         l = document.getElementById("prime-sequence");
 
-    s = (s > 268000000) ? 268000000 : s;
-    document.getElementById("start").value = s;
     l.innerHTML = "";
 
     while (i--) {
-      s = crunch.transform(crunch.nextPrime(crunch.transform([s])), true);
-      l.insertAdjacentHTML("beforeend", "<li>" + s + "</li>");
-      s[0] += 2;
+      a = crunch.nextPrime(a);
+      l.insertAdjacentHTML("beforeend", "<li>" + convert(a) + "</li>");
+      a[a.length-1] += 2;
     }
   }
 
-  document.getElementById("start").value = crunch.transform(generateRandom(24), true);
+  document.getElementById("start").value = convert(generateRandom(128));
 </script>
 
 </body>

@@ -1,41 +1,41 @@
 <html>
 <head>
-  <meta charset="utf-8">
-  <title>Crunch - Examples - RSA</title>
+	<meta charset="utf-8">
+	<title>Crunch - Examples - RSA</title>
 
-  <script src="../crunch.js" type="text/javascript"></script>
+	<script src="../crunch.js" type="text/javascript"></script>
 
-  <style>
-  	fieldset {
-  		margin: 15px;
-  		border: none;
-  	}
+	<style>
+		fieldset {
+			margin: 15px;
+			border: none;
+		}
 
-  	fieldset.vertical>label {
-  		float: left;
-  		clear: left;
-  		width: 50px;
-  		padding-top: 4px;
-  	}
-  	
-  	fieldset.vertical>input {
-  		float: left;
-  		width: 600px;
-  	}
+		fieldset.vertical>label {
+			float: left;
+			clear: left;
+			width: 50px;
+			padding-top: 4px;
+		}
+		
+		fieldset.vertical>input {
+			float: left;
+			width: 600px;
+		}
 
-  	fieldset.vertical>span {
-  		float: left;
-  		width: 100px;
-  		padding: 4px 10px;
-  	}
+		fieldset.vertical>span {
+			float: left;
+			width: 100px;
+			padding: 4px 10px;
+		}
 
-  	fieldset.vertical>span.small {
-  		float: left;
-  		width: 350px;
-  		padding: 4px 10px;
-  		color: #999;
-  	}
-  </style>
+		fieldset.vertical>span.small {
+			float: left;
+			width: 350px;
+			padding: 4px 10px;
+			color: #999;
+		}
+	</style>
 </head>
 <body>
 
@@ -45,7 +45,7 @@
 
 <fieldset class="vertical">	
 	<h2>Generate RSA Key-Pair</h2>
-	<p>Select a key size and click Generate. Larger key sizes will take longer to generate the key pair. Once genereted, the key material will populate the fields below.</p>
+	<p>Select a key size and click Generate. Larger key sizes will take longer to generate. Key material will populate the fields below.</p>
 	
 	<label for="size">Size</label>
 	<select id="size">
@@ -79,7 +79,7 @@
 <fieldset>
 	<h2>Modular Exponentiation (Encyption/Decryption)</h2>
 	<p>Once a key-pair is generated, you can test the encryption/decryption using the following fields. This actually does modular exponentiation, which is the basis of the RSA cryptosystem.</p>
-	<input type="text" name="in" id="in" value="1,2,3,4,5,6,7,8" disabled="disabled">
+	<input type="text" name="in" id="in" value="12345678" disabled="disabled">
 	<button id="in-button" onclick="encrypt()" disabled="disabled">x ^ e mod n [Encrypt] &rarr;</button>
 	<button id="out-button" onclick="decrypt()" disabled="disabled">&larr; x ^ d mod n [Decrypt]</button>
 	<input type="text" name="out" id="out" disabled="disabled">
@@ -88,20 +88,19 @@
 </fieldset>
 
 <p>The calculations on this page are executed sequentially. Because Crunch is web-worker enabled, some of the above operations could be parallelized for even better performance.</p>
-<p>All numbers on this page are byte-arrays which represent multi-precision integers.</p>
 
 <p><a href="./">&laquo; Back to Examples</a></p>
 
 <script type="text/javascript">
-    var p, q, e, n, f, d, u, crunch = Crunch();
+	var p, q, e, n, f, d, u, crunch = Crunch();
 
-    function generateRandom(size) {
-      var t = new Uint8Array(Math.ceil(size/8));
+	function generateRandom(size) {
+		var t = new Uint8Array(Math.ceil(size/8));
 
-      (window.crypto || window.msCrypto).getRandomValues(t);
+		(window.crypto || window.msCrypto).getRandomValues(t);
 
-      return Array.prototype.slice.call(t);
-    }
+		return Array.prototype.slice.call(t);
+	}
 
 	function generateKey(size, a, b, c) {
 		var t;
@@ -114,68 +113,153 @@
 
 		t = performance.now();
 		p = crunch.nextPrime(a);
-		document.getElementById("p").value = p;
-		document.getElementById("p-time").textContent = (performance.now() - t).toFixed(2) + ' ms';
+		t = (performance.now() - t).toFixed(2);
+		document.getElementById("p").value = convert(p);
+		document.getElementById("p-time").textContent = t + ' ms';
 
 		t = performance.now();
 		q = crunch.nextPrime(b);
-		document.getElementById("q").value = q;
-		document.getElementById("q-time").textContent = (performance.now() - t).toFixed(2) + ' ms';
+		t = (performance.now() - t).toFixed(2);
+		document.getElementById("q").value = convert(q);
+		document.getElementById("q-time").textContent = t + ' ms';
 		
 		t = performance.now();
 		e = [1, 0, 1];//crunch.nextPrime(c);
-		document.getElementById("e").value = e;
-		document.getElementById("e-time").textContent = (performance.now() - t).toFixed(2) + ' ms';
+		t = (performance.now() - t).toFixed(2);
+		document.getElementById("e").value = convert(e);
+		document.getElementById("e-time").textContent = t + ' ms';
 		
 		t = performance.now();
 		n = crunch.mul(p, q);
-		document.getElementById("n").value = n;
-		document.getElementById("n-time").textContent = (performance.now() - t).toFixed(2) + ' ms';
+		t = (performance.now() - t).toFixed(2);
+		document.getElementById("n").value = convert(n);
+		document.getElementById("n-time").textContent = t + ' ms';
 		
 		t = performance.now();
 		f = crunch.mul(crunch.decrement(p), crunch.decrement(q));
-		document.getElementById("f").value = f;
-		document.getElementById("f-time").textContent = (performance.now() - t).toFixed(2) + ' ms';
+		t = (performance.now() - t).toFixed(2);
+		document.getElementById("f").value = convert(f);
+		document.getElementById("f-time").textContent = t + ' ms';
 		
 		t = performance.now();
 		d = crunch.cut(crunch.inv(e, f));
-		document.getElementById("d").value = d;
-		document.getElementById("d-time").textContent = (performance.now() - t).toFixed(2) + ' ms';
+		t = (performance.now() - t).toFixed(2);
+		document.getElementById("d").value = convert(d);
+		document.getElementById("d-time").textContent = t + ' ms';
 		
 		t = performance.now();
 		u = crunch.cut(crunch.inv(p, q));
-        document.getElementById("u").value = u;
-        document.getElementById("u-time").textContent = (performance.now() - t).toFixed(2) + ' ms';
+		t = (performance.now() - t).toFixed(2);
+		document.getElementById("u").value = convert(u);
+		document.getElementById("u-time").textContent = t + ' ms';
 
-        document.getElementById('in').disabled = false;
-        document.getElementById('in-button').disabled = false;
+		document.getElementById('in').disabled = false;
+		document.getElementById('in-button').disabled = false;
 	}
 
 	function encrypt() {
-		var t = performance.now();
-		document.getElementById('out').value = crunch.exp(document.getElementById('in').value.split(',').map(function(v){return parseInt(v)}), e, n); 
+		var s = convert(document.getElementById('in').value),
+			t = performance.now(),
+			r = crunch.exp(s, e, n);
+
+		t = (performance.now() - t).toFixed(2);
+
+		document.getElementById('out').value = convert(r);
 		document.getElementById('in').value = '';
-		document.getElementById("c-time").textContent = (performance.now() - t).toFixed(2) + ' ms';
+		document.getElementById("c-time").textContent = t + ' ms';
 
 		document.getElementById('in').disabled = true;
-        document.getElementById('in-button').disabled = true;
-        document.getElementById('out').disabled = false;
-        document.getElementById('out-button').disabled = false;
+		document.getElementById('in-button').disabled = true;
+		document.getElementById('out').disabled = false;
+		document.getElementById('out-button').disabled = false;
 	}
 
 	function decrypt() {
-		var t = performance.now();
-		document.getElementById('in').value = crunch.gar(document.getElementById('out').value.split(',').map(function(v){return parseInt(v)}), p, q, d, u);
+		var s = convert(document.getElementById('out').value), 
+			t = performance.now(),
+			r = crunch.gar(s, p, q, d, u);
+
+		t = (performance.now() - t).toFixed(2);
+
+		document.getElementById('in').value = convert(r);
 		document.getElementById('out').value = '';
-		document.getElementById("c-time").textContent = (performance.now() - t).toFixed(2) + ' ms';
+		document.getElementById("c-time").textContent = t + ' ms';
 
 		document.getElementById('in').disabled = false;
-        document.getElementById('in-button').disabled = false;
-        document.getElementById('out').disabled = true;
-        document.getElementById('out-button').disabled = true;
+		document.getElementById('in-button').disabled = false;
+		document.getElementById('out').disabled = true;
+		document.getElementById('out-button').disabled = true;
 	}
 
-	//generateKey(1024, [252, 12, 167, 119, 180, 126, 78, 247, 162, 255, 46, 104, 240, 184, 195, 112, 131, 235, 152, 123, 154, 86, 198, 161, 58, 48, 83, 144, 90, 61, 196, 16, 98, 133, 63, 71, 132, 114, 27, 101, 141, 181, 224, 0, 252, 206, 165, 170, 17, 13, 127, 124, 153, 91, 245, 102, 60, 187, 224, 106, 66, 74, 109, 156], [242, 124, 66, 125, 119, 90, 0, 50, 31, 183, 253, 242, 160, 107, 173, 143, 54, 30, 163, 198, 77, 216, 103, 127, 39, 70, 187, 121, 64, 134, 182, 32, 153, 183, 240, 81, 221, 8, 91, 231, 82, 212, 205, 22, 122, 107, 247, 100, 125, 142, 239, 227, 50, 252, 37, 145, 76, 12, 7, 89, 7, 240, 236, 15], [15, 143, 108, 247])
+	//Modified from http://danvk.org/hex2dec.html
+	function convert(input) {
+		function add(x, y, base) {
+			var z = [],
+					n = Math.max(x.length, y.length),
+					c = 0,
+					i = -1,
+					xi, yi, zi;
+
+			while (++i < n || c) {
+				xi = i < x.length ? x[i] : 0;
+				yi = i < y.length ? y[i] : 0;
+				zi = c + xi + yi;
+
+				z.push(zi % base);
+				c = Math.floor(zi / base);
+			}
+
+			return z;
+		}
+
+		function multiply(num, x, base) {
+			var result = [],
+					power = x;
+
+			if (num != 0) {
+				while (true) {
+					if (num & 1)
+						result = add(result, power, base);
+
+					num = num >> 1;
+
+					if (num === 0)
+						break;
+
+					power = add(power, power, base);
+				}
+			}
+
+			return result;
+		}
+
+		function convertBase(str, fromBase, toBase) {
+			var digits = str.split('').map(function(v) { return parseInt(v, fromBase) }).reverse(),
+					result = [],
+					power = [1],
+					i;
+
+			for (i = 0; i < digits.length; i++) {
+				if (digits[i]) {
+					result = add(result, multiply(digits[i], power, toBase), toBase);
+				}
+				power = multiply(fromBase, power, toBase);
+			}
+
+			return result.reverse().map(function(v) { return v.toString(toBase) }).join("");
+		}
+
+		if (Array.isArray(input)) {
+			return convertBase(input.map(function(v) { return ("0"+v.toString(16)).slice(-2) }).join(""), 16, 10);
+		} else {
+			var hexStr = convertBase(input, 10, 16);
+
+			if (hexStr.length % 2) 
+				hexStr = "0" + hexStr;
+
+			return hexStr.match(/.{2}/g).map(function(v) { return parseInt(v, 16) });
+		}
+	}
 </script>
 
 </body>

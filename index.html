@@ -32,12 +32,13 @@
   section {
     width: 560px;
     margin: 80px auto 0;
-    text-align: left;
+    /*text-align: left;*/
   }
   footer {
     width: 560px;
     margin: 80px auto 0;
     font-style: italic;
+    text-align: right;
   }
 
   a {
@@ -63,7 +64,6 @@
     margin-top: 0;
   }
   p {
-    text-align: justify;
     font-size: 20px;
     line-height: 30px;
   }
@@ -79,6 +79,7 @@
 
 <section>
   <p>A JavaScript library for big number arithmetic.</p>
+  <p>Browser, Web Worker and NodeJS compatible.</p>
   <p>Fast, small, no dependencies.</p>
 </section>
 
@@ -87,7 +88,10 @@
 </section>
 
 <footer>
-  <p>Latest release: v1.0.3</p>
+  <p>
+    <a href="https://travis-ci.org/vukicevic/crunch"><img src="https://camo.githubusercontent.com/6f4ea26ad7f0e7ec8bfb39ec1feee1ef02a3f615/68747470733a2f2f7472617669732d63692e6f72672f76756b6963657669632f6372756e63682e7376673f6272616e63683d6d6173746572" alt="Build Status" data-canonical-src="https://travis-ci.org/vukicevic/crunch.svg?branch=master" style="max-width:100%;"></a>
+    <a href="http://badge.fury.io/js/number-crunch"><img src="https://camo.githubusercontent.com/4098d3baf0a9a6b067b9359c79811f6244c94853/68747470733a2f2f62616467652e667572792e696f2f6a732f6e756d6265722d6372756e63682e737667" alt="NPM version" data-canonical-src="https://badge.fury.io/js/number-crunch.svg" style="max-width:100%;"></a>
+  </p>
 </footer>
 </body>
 </html>
