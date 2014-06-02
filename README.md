@@ -5,11 +5,13 @@ Crunch is an arbitrary-precision integer arithmetic library written in JavaScrip
 * [Examples](http://crunch.secureroom.net/examples/)
 * [Tests](http://crunch.secureroom.net/tests/)
 
+[![Build Status](https://travis-ci.org/vukicevic/crunch.svg?branch=master)](https://travis-ci.org/vukicevic/crunch) [![NPM version](https://badge.fury.io/js/number-crunch.svg)](http://badge.fury.io/js/number-crunch)
+
 Usage
 -----
 Crunch can be loaded as a classic script
 
-```javascript
+```html
 <script src="crunch.js"></script>
 <script>
 var crunch = Crunch();
@@ -69,15 +71,15 @@ exp | x, e, n | x^e % n
 gar | x, p, q, d, u, dp1, dq1 | x^d % pq
 inv | x, y | 1/x % y
 xor | x, y | x XOR y
-cut | x | Remove lead zeroes of x
+cut | x | Remove leading zeroes of x
 zero | x | Return zero array of length x
-compare | x, y | Compare x, y. Return -1: x < y, 0: x = y, 1: x > y
+compare | x, y | Return -1: x < y, 0: x = y, 1: x > y
 decrement | x | x - 1
-nextPrime | x | Next prime number after x
-testPrime | x | Test if x is prime
+nextPrime | x | First prime after x
+testPrime | x | Boolean x is prime
 transform | x | Array radix conversion
 
-Crunch also implements left shift `lsh`, right shift `rsh`, Barret modular reduction `bmr`, Miller-Rabin primality testing `mrb`, simple mod `mds`, greatest common divisor `gcd` and signed number arithmetic functions `ssb`, `sad` and `srs`. These are not exposed via the initialized Crunch object.
+Crunch also implements left shift `lsh`, right shift `rsh`, Barret modular reduction `bmr`, Miller-Rabin primality testing `mrb`, simple mod `mds` and greatest common divisor `gcd`. These are not exposed via the initialized Crunch object.
 
 Web Workers
 ----
