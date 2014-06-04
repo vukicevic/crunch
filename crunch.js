@@ -695,6 +695,18 @@ function Crunch(rawIn, rawOut) {
     return (rawOut) ? x : co(x);
   }
 
+  function fct(n) {
+    var r = [1],
+        a = [1];
+
+    while (n--) {
+      r = mul(r, a);
+      a = add(a, [1]);
+    }
+
+    return r;
+  }
+
   return {
     /**
      * Return zero array length n 
@@ -868,6 +880,11 @@ function Crunch(rawIn, rawOut) {
       );
     },
 
+    factorial: function(n) {
+      return transformOut(
+        fct.apply(null, [n])
+      );
+    },
     /**
      * Exclusive-Or
      *
@@ -964,6 +981,6 @@ if (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScop
   self.onmessage = function(e) {
     self.postMessage(crunch[e.data.func].apply(crunch, e.data.args));
   }
-} else if (typeof module !== 'undefined' && module.exports) {
+} else if (typeof module !== "undefined" && module.exports) {
   module.exports = Crunch();
 }
