@@ -1,15 +1,18 @@
 Crunch
 ======
-Crunch is an arbitrary-precision integer arithmetic library written in JavaScript.
+Crunch is an [arbitrary-precision integer arithmetic](http://en.wikipedia.org/wiki/Arbitrary-precision_arithmetic) library written in JavaScript.
 
+* [Homepage](http://crunch.secureroom.net/)
 * [Examples](http://crunch.secureroom.net/examples/)
 * [Tests](http://crunch.secureroom.net/tests/)
 
-[![Build Status](https://travis-ci.org/vukicevic/crunch.svg?branch=master)](https://travis-ci.org/vukicevic/crunch) [![NPM version](https://badge.fury.io/js/number-crunch.svg)](http://badge.fury.io/js/number-crunch)
+[![Build Status](https://travis-ci.org/vukicevic/crunch.svg?branch=master)](https://travis-ci.org/vukicevic/crunch) [![NPM version](https://badge.fury.io/js/number-crunch.svg)](http://badge.fury.io/js/number-crunch) [![Bower version](https://badge.fury.io/bo/crunch.svg)](http://badge.fury.io/bo/crunch)
+
+Crunch was designed to execute arithmetic operations as quickly as possible, in particular those upon which asymmetric encryption cryptosystems such as RSA are built.
 
 Usage
 -----
-Crunch can be loaded as a classic script
+Crunch can be loaded as a classic browser script
 
 ```html
 <script src="crunch.js"></script>
@@ -84,7 +87,7 @@ Crunch also implements left shift `lsh`, right shift `rsh`, Barret modular reduc
 Web Workers
 ----
 
-Crunch can be loaded to a Web Worker. Instructions to the worker take the following format 
+Crunch can be loaded in a Web Worker. Instruction messages are sent to the worker in the following format:
 
 ```javascript
 {func: "", args: []}
