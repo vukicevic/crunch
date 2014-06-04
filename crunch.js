@@ -956,7 +956,7 @@ function Crunch(rawIn, rawOut) {
  * Respnse: [130]
  *
  * @example Node include
- * var crunch = require("crunch");
+ * var crunch = require("number-crunch");
  */
 if (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope) {
   var crunch = Crunch();

@@ -13,13 +13,14 @@
 
     ul {
       font-family: mono;
+      font-size: 0.85em;
       margin-top: 30px;
     }
 
     ul>li {
       word-wrap: break-word;
       width: 850px;
-      margin-bottom: 5px;
+      margin: 5px 0;
     }
   </style>
 </head>
@@ -37,6 +38,8 @@
   <button onclick="findPrime()" id="find-prime">Find Random 1024-bit Prime</button>
   <ul id="worker-result"></ul>
 </fieldset>
+
+<p>The prime numbers generated on this page can be verified using the openssl library, for example: <em>openssl prime NUMBER</em></p>
 
 <p><a href="./">&laquo; Back to Examples</a></p>
 
