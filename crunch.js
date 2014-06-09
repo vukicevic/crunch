@@ -15,37 +15,29 @@
  */
 function Crunch(rawIn, rawOut) {
 
-  /**
-   * Generate first n primes array
-   */
-  function nprimes(n) {
-    for (var j, b, p = [2], l = 1, i = 3; l < n; i += 2) {
-      for (j = 0; j < l; j++)
-        if (!(b = (i % p[j] !== 0)))
-          break;
-
-      if (b)
-        l = p.push(i);
-    }
-
-    return p;
-  }
-
-  /**
-   * Generate n-length zero filled array
-   */
-  function nzeroes(n) {
-    for (var z = []; z.push(0) < n;);
-    return z;
-  }
-
   /** 
    * Predefined constants for performance: zeroes for zero-filled arrays, 
    * primes for simple mod primality, ptests for Miller-Rabin primality
    */
-  const zeroes = nzeroes(500);
-  const primes = nprimes(1899);
-  const ptests = primes.slice(0, 10).map(function(v){return [v]});
+  const primes = (function(n) {
+    for (var j, b, p = [2], l = 1, i = 3; l < n; i += 2) {
+      for (b = true, j = 0; b && (j < l); j++)
+        b = (i % p[j] !== 0);
+
+      l = b ? p.push(i) : l;
+    }
+
+    return p;
+  })(1899);
+
+  const zeroes = (function(n) {
+    for (var z = []; z.push(0) < n;);
+    return z;
+  })(500);
+
+  const ptests = primes.slice(0, 10).map(function(v) {
+    return [v];
+  });
 
   /**
    * Remove leading zeroes
