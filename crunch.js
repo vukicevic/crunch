@@ -639,6 +639,21 @@ function Crunch(rawIn, rawOut) {
   }
 
   /**
+   * Factorial
+   */  
+  function fct(n) {
+    var r = [1],
+        a = [1];
+
+    while (n--) {
+      r = mul(r, a);
+      a[0]++;
+    }
+
+    return r;
+  }
+
+  /**
    * Convert byte array to 28 bit array
    */
   function ci(a) {
@@ -685,18 +700,6 @@ function Crunch(rawIn, rawOut) {
 
   function transformOut(x) {
     return (rawOut) ? x : co(x);
-  }
-
-  function fct(n) {
-    var r = [1],
-        a = [1];
-
-    while (n--) {
-      r = mul(r, a);
-      a = add(a, [1]);
-    }
-
-    return r;
   }
 
   return {
@@ -863,8 +866,8 @@ function Crunch(rawIn, rawOut) {
      * Remove leading zeroes
      *
      * @method cut
-     * @param {Array} x
-     * @return {Array} new array without leading zeroes
+     * @param {array} x
+     * @return {array} x without leading zeroes
      */
     cut: function(x) {
       return transformOut(
@@ -872,11 +875,20 @@ function Crunch(rawIn, rawOut) {
       );
     },
 
+
+    /**
+     * Factorial
+     *
+     * @method factorial
+     * @param {integer} n
+     * @return {array} n!
+     */
     factorial: function(n) {
       return transformOut(
         fct.apply(null, [n])
       );
     },
+
     /**
      * Exclusive-Or
      *
