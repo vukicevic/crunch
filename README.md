@@ -1,12 +1,10 @@
-Crunch
+Crunch [![Build Status](https://travis-ci.org/vukicevic/crunch.svg?branch=master)](https://travis-ci.org/vukicevic/crunch) [![NPM version](https://badge.fury.io/js/number-crunch.svg)](http://badge.fury.io/js/number-crunch) [![Bower version](https://badge.fury.io/bo/crunch.svg)](http://badge.fury.io/bo/crunch)
 ======
 Crunch is an [arbitrary-precision integer arithmetic](http://en.wikipedia.org/wiki/Arbitrary-precision_arithmetic) library written in JavaScript.
 
 * [Homepage](http://crunch.secureroom.net/)
 * [Examples](http://crunch.secureroom.net/examples/)
 * [Tests](http://crunch.secureroom.net/tests/)
-
-[![Build Status](https://travis-ci.org/vukicevic/crunch.svg?branch=master)](https://travis-ci.org/vukicevic/crunch) [![NPM version](https://badge.fury.io/js/number-crunch.svg)](http://badge.fury.io/js/number-crunch) [![Bower version](https://badge.fury.io/bo/crunch.svg)](http://badge.fury.io/bo/crunch)
 
 Crunch was designed to execute arithmetic operations as quickly as possible, in particular those upon which asymmetric encryption cryptosystems such as RSA are built.
 
@@ -76,11 +74,12 @@ inv | x, y | 1/x % y
 xor | x, y | x XOR y
 cut | x | Remove leading zeroes of x
 zero | x | Return zero array of length x
-compare | x, y | Return -1: x < y, 0: x = y, 1: x > y
+compare | x, y | -1: x < y, 0: x = y, 1: x > y
 decrement | x | x - 1
+factorial | n | n! [n < 268435456]
 nextPrime | x | First prime after x
 testPrime | x | Boolean x is prime
-transform | x | Array radix conversion
+transform | x | Radix conversion
 
 Crunch also implements left shift `lsh`, right shift `rsh`, Barret modular reduction `bmr`, Miller-Rabin primality testing `mrb`, simple mod `mds` and greatest common divisor `gcd`. These are not exposed via the initialized Crunch object.
 

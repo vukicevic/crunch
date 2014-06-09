@@ -1,9 +1,7 @@
-/* 
-  Crunch - Multi-precision Integer Arithmetic Library 
-  Copyright (C) 2014 Nenad Vukicevic
-
-  crunch.secureroom.net/license
-*/
+/** 
+ * Crunch - Arbitrary-precision integer arithmetic library 
+ * Copyright (C) 2014 Nenad Vukicevic crunch.secureroom.net/license
+ */
 
 /**
  * @module Crunch
@@ -22,13 +20,13 @@ function Crunch(rawIn, rawOut) {
   const primes = (function(n) {
     for (var j, b, p = [2], l = 1, i = 3; l < n; i += 2) {
       for (b = true, j = 0; b && (j < l); j++)
-        b = (i % p[j] !== 0);
+        b = i % p[j] !== 0;
 
       l = b ? p.push(i) : l;
     }
 
     return p;
-  })(1899);
+  })(1900);
 
   const zeroes = (function(n) {
     for (var z = []; z.push(0) < n;);
@@ -877,15 +875,15 @@ function Crunch(rawIn, rawOut) {
 
 
     /**
-     * Factorial
+     * Factorial - for n < 268435456
      *
      * @method factorial
-     * @param {integer} n
+     * @param {integer} n 
      * @return {array} n!
      */
     factorial: function(n) {
       return transformOut(
-        fct.apply(null, [n])
+        fct.apply(null, [n%268435456])
       );
     },
 
