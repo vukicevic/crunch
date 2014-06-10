@@ -38,9 +38,6 @@ function Crunch(rawIn, rawOut) {
     return [v];
   });
 
-  /**
-   * Remove leading zeroes
-   */
   function cut(x) {
     while (x[0] === 0 && x.length > 1) {
       x.shift();
@@ -49,9 +46,6 @@ function Crunch(rawIn, rawOut) {
     return x;
   }
 
-  /**
-   * Compare two MPIs
-   */
   function cmp(x, y) {
     var xl = x.length,
         yl = y.length, i; //zero front pad problem
@@ -96,9 +90,6 @@ function Crunch(rawIn, rawOut) {
     }
   }
 
-  /**
-   * Addition
-   */
   function add(x, y) {
     var n = x.length,
         t = y.length,
@@ -130,9 +121,6 @@ function Crunch(rawIn, rawOut) {
     return z;
   }
 
-  /**
-   * Subtraction
-   */
   function sub(x, y, internal) {
     var n = x.length,
         t = y.length,
@@ -281,9 +269,6 @@ function Crunch(rawIn, rawOut) {
     return z;
   }
 
-  /**
-   * Right Shift
-   */
   function rsh(x, s) {
     var ss = s % 28,
         ls = Math.floor(s/28),
@@ -307,9 +292,6 @@ function Crunch(rawIn, rawOut) {
     return z;
   }
 
-  /**
-   * Left Shift
-   */
   function lsh(x, s) {
     var ss = s % 28,
         ls = Math.floor(s/28),
@@ -364,7 +346,7 @@ function Crunch(rawIn, rawOut) {
 
       xt = u[i-1]*72057594037927936 + u[i]*268435456 + u[i+1];
 
-      while (q[i]*yt > xt) { //condition check can fail due to precision problem at 28-bit radix
+      while (q[i]*yt > xt) { //condition check can fail due to precision problem at 28-bit
         q[i]--;
       }
 
@@ -542,7 +524,7 @@ function Crunch(rawIn, rawOut) {
       t = cut(sub(q, t, false));
     } else {
       t = cut(sub(vq, vp, false));
-      t = cut(bmr(mul(t, u), q, undefined)); //bmr instead of mod, div fails too frequently because precision issue
+      t = cut(bmr(mul(t, u), q, undefined)); //bmr instead of mod, div can fail because of precision
     }
 
     return cut(add(vp, mul(t, p)));
@@ -560,9 +542,6 @@ function Crunch(rawIn, rawOut) {
     return z;
   }
 
-  /**
-   * XOR
-   */
   function xor(x, y) {
     if (x.length === y.length) {
       for (var z = [], i = 0; i < x.length; i++) {
@@ -573,9 +552,6 @@ function Crunch(rawIn, rawOut) {
     }
   }
 
-  /**
-   * Decrement by 1
-   */
   function dec(x) {
     var z;
 
@@ -625,9 +601,6 @@ function Crunch(rawIn, rawOut) {
     return true;
   }
 
-  /**
-   * Test prime
-   */
   function tpr(x) {
     if (x.length === 1 && x[0] < 16384 && primes.indexOf(x[0]) >= 0) {
       return true;
@@ -642,9 +615,6 @@ function Crunch(rawIn, rawOut) {
     return mrb(x, 3);
   }
 
-  /**
-   * Find next prime
-   */
   function npr(x) {
     var l = x.length - 1;
 
@@ -657,17 +627,11 @@ function Crunch(rawIn, rawOut) {
     return x;
   }
 
-  /**
-   * Toggle sign
-   */  
   function tgl(x) {
     x[0] *= -1;
     return x;
   }
 
-  /**
-   * Factorial
-   */  
   function fct(n) {
     var r = [1],
         a = [1];
@@ -996,8 +960,6 @@ function Crunch(rawIn, rawOut) {
 }
 
 /**
- * Crunch is runnable within a web worker or as a node module.
- *
  * @example WebWorker invocation
  * Request: { "func": "add",
  *            "args": [[123], [7]] }
@@ -1010,7 +972,7 @@ if (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScop
   var crunch = Crunch(false, false);
 
   self.onmessage = function(e) {
-    self.postMessage(crunch[e.data.func].apply(crunch, e.data.args));
+    self.postMessage(crunch[e.data.func].apply(crunch, e.data.args));  
   }
 } else if (typeof module !== "undefined" && module.exports) {
   module.exports = Crunch(false, false);
