@@ -29,21 +29,35 @@
 
 <fieldset>
   <h2>Calculate Factorial via Web Worker</h2>
-  <p>Crunch is loaded as a web worker, <em>new Worker("crunch.js")</em>. Every calculation is requested with a message: <em>worker.postMessage({"func": "mul", "args": [iteration, result]})</em>.</p> 
+  <p>Crunch is loaded as a web worker, <em>new Worker("crunch.js")</em>. Every calculation is requested with a message: <em>worker.postMessage({"func": "mul", "args": [iteration, result]})</em>.</p>
+  <p>You can chose between the iterative and native implementation. The iterative will return a result at each step, and is slower as decimal conversions are done each time, or the native, which calculates the final result internally and returns it once done.</p>
   <input type="text" name="factorial" id="factorial" value="50">
-  <button onclick="calcFactorial()" id="calc-factorial">!</button>
+  <button onclick="calcFactorial()" id="calc-factorial">! Iterative</button>
+  <button onclick="calcFactorialNative()" id="calc-factorial-native">! Native</button>
   <ol id="worker-result"></ol>
+  <p><em>Note:</em> In the iterative example, a lot of time is wasted in the decimal to byte-array conversion stage, which occurs between every calculation to display the result. This is obvious when comparing, for example, 500! via the two methods.</p>
 </fieldset>
-
-<p><em>Note:</em> In this example, a lot of time is wasted in the decimal to byte-array conversion stage, which occurs between every calculation to display the result. This extra delay is outside of the Crunch library.</p>
 
 <p><a href="./">&laquo; Back to Examples</a></p>
 
 <script>
   var worker = new Worker("../crunch.js"),
+      native = new Worker("../crunch.js"),
       result, 
       iteration,
       factorial;
+
+  native.onmessage = function (e) {
+    document.getElementById("worker-result").insertAdjacentHTML("beforeend", "<li>" + convert(e.data) + "</li>");
+    document.getElementById("calc-factorial-native").disabled = false;
+  }
+
+  function calcFactorialNative() {
+    document.getElementById("worker-result").innerHTML = "";
+    document.getElementById("calc-factorial-native").disabled = true;
+    native.postMessage({"func": "factorial", "args": [document.getElementById("factorial").value.toString(10)]});
+  }
+
 
   worker.onmessage = function (e) {
     result = e.data;
