@@ -1,12 +1,12 @@
 Crunch [![Build Status](https://travis-ci.org/vukicevic/crunch.svg?branch=master)](https://travis-ci.org/vukicevic/crunch) [![NPM version](https://badge.fury.io/js/number-crunch.svg)](http://badge.fury.io/js/number-crunch) [![Bower version](https://badge.fury.io/bo/crunch.svg)](http://badge.fury.io/bo/crunch)
 ======
-Crunch is an [arbitrary-precision integer arithmetic](http://en.wikipedia.org/wiki/Arbitrary-precision_arithmetic) library written in JavaScript.
+Crunch is an [arbitrary-precision integer arithmetic](http://en.wikipedia.org/wiki/Arbitrary-precision_arithmetic) library for JavaScript.
 
 * [Homepage](http://crunch.secureroom.net/)
 * [Examples](http://crunch.secureroom.net/examples/)
 * [Tests](http://crunch.secureroom.net/tests/)
 
-Crunch was designed to execute arithmetic operations as quickly as possible, in particular those upon which asymmetric encryption cryptosystems such as RSA are built.
+It was designed to execute arithmetic operations as quickly as possible, in particular those upon which asymmetric encryption cryptosystems such as RSA are built.
 
 Usage
 -----
@@ -39,10 +39,10 @@ var crunch = require("number-crunch");
 ```javascript
 x = [10, 123, 21, 127];
 y = [4, 211, 176, 200];
-a = crunch.add(x, y); //[15, 78, 198, 71]
+crunch.add(x, y); //[15, 78, 198, 71]
 ```
 
-Crunch accepts and returns 8-bit integer arrays which represent artbitrary-precision (big) integers, but internally it uses 28-bit arrays and performs the conversions automatically. Array radix conversion can also be performed via the `transform` function.
+The library accepts and returns 8-bit integer arrays which represent artbitrary-precision (big) integers, but internally it uses 28-bit arrays and performs the conversions automatically. Array radix conversion can also be performed via the `transform` function.
 
 
 **Example 2**
@@ -81,7 +81,7 @@ nextPrime | x | First prime after x
 testPrime | x | Boolean x is prime
 transform | x | Radix conversion
 
-Crunch also implements left shift `lsh`, right shift `rsh`, Barret modular reduction `bmr`, Miller-Rabin primality testing `mrb`, simple mod `mds` and greatest common divisor `gcd`. These are not exposed via the initialized Crunch object.
+Left shift `lsh`, right shift `rsh`, Barret modular reduction `bmr`, Miller-Rabin primality testing `mrb`, simple mod `mds` and greatest common divisor `gcd` are also implemented as internal methods not exposed via the initialized Crunch object.
 
 Web Workers
 ----

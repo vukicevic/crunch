@@ -13,11 +13,13 @@
  */
 function Crunch(rawIn, rawOut) {
 
+  "use strict";
+
   /** 
-   * Predefined constants for performance: zeroes for zero-filled arrays, 
-   * primes for simple mod primality, ptests for Miller-Rabin primality
+   * BEGIN CONSTANTS
+   * zeroes, primes and ptests for Miller-Rabin primality
    */
-  const primes = (function(n) {
+  var primes = (function(n) {
     for (var j, b, p = [2], l = 1, i = 3; l < n; i += 2) {
       for (b = true, j = 0; b && j < l; j++) {
         b = i % p[j] !== 0;
@@ -29,14 +31,15 @@ function Crunch(rawIn, rawOut) {
     return p;
   })(1900);
 
-  const zeroes = (function(n) {
+  var zeroes = (function(n) {
     for (var z = []; z.push(0) < n;){}
     return z;
   })(500);
 
-  const ptests = primes.slice(0, 10).map(function(v) {
+  var ptests = primes.slice(0, 10).map(function(v) {
     return [v];
   });
+  /* END CONSTANTS */
 
   function cut(x) {
     while (x[0] === 0 && x.length > 1) {
