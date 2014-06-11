@@ -1,9 +1,7 @@
-/* 
-  Crunch - Multi-precision Integer Arithmetic Library 
-  Copyright (C) 2014 Nenad Vukicevic
-
-  crunch.secureroom.net/license
-*/
+/** 
+ * Crunch - Arbitrary-precision integer arithmetic library 
+ * Copyright (C) 2014 Nenad Vukicevic crunch.secureroom.net/license
+ */
 
 /**
  * @module Crunch
@@ -15,51 +13,39 @@
  */
 function Crunch(rawIn, rawOut) {
 
-  /**
-   * Generate first n primes array
-   */
-  function nprimes(n) {
-    for (var j, b, p = [2], l = 1, i = 3; l < n; i += 2) {
-      for (j = 0; j < l; j++)
-        if (!(b = (i % p[j] !== 0)))
-          break;
-
-      if (b)
-        l = p.push(i);
-    }
-
-    return p;
-  }
-
-  /**
-   * Generate n-length zero filled array
-   */
-  function nzeroes(n) {
-    for (var z = []; z.push(0) < n;);
-    return z;
-  }
-
   /** 
    * Predefined constants for performance: zeroes for zero-filled arrays, 
    * primes for simple mod primality, ptests for Miller-Rabin primality
    */
-  const zeroes = nzeroes(500);
-  const primes = nprimes(1899);
-  const ptests = primes.slice(0, 10).map(function(v){return [v]});
+  const primes = (function(n) {
+    for (var j, b, p = [2], l = 1, i = 3; l < n; i += 2) {
+      for (b = true, j = 0; b && j < l; j++) {
+        b = i % p[j] !== 0;
+      }
 
-  /**
-   * Remove leading zeroes
-   */
+      l = b ? p.push(i) : l;
+    }
+
+    return p;
+  })(1900);
+
+  const zeroes = (function(n) {
+    for (var z = []; z.push(0) < n;){}
+    return z;
+  })(500);
+
+  const ptests = primes.slice(0, 10).map(function(v) {
+    return [v];
+  });
+
   function cut(x) {
-    while (x[0] === 0 && x.length > 1)
+    while (x[0] === 0 && x.length > 1) {
       x.shift();
+    }
 
     return x;
   }
 
-  /**
-   * Compare two MPIs
-   */
   function cmp(x, y) {
     var xl = x.length,
         yl = y.length, i; //zero front pad problem
@@ -83,8 +69,9 @@ function Crunch(rawIn, rawOut) {
    */
   function msb(x) {
     if (x !== 0) {
-      for (var i = 134217728, z = 0; i > x; z++)
+      for (var i = 134217728, z = 0; i > x; z++) {
         i /= 2;
+      }
 
       return z;
     }
@@ -95,16 +82,14 @@ function Crunch(rawIn, rawOut) {
    */
   function lsb(x) {
     if (x !== 0) {
-      for (var z = 0; !(x & 1); z++)
+      for (var z = 0; !(x & 1); z++) {
         x /= 2;
+      }
 
       return z;
     }
   }
 
-  /**
-   * Addition
-   */
   function add(x, y) {
     var n = x.length,
         t = y.length,
@@ -129,15 +114,13 @@ function Crunch(rawIn, rawOut) {
       }
     }
 
-    if (c === 1)
+    if (c === 1) {
       z.unshift(c);
+    }
 
     return z;
   }
 
-  /**
-   * Subtraction
-   */
   function sub(x, y, internal) {
     var n = x.length,
         t = y.length,
@@ -162,7 +145,7 @@ function Crunch(rawIn, rawOut) {
       }
     }
 
-    if (c === 1 && typeof internal === "undefined") {
+    if (c === 1 && !internal) {
       z = sub(zeroes.slice(0, z.length), z, true);
       z.negative = true;
     }
@@ -181,10 +164,10 @@ function Crunch(rawIn, rawOut) {
         z = add(x, y);
         z.negative = true;
       } else {
-        z = cut(sub(y, x));
+        z = cut(sub(y, x, false));
       }
     } else {
-      z = y.negative ? cut(sub(x, y)) : add(x, y);
+      z = y.negative ? cut(sub(x, y, false)) : add(x, y);
     }
 
     return z;
@@ -198,13 +181,13 @@ function Crunch(rawIn, rawOut) {
 
     if (x.negative) {
       if (y.negative) {
-        z = cut(sub(y, x));
+        z = cut(sub(y, x, false));
       } else {
         z = add(x, y);
         z.negative = true;
       }
     } else {
-      z = y.negative ? add(x, y) : cut(sub(x,y));
+      z = y.negative ? add(x, y) : cut(sub(x, y, false));
     }
 
     return z;
@@ -239,8 +222,9 @@ function Crunch(rawIn, rawOut) {
       z[i] = c;
     }
 
-    if (z[0] === 0)
+    if (z[0] === 0) {
       z.shift();
+    }
 
     z.negative = (x.negative ^ y.negative) ? true : false;
 
@@ -278,15 +262,13 @@ function Crunch(rawIn, rawOut) {
       z[i] = c;
     }
 
-    if (z[0] === 0)
+    if (z[0] === 0) {
       z.shift();
+    }
     
     return z;
   }
 
-  /**
-   * Right Shift
-   */
   function rsh(x, s) {
     var ss = s % 28,
         ls = Math.floor(s/28),
@@ -294,13 +276,15 @@ function Crunch(rawIn, rawOut) {
         z  = x.slice(0,l);
 
     if (ss) {
-      while (--l) 
+      while (--l) {
         z[l] = ((z[l] >> ss) | (z[l-1] << (28-ss))) & 268435455;
+      }
 
       z[l] = z[l] >> ss;
 
-      if (z[0] === 0)
+      if (z[0] === 0) {
         z.shift();
+      }
     }
 
     z.negative = x.negative;
@@ -308,9 +292,6 @@ function Crunch(rawIn, rawOut) {
     return z;
   }
 
-  /**
-   * Left Shift
-   */
   function lsh(x, s) {
     var ss = s % 28,
         ls = Math.floor(s/28),
@@ -324,8 +305,9 @@ function Crunch(rawIn, rawOut) {
         t    = x[l] >>> (28-ss);
       }
 
-      if (t !== 0)
+      if (t !== 0) {
         z.unshift(t);
+      }
     }
 
     z.negative = x.negative;
@@ -356,22 +338,23 @@ function Crunch(rawIn, rawOut) {
     // only cmp as last resort
     while (u[0] > k[0] || (u[0] === k[0] && cmp(u, k) > -1)) {
       q[0]++;
-      u = sub(u, k);
+      u = sub(u, k, false);
     }
 
     for (i = 1; i <= d; i++) {
-      q[i] = (u[i-1] === v[0]) ? 268435455 : ~~((u[i-1]*268435456 + u[i])/v[0]);
+      q[i] = u[i-1] === v[0] ? 268435455 : ~~((u[i-1]*268435456 + u[i])/v[0]);
 
       xt = u[i-1]*72057594037927936 + u[i]*268435456 + u[i+1];
 
-      while (q[i]*yt > xt) //condition check can fail due to precision problem at 28-bit radix
+      while (q[i]*yt > xt) { //condition check can fail due to precision problem at 28-bit
         q[i]--;
+      }
 
       k = mul(v, [q[i]]).concat(zeroes.slice(0, d-i)); //concat after multiply, save cycles
-      u = sub(u, k);
+      u = sub(u, k, false);
 
       if (u.negative) {
-        u = sub(v.concat(zeroes.slice(0, d-i)), u);
+        u = sub(v.concat(zeroes.slice(0, d-i)), u, false);
         q[i]--;
       }
     }
@@ -432,18 +415,19 @@ function Crunch(rawIn, rawOut) {
       }
 
       if (cmp(u, v) >= 0) {
-        u = sub(u, v);
+        u = sub(u, v, false);
         a = ssb(a, c);
         b = ssb(b, d);
       } else {
-        v = sub(v, u);
+        v = sub(v, u, false);
         c = ssb(c, a);
         d = ssb(d, b);
       }
     }
 
-    if (v.length === 1 && v[0] === 1)
+    if (v.length === 1 && v[0] === 1) {
       return d;
+    }
   }
 
   /**
@@ -451,7 +435,7 @@ function Crunch(rawIn, rawOut) {
    */
   function inv(x, y) {
     var z = gcd(y, x);
-    return (typeof z !== "undefined" && z.negative) ? sub(y, z) : z;
+    return (typeof z !== "undefined" && z.negative) ? sub(y, z, false) : z;
   }
 
   /**
@@ -460,11 +444,13 @@ function Crunch(rawIn, rawOut) {
   function bmr(x, m, mu) {
     var q1, q2, q3, r1, r2, z, s, k = m.length;
 
-    if (cmp(x, m) < 0) 
+    if (cmp(x, m) < 0) {
       return x; 
+    }
 
-    if (typeof mu === "undefined")
-      mu = div([1].concat(zeroes.slice(0, 2*k)), m);
+    if (typeof mu === "undefined") {
+      mu = div([1].concat(zeroes.slice(0, 2*k)), m, false);
+    }
 
     q1 = x.slice(0, x.length-(k-1));
     q2 = mul(q1, mu);
@@ -476,16 +462,19 @@ function Crunch(rawIn, rawOut) {
     r2 = mul(q3, m);
     s  = r2.length-(k+1);
     
-    if (s > 0)
+    if (s > 0) {
       r2 = r2.slice(s);
+    }
 
-    z = cut(sub(r1, r2));
+    z = cut(sub(r1, r2, false));
 
-    if (z.negative)
-      z = cut(sub([1].concat(zeroes.slice(0, k+1)), z));
+    if (z.negative) {
+      z = cut(sub([1].concat(zeroes.slice(0, k+1)), z, false));
+    }
 
-    while (cmp(z, m) >= 0)
-      z = cut(sub(z, m));
+    while (cmp(z, m) >= 0) {
+      z = cut(sub(z, m, false));
+    }
 
     return z;
   }
@@ -494,16 +483,20 @@ function Crunch(rawIn, rawOut) {
    * Modular Exponentiation - HAC 14.76 Right-to-left binary exp
    */
   function exp(x, e, n) {
-    var c, i, j, r = [1],
-        u = div(r.concat(zeroes.slice(0, 2*n.length)), n);
+    var i, j, 
+        c = 268435456,
+        r = [1],
+        u = div(r.concat(zeroes.slice(0, 2*n.length)), n, false);
 
-    for (c = 268435456, i = e.length-1; i >= 0; i--) {
-      if (i === 0)
+    for (i = e.length-1; i >= 0; i--) {
+      if (i === 0) {
         c = 1 << (27 - msb(e[0]));
+      }
 
       for (j = 1; j < c; j *= 2) {
-        if (e[i] & j)
+        if (e[i] & j) {
           r = bmr(mul(r, x), n, u);
+        }
         x = bmr(sqr(x), n, u);
       }
     }
@@ -526,12 +519,12 @@ function Crunch(rawIn, rawOut) {
     vq = exp(mod(x, q), dq1, q);
 
     if (cmp(vq, vp) < 0) {
-      t = cut(sub(vp, vq));
-      t = cut(bmr(mul(t, u), q));
-      t = cut(sub(q, t));
+      t = cut(sub(vp, vq, false));
+      t = cut(bmr(mul(t, u), q, undefined));
+      t = cut(sub(q, t, false));
     } else {
-      t = cut(sub(vq, vp));
-      t = cut(bmr(mul(t, u), q)); //bmr instead of mod, div fails too frequently because precision issue
+      t = cut(sub(vq, vp, false));
+      t = cut(bmr(mul(t, u), q, undefined)); //bmr instead of mod, div can fail because of precision
     }
 
     return cut(add(vp, mul(t, p)));
@@ -549,21 +542,16 @@ function Crunch(rawIn, rawOut) {
     return z;
   }
 
-  /**
-   * XOR
-   */
   function xor(x, y) {
     if (x.length === y.length) {
-      for (var z = [], i = 0; i < x.length; i++)
+      for (var z = [], i = 0; i < x.length; i++) {
         z[i] = x[i] ^ y[i];
+      }
     
       return z;
     }
   }
 
-  /**
-   * Decrement by 1
-   */
   function dec(x) {
     var z;
 
@@ -572,7 +560,7 @@ function Crunch(rawIn, rawOut) {
       z[z.length-1] -= 1;
       z.negative = x.negative;
     } else {
-      z = sub(x, [1]);
+      z = sub(x, [1], false);
     }
 
     return z;
@@ -596,54 +584,63 @@ function Crunch(rawIn, rawOut) {
         
         while (t && s > j++) {
           y = mod(sqr(y), x);
-          if (y.length === 1 && y[0] === 1) 
-            return false;
 
-          t = (cmp(y, m) !== 0);
+          if (y.length === 1 && y[0] === 1) {
+            return false;
+          }
+
+          t = cmp(y, m) !== 0;
         }
 
-        if (t)
+        if (t) {
           return false;
+        }
       }
     }
 
     return true;
   }
 
-  /**
-   * Test prime
-   */
   function tpr(x) {
-    if (x.length === 1 && x[0] < 16384 && primes.indexOf(x[0]) >= 0)
+    if (x.length === 1 && x[0] < 16384 && primes.indexOf(x[0]) >= 0) {
       return true;
+    }
 
-    for (var i = 1, k = primes.length; i < k; i++)
-      if (mds(x, primes[i]) === 0)
+    for (var i = 1, k = primes.length; i < k; i++) {
+      if (mds(x, primes[i]) === 0) {
         return false;
+      }
+    }
 
     return mrb(x, 3);
   }
 
-  /**
-   * Find next prime
-   */
   function npr(x) {
     var l = x.length - 1;
 
     x[l] |= 1;
 
-    while (!tpr(x))
+    while (!tpr(x)) {
       x[l] = (x[l]+2) % 268435456; //backwards on boundary
+    }
 
     return x;
   }
 
-  /**
-   * Toggle sign
-   */  
   function tgl(x) {
     x[0] *= -1;
     return x;
+  }
+
+  function fct(n) {
+    var r = [1],
+        a = [1];
+
+    while (a[0]++ < n) {
+      r = mul(r, a);
+    }
+
+    return r;
   }
 
   /**
@@ -661,8 +658,9 @@ function Crunch(rawIn, rawOut) {
       z.negative = false;
     }
 
-    for (p = 0; p < i.length; p += 7)
+    for (p = 0; p < i.length; p += 7) {
       z.push((i[p]*1048576 + i[p+1]*4096 + i[p+2]*16 + (i[p+3]>>4)), ((i[p+3]&15)*16777216 + i[p+4]*65536 + i[p+5]*256 + i[p+6]));
+    }
     
     return cut(z);
   }
@@ -700,8 +698,8 @@ function Crunch(rawIn, rawOut) {
      * Return zero array length n 
      *
      * @method zero
-     * @param {integer} n
-     * @return {array} 0 length n
+     * @param {Number} n
+     * @return {Array} 0 length n
      */
     zero: function(n) {
       return zeroes.slice(0, n);
@@ -711,9 +709,9 @@ function Crunch(rawIn, rawOut) {
      * Signed Addition - Safe for signed MPI
      *
      * @method add
-     * @param {array} x
-     * @param {array} y
-     * @return {array} x + y
+     * @param {Array} x
+     * @param {Array} y
+     * @return {Array} x + y
      */
     add: function(x, y) {
       return transformOut(
@@ -725,9 +723,9 @@ function Crunch(rawIn, rawOut) {
      * Signed Subtraction - Safe for signed MPI
      *
      * @method sub
-     * @param {array} x
-     * @param {array} y
-     * @return {array} x - y
+     * @param {Array} x
+     * @param {Array} y
+     * @return {Array} x - y
      */
     sub: function(x, y) {
       return transformOut(
@@ -739,9 +737,9 @@ function Crunch(rawIn, rawOut) {
      * Multiplication
      *
      * @method mul
-     * @param {array} x
-     * @param {array} y
-     * @return {array} x * y
+     * @param {Array} x
+     * @param {Array} y
+     * @return {Array} x * y
      */
     mul: function(x, y) {
       return transformOut(
@@ -753,8 +751,8 @@ function Crunch(rawIn, rawOut) {
      * Squaring
      *
      * @method sqr
-     * @param {array} x
-     * @return {array} x * x
+     * @param {Array} x
+     * @return {Array} x * x
      */
     sqr: function(x) {
       return transformOut(
@@ -766,10 +764,10 @@ function Crunch(rawIn, rawOut) {
      * Modular Exponentiation
      *
      * @method exp
-     * @param {array} x
-     * @param {array} e
-     * @param {array} n
-     * @return {array} x^e % n
+     * @param {Array} x
+     * @param {Array} e
+     * @param {Array} n
+     * @return {Array} x^e % n
      */
     exp: function(x, e, n) {
       return transformOut(
@@ -781,9 +779,9 @@ function Crunch(rawIn, rawOut) {
      * Division
      *
      * @method div
-     * @param {array} x
-     * @param {array} y
-     * @return {array} x / y
+     * @param {Array} x
+     * @param {Array} y
+     * @return {Array} x / y || undefined
      */
     div: function(x, y) {
       if (y.length !== 1 || y[0] !== 0) {
@@ -797,9 +795,9 @@ function Crunch(rawIn, rawOut) {
      * Modulus
      *
      * @method mod
-     * @param {array} x
-     * @param {array} y
-     * @return {array} x % y
+     * @param {Array} x
+     * @param {Array} y
+     * @return {Array} x % y
      */
     mod: function(x, y) {
       return transformOut(
@@ -811,10 +809,10 @@ function Crunch(rawIn, rawOut) {
      * Barret Modular Reduction
      *
      * @method bmr
-     * @param {array} x
-     * @param {array} y
-     * @param {array} [mu]
-     * @return {array} x % y
+     * @param {Array} x
+     * @param {Array} y
+     * @param {Array} [mu]
+     * @return {Array} x % y
      */
     bmr: function(x, y, mu) {
       return transformOut(
@@ -826,14 +824,14 @@ function Crunch(rawIn, rawOut) {
      * Garner's Algorithm
      *
      * @method gar
-     * @param {array} x
-     * @param {array} p
-     * @param {array} q
-     * @param {array} d
-     * @param {array} u
-     * @param {array} [dp1]
-     * @param {array} [dq1]
-     * @return {array} x^d % pq
+     * @param {Array} x
+     * @param {Array} p
+     * @param {Array} q
+     * @param {Array} d
+     * @param {Array} u
+     * @param {Array} [dp1]
+     * @param {Array} [dq1]
+     * @return {Array} x^d % pq
      */
     gar: function(x, p, q, d, u, dp1, dq1) {
       return transformOut(
@@ -845,9 +843,9 @@ function Crunch(rawIn, rawOut) {
      * Mod Inverse
      *
      * @method inv
-     * @param {array} x
-     * @param {array} y
-     * @return {array} 1/x % y
+     * @param {Array} x
+     * @param {Array} y
+     * @return {Array} 1/x % y || undefined
      */
     inv: function(x, y) {
       return transformOut(
@@ -860,7 +858,7 @@ function Crunch(rawIn, rawOut) {
      *
      * @method cut
      * @param {Array} x
-     * @return {Array} new array without leading zeroes
+     * @return {Array} x without leading zeroes
      */
     cut: function(x) {
       return transformOut(
@@ -868,13 +866,27 @@ function Crunch(rawIn, rawOut) {
       );
     },
 
+
+    /**
+     * Factorial - for n < 268435456
+     *
+     * @method factorial
+     * @param {Number} n 
+     * @return {Array} n!
+     */
+    factorial: function(n) {
+      return transformOut(
+        fct.apply(null, [n%268435456])
+      );
+    },
+
     /**
      * Exclusive-Or
      *
      * @method xor
-     * @param {array} x
-     * @param {array} y
-     * @return {array} x xor y
+     * @param {Array} x
+     * @param {Array} y
+     * @return {Array} x xor y
      */
     xor: function(x, y) {
       return xor(x, y);
@@ -884,8 +896,8 @@ function Crunch(rawIn, rawOut) {
      * Decrement
      *
      * @method decrement
-     * @param {array} x
-     * @return {array} x - 1
+     * @param {Array} x
+     * @return {Array} x - 1
      */
     decrement: function(x) {
       return transformOut(
@@ -897,11 +909,11 @@ function Crunch(rawIn, rawOut) {
      * Compare values of two MPIs - Not safe for signed or leading zero MPI
      *
      * @method compare
-     * @param {array} x
-     * @param {array} y
-     * @return {integer} 1: x > y
-     *                   0: x = y 
-     *                  -1: x < y
+     * @param {Array} x
+     * @param {Array} y
+     * @return {Number} 1: x > y
+     *                  0: x = y 
+     *                 -1: x < y
      */
     compare: function(x, y) {
       return cmp(x, y);
@@ -911,8 +923,8 @@ function Crunch(rawIn, rawOut) {
      * Find Next Prime
      *
      * @method nextPrime
-     * @param {array} n
-     * @return {array} 1st prime > n
+     * @param {Array} x
+     * @return {Array} 1st prime > x
      */
     nextPrime: function(x) {
       return transformOut(
@@ -925,7 +937,7 @@ function Crunch(rawIn, rawOut) {
      * Sieve then Miller-Rabin
      *
      * @method testPrime
-     * @param {array} n
+     * @param {Array} x
      * @return {boolean} is prime
      */
     testPrime: function(x) {
@@ -936,9 +948,9 @@ function Crunch(rawIn, rawOut) {
      * Array base conversion
      *
      * @method transfirn
-     * @param {array} x
+     * @param {Array} x
      * @param {boolean} toRaw
-     * @return {array}  toRaw: 8 => 28-bit array
+     * @return {Array}  toRaw: 8 => 28-bit array
      *                 !toRaw: 28 => 8-bit array
      */
     transform: function(x, toRaw) {
@@ -948,8 +960,6 @@ function Crunch(rawIn, rawOut) {
 }
 
 /**
- * Crunch is runnable within a web worker or as a node module.
- *
  * @example WebWorker invocation
  * Request: { "func": "add",
  *            "args": [[123], [7]] }
@@ -959,11 +969,11 @@ function Crunch(rawIn, rawOut) {
  * var crunch = require("number-crunch");
  */
 if (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope) {
-  var crunch = Crunch();
+  var crunch = Crunch(false, false);
 
   self.onmessage = function(e) {
-    self.postMessage(crunch[e.data.func].apply(crunch, e.data.args));
+    self.postMessage(crunch[e.data.func].apply(crunch, e.data.args));  
   }
-} else if (typeof module !== 'undefined' && module.exports) {
-  module.exports = Crunch();
+} else if (typeof module !== "undefined" && module.exports) {
+  module.exports = Crunch(false, false);
 }
