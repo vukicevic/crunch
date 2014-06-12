@@ -1,7 +1,7 @@
 {
   "name": "crunch",
   "main": "crunch.js",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "homepage": "https://github.com/vukicevic/crunch",
   "authors": [
     "Nenad Vukicevic <vukicevic@gmail.com>"
