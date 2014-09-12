@@ -618,13 +618,26 @@ function Crunch(rawIn, rawOut) {
     return mrb(x, 3);
   }
 
-  function npr(x) {
+  /**
+   * Quick add integer n to arbitrary precision integer x avoiding overflow
+   */
+  function qad(x, n) {
     var l = x.length - 1;
 
-    x[l] |= 1;
+    if (x[l] + n < 268435456) {
+      x[l] += n;
+    } else {
+      x = add(x, [n]);
+    }
+
+    return x;
+  }
+
+  function npr(x) {
+    x = qad(x, 1 + x[x.length-1] % 2);
 
     while (!tpr(x)) {
-      x[l] = (x[l]+2) % 268435456; //backwards on boundary
+      x = qad(x, 2);
     }
 
     return x;

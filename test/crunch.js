@@ -369,10 +369,13 @@ describe('#next prime', function() {
     crunch.nextPrime([5, 57, 84, 76, 233, 0, 120, 91, 180, 180, 8]).should.eql([5, 57, 84, 76, 233, 0, 120, 91, 180, 180, 107]);
   });
   it('Find next prime', function() {
-    crunch.nextPrime([17]).should.eql([17]);
+    crunch.nextPrime([17]).should.eql([19]);
   });
   it('Find next prime', function() {
     crunch.nextPrime([7, 200]).should.eql([7, 201]);
+  });
+  it('Find next prime', function() {
+    crunch.nextPrime([3]).should.eql([5]);
   });
 });
 
