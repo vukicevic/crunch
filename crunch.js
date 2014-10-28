@@ -20,8 +20,8 @@ function Crunch(rawIn, rawOut) {
    * zeroes, primes and ptests for Miller-Rabin primality
    */
   var primes = (function(n) {
-    for (var j, b, p = [2], l = 1, i = 3; l < n; i += 2) {
-      for (b = true, j = 0; b && j < l; j++) {
+    for (var p = [2], l = 1, i = 3; l < n; i += 2) {
+      for (var b = true, j = 0; b && j < l; j++) {
         b = i % p[j] !== 0;
       }
 
@@ -200,7 +200,7 @@ function Crunch(rawIn, rawOut) {
    * Multiplication - HAC 14.12
    */
   function mul(x, y) {
-    var yl, yh, xl, xh, t1, t2, c, j,
+    var yl, yh, c,
         n = x.length,
         i = y.length,
         z = zeroes.slice(0, n+i);
@@ -211,7 +211,7 @@ function Crunch(rawIn, rawOut) {
       yl = y[i] & 16383;
       yh = y[i] >> 14;
 
-      for (j = n-1; j>=0; j--) {
+      for (var j = n-1, xl, xh, t1, t2; j >= 0; j--) {
         xl = x[j] & 16383;
         xh = x[j] >> 14;
 
@@ -238,7 +238,7 @@ function Crunch(rawIn, rawOut) {
    * Squaring - HAC 14.16
    */
   function sqr(x) {
-    var l1, l2, h1, h2, t1, t2, j, c,
+    var l1, h1, t1, t2, c,
         i = x.length,
         z = zeroes.slice(0, 2*i);
 
@@ -252,7 +252,7 @@ function Crunch(rawIn, rawOut) {
       z[2*i+1] = t2 & 268435455;
       c = h1*h1 + (t1 >> 14) + (t2 >> 28);
 
-      for (j = i-1; j>=0; j--) {
+      for (var j = i-1, l2, h2; j >= 0; j--) {
         l2 = (2 * x[j]) & 16383;
         h2 = x[j] >> 13;
 
@@ -486,17 +486,16 @@ function Crunch(rawIn, rawOut) {
    * Modular Exponentiation - HAC 14.76 Right-to-left binary exp
    */
   function exp(x, e, n) {
-    var i, j, 
-        c = 268435456,
+    var c = 268435456,
         r = [1],
         u = div(r.concat(zeroes.slice(0, 2*n.length)), n, false);
 
-    for (i = e.length-1; i >= 0; i--) {
+    for (var i = e.length-1; i >= 0; i--) {
       if (i === 0) {
         c = 1 << (27 - msb(e[0]));
       }
 
-      for (j = 1; j < c; j *= 2) {
+      for (var j = 1; j < c; j *= 2) {
         if (e[i] & j) {
           r = bmr(mul(r, x), n, u);
         }
@@ -575,10 +574,9 @@ function Crunch(rawIn, rawOut) {
   function mrb(x, iterations) {
     var m = dec(x),
         s = lsb(m[x.length-1]),
-        r = rsh(x, s),
-        y, t, j, i;
+        r = rsh(x, s);
 
-    for (i = 0; i < iterations; i++) {
+    for (var i = 0, j, t, y; i < iterations; i++) {
       y = exp(ptests[i], r, x);
 
       if ( (y.length > 1 || y[0] !== 1) && cmp(y,m) !== 0 ) {
@@ -609,7 +607,7 @@ function Crunch(rawIn, rawOut) {
       return true;
     }
 
-    for (var i = 1, k = primes.length; i < k; i++) {
+    for (var i = 1, l = primes.length; i < l; i++) {
       if (mds(x, primes[i]) === 0) {
         return false;
       }
@@ -644,14 +642,14 @@ function Crunch(rawIn, rawOut) {
   }
 
   function fct(n) {
-    var r = [1],
+    var z = [1],
         a = [1];
 
     while (a[0]++ < n) {
-      r = mul(r, a);
+      z = mul(z, a);
     }
 
-    return r;
+    return z;
   }
 
   /**
