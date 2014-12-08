@@ -1,22 +1,22 @@
 var should = require('chai').should(),
     crunch = require('../crunch');
 
-describe('#transform', function() {
+describe('#transform', function () {
 
-  it('Transform 8 to 28 bit int array', function() {
+  it('Transform 8 to 28 bit int array', function () {
     var x = [242, 62, 42, 2],
-        y = [15, 37628418]; 
-    
+        y = [15, 37628418];
+
     y.negative = false;
-    
+
     crunch.transform(x, true).should.eql(y);
 
     x.should.eql([242, 62, 42, 2]);
   });
 
-  it('Transform 8 to 28 bit int array', function() {
+  it('Transform 8 to 28 bit int array', function () {
     var x = [255, 255, 255, 255, 255, 255],
-        y = [1048575, 268435455]; 
+        y = [1048575, 268435455];
 
     y.negative = false;
 
@@ -25,7 +25,7 @@ describe('#transform', function() {
     x.should.eql([255, 255, 255, 255, 255, 255]);
   });
 
-  it('Transform 28 to 8 bit int array', function() {
+  it('Transform 28 to 8 bit int array', function () {
     var x = [15, 37628418];
 
     crunch.transform(x).should.eql([242, 62, 42, 2]);
@@ -33,7 +33,7 @@ describe('#transform', function() {
     x.should.eql([15, 37628418]);
   });
 
-  it('Transform 28 to 8 bit int array', function() {
+  it('Transform 28 to 8 bit int array', function () {
     var x = [1048575, 268435455];
 
     crunch.transform(x).should.eql([255, 255, 255, 255, 255, 255]);
@@ -43,9 +43,9 @@ describe('#transform', function() {
 
 });
 
-describe('#misc', function() {
+describe('#misc', function () {
 
-  it('Decrement big number', function() {
+  it('Decrement big number', function () {
     var x = [5, 76];
 
     crunch.decrement(x).should.eql([5, 75]);
@@ -53,7 +53,7 @@ describe('#misc', function() {
     x.should.eql([5, 76]);
   });
 
-  it('Decrement big number', function() {
+  it('Decrement big number', function () {
     var x = [5, 0];
 
     crunch.decrement(x).should.eql([4, 255]);
@@ -61,23 +61,23 @@ describe('#misc', function() {
     x.should.eql([5, 0]);
   });
 
-  it('Cut leading zeros', function() {
+  it('Cut leading zeros', function () {
     var x = [0, 0, 0, 5, 76];
-    
+
     crunch.cut(x).should.eql([5, 76]);
 
     x.should.eql([0, 0, 0, 5, 76]);
   });
 
-  it('Cut leading zeros', function() {
+  it('Cut leading zeros', function () {
     var x = [0, 0];
-    
+
     crunch.cut(x).should.eql([0]);
 
     x.should.eql([0, 0]);
   });
 
-  it('Xor two arrays', function() {
+  it('Xor two arrays', function () {
     var x = [22, 11],
         y = [255, 189];
 
@@ -87,15 +87,15 @@ describe('#misc', function() {
     y.should.eql([255, 189]);
   });
 
-  it('Get zero filled array', function() {
+  it('Get zero filled array', function () {
     crunch.zero(5).should.eql([0, 0, 0, 0, 0]);
   });
 
 });
 
-describe('#compare', function() {
+describe('#compare', function () {
 
-  it('Compare equal arrays', function() {
+  it('Compare equal arrays', function () {
     var x = [5, 57, 84, 76],
         y = [5, 57, 84, 76];
 
@@ -105,7 +105,7 @@ describe('#compare', function() {
     y.should.eql([5, 57, 84, 76]);
   });
 
-  it('Compare large to small array', function() {
+  it('Compare large to small array', function () {
     var x = [5, 57, 84, 76],
         y = [57, 84, 75];
 
@@ -115,7 +115,7 @@ describe('#compare', function() {
     y.should.eql([57, 84, 75]);
   });
 
-  it('Compare small to large array', function() {
+  it('Compare small to large array', function () {
     var x = [5, 76],
         y = [6, 57, 84, 75];
 
@@ -125,7 +125,7 @@ describe('#compare', function() {
     y.should.eql([6, 57, 84, 75]);
   });
 
-  it('Compare equal negative arrays', function() {
+  it('Compare equal negative arrays', function () {
     var x = [-5, 10],
         y = [-5, 10];
 
@@ -135,7 +135,7 @@ describe('#compare', function() {
     y.should.eql([-5, 10]);
   });
 
-  it('Compare positive to negative array', function() {
+  it('Compare positive to negative array', function () {
     var x = [5, 10],
         y = [-5, 10];
 
@@ -145,7 +145,7 @@ describe('#compare', function() {
     y.should.eql([-5, 10]);
   });
 
-  it('Compare negative to positive array', function() {
+  it('Compare negative to positive array', function () {
     var x = [-5, 10],
         y = [5, 10];
 
@@ -157,9 +157,9 @@ describe('#compare', function() {
 
 });
 
-describe('#addition unsigned', function() {
+describe('#addition unsigned', function () {
 
-  it('Add big numbers', function() {
+  it('Add big numbers', function () {
     var x = [242, 62],
         y = [42, 2];
 
@@ -169,7 +169,7 @@ describe('#addition unsigned', function() {
     y.should.eql([42, 2]);
   });
 
-  it('Add big numbers', function() {
+  it('Add big numbers', function () {
     var x = [6, 17],
         y = [42, 2];
 
@@ -179,7 +179,7 @@ describe('#addition unsigned', function() {
     y.should.eql([42, 2]);
   });
 
-  it('Add big numbers', function() {
+  it('Add big numbers', function () {
     var x = [26, 255, 230, 17],
         y = [42, 34];
 
@@ -189,7 +189,7 @@ describe('#addition unsigned', function() {
     y.should.eql([42, 34]);
   });
 
-  it('Add big numbers', function() {
+  it('Add big numbers', function () {
     var x = [234, 34],
         y = [255, 255, 230, 17];
 
@@ -199,7 +199,7 @@ describe('#addition unsigned', function() {
     y.should.eql([255, 255, 230, 17]);
   });
 
-  it('Add big numbers', function() {
+  it('Add big numbers', function () {
     var x = [255, 255, 255, 255, 255, 255],
         y = [255, 255, 255, 255, 255, 255];
 
@@ -211,9 +211,9 @@ describe('#addition unsigned', function() {
 
 });
 
-describe('#addition signed', function() {
+describe('#addition signed', function () {
 
-  it('Add big numbers', function() {
+  it('Add big numbers', function () {
     var x = [51, 254, 144, 207],
         y = [-20, 89, 145, 32];
 
@@ -223,7 +223,7 @@ describe('#addition signed', function() {
     y.should.eql([-20, 89, 145, 32]);
   });
 
-  it('Add big numbers', function() {
+  it('Add big numbers', function () {
     var x = [242, 62],
         y = [-242, 64];
 
@@ -233,7 +233,7 @@ describe('#addition signed', function() {
     y.should.eql([-242, 64]);
   });
 
-  it('Add big numbers', function() {
+  it('Add big numbers', function () {
     var x = [-42, 2],
         y = [242, 62];
 
@@ -243,7 +243,7 @@ describe('#addition signed', function() {
     y.should.eql([242, 62]);
   });
 
-  it('Add big numbers', function() {
+  it('Add big numbers', function () {
     var x = [-42, 2],
         y = [42, 0];
 
@@ -253,7 +253,7 @@ describe('#addition signed', function() {
     y.should.eql([42, 0]);
   });
 
-  it('Add big numbers', function() {
+  it('Add big numbers', function () {
     var x = [-242, 62],
         y = [-42, 2];
 
@@ -265,9 +265,9 @@ describe('#addition signed', function() {
 
 });
 
-describe('#addition zero', function() {
+describe('#addition zero', function () {
 
-  it('Add big numbers', function() {
+  it('Add big numbers', function () {
     var x = [26, 255, 230, 17],
         y = [0];
 
@@ -277,7 +277,7 @@ describe('#addition zero', function() {
     y.should.eql([0]);
   });
 
-  it('Add big numbers', function() {
+  it('Add big numbers', function () {
     var x = [0],
         y = [43, 123, 200, 1];
 
@@ -287,7 +287,7 @@ describe('#addition zero', function() {
     y.should.eql([43, 123, 200, 1]);
   });
 
-  it('Add big numbers', function() {
+  it('Add big numbers', function () {
     var x = [0],
         y = [0];
 
@@ -299,9 +299,9 @@ describe('#addition zero', function() {
 
 });
 
-describe('#subtraction unsigned', function() {
+describe('#subtraction unsigned', function () {
 
-  it('Subtract big numbers', function() {
+  it('Subtract big numbers', function () {
     var x = [242, 62],
         y = [42, 2];
 
@@ -311,7 +311,7 @@ describe('#subtraction unsigned', function() {
     y.should.eql([42, 2]);
   });
 
-  it('Subtract big numbers', function() {
+  it('Subtract big numbers', function () {
     var x = [170, 1, 79, 119, 242, 62],
         y = [17, 241, 123, 250, 42, 2];
 
@@ -321,7 +321,7 @@ describe('#subtraction unsigned', function() {
     y.should.eql([17, 241, 123, 250, 42, 2]);
   });
 
-  it('Subtract big numbers', function() {
+  it('Subtract big numbers', function () {
     var x = [240, 0, 0, 0, 0, 0],
         y = [1];
 
@@ -331,7 +331,7 @@ describe('#subtraction unsigned', function() {
     y.should.eql([1]);
   });
 
-  it('Subtract big numbers', function() {
+  it('Subtract big numbers', function () {
     var x = [244, 137, 7, 161],
         y = [2, 59, 86];
 
@@ -341,7 +341,7 @@ describe('#subtraction unsigned', function() {
     y.should.eql([2, 59, 86]);
   });
 
-  it('Subtract big numbers', function() {
+  it('Subtract big numbers', function () {
     var x = [20, 0, 0],
         y = [19, 0, 0];
 
@@ -352,9 +352,9 @@ describe('#subtraction unsigned', function() {
   });
 });
 
-describe('#subtraction signed', function() {
+describe('#subtraction signed', function () {
 
-  it('Subtract big numbers', function() {
+  it('Subtract big numbers', function () {
     var x = [26],
         y = [255];
 
@@ -364,7 +364,7 @@ describe('#subtraction signed', function() {
     y.should.eql([255]);
   });
 
-  it('Subtract big numbers', function() {
+  it('Subtract big numbers', function () {
     var x = [188, 196],
         y = [188, 197];
 
@@ -374,7 +374,7 @@ describe('#subtraction signed', function() {
     y.should.eql([188, 197]);
   });
 
-  it('Subtract big numbers', function() {
+  it('Subtract big numbers', function () {
     var x = [240, 0, 0, 0, 0, 0],
         y = [-1];
 
@@ -384,7 +384,7 @@ describe('#subtraction signed', function() {
     y.should.eql([-1]);
   });
 
-  it('Subtract big numbers', function() {
+  it('Subtract big numbers', function () {
     var x = [-240, 0, 0, 0, 0, 0],
         y = [1];
 
@@ -394,7 +394,7 @@ describe('#subtraction signed', function() {
     y.should.eql([1]);
   });
 
-  it('Subtract big numbers', function() {
+  it('Subtract big numbers', function () {
     var x = [-240, 0, 0, 0, 0, 0],
         y = [-1];
 
@@ -406,9 +406,9 @@ describe('#subtraction signed', function() {
 
 });
 
-describe('#subtraction zero', function() {
+describe('#subtraction zero', function () {
 
-  it('Subtract big numbers', function() {
+  it('Subtract big numbers', function () {
     var x = [20],
         y = [20];
 
@@ -418,7 +418,7 @@ describe('#subtraction zero', function() {
     y.should.eql([20]);
   });
 
-  it('Subtract big numbers', function() {
+  it('Subtract big numbers', function () {
     var x = [244, 137, 7, 161],
         y = [0];
 
@@ -428,7 +428,7 @@ describe('#subtraction zero', function() {
     y.should.eql([0]);
   });
 
-  it('Subtract big numbers', function() {
+  it('Subtract big numbers', function () {
     var x = [0],
         y = [0];
 
@@ -440,9 +440,9 @@ describe('#subtraction zero', function() {
 
 });
 
-describe('#multiplication unsigned', function() {
+describe('#multiplication unsigned', function () {
 
-  it('Multiply big numbers', function() {
+  it('Multiply big numbers', function () {
     var x = [242, 62],
         y = [42, 2];
 
@@ -452,7 +452,7 @@ describe('#multiplication unsigned', function() {
     y.should.eql([42, 2]);
   });
 
-  it('Multiply big numbers', function() {
+  it('Multiply big numbers', function () {
     var x = [162, 51, 95],
         y = [42, 18, 204];
 
@@ -462,7 +462,7 @@ describe('#multiplication unsigned', function() {
     y.should.eql([42, 18, 204]);
   });
 
-  it('Multiply big numbers', function() {
+  it('Multiply big numbers', function () {
     var x = [255, 65, 34, 51, 95],
         y = [42, 18, 204];
 
@@ -472,7 +472,7 @@ describe('#multiplication unsigned', function() {
     y.should.eql([42, 18, 204]);
   });
 
-  it('Multiply big numbers', function() {
+  it('Multiply big numbers', function () {
     var x = [255, 255, 255, 255],
         y = [255, 255, 255, 255];
 
@@ -482,7 +482,7 @@ describe('#multiplication unsigned', function() {
     y.should.eql([255, 255, 255, 255]);
   });
 
-  it('Multiply big numbers', function() {
+  it('Multiply big numbers', function () {
     var x = [60, 193, 71, 209],
         y = [93, 8, 143, 237];
 
@@ -494,9 +494,9 @@ describe('#multiplication unsigned', function() {
 
 });
 
-describe('#multiplication signed', function() {
+describe('#multiplication signed', function () {
 
-  it('Multiply big numbers', function() {
+  it('Multiply big numbers', function () {
     var x = [77, 242, 62],
         y = [-42, 2, 113, 43, 57, 65];
 
@@ -506,7 +506,7 @@ describe('#multiplication signed', function() {
     y.should.eql([-42, 2, 113, 43, 57, 65]);
   });
 
-  it('Multiply big numbers', function() {
+  it('Multiply big numbers', function () {
     var x = [-255, 17, 162, 62],
         y = [255, 17, 162, 62];
 
@@ -516,7 +516,7 @@ describe('#multiplication signed', function() {
     y.should.eql([255, 17, 162, 62]);
   });
 
-  it('Multiply big numbers', function() {
+  it('Multiply big numbers', function () {
     var x = [-162, 51, 95],
         y = [-42, 18, 204];
 
@@ -528,9 +528,9 @@ describe('#multiplication signed', function() {
 
 });
 
-describe('#multiplication zero', function() {
+describe('#multiplication zero', function () {
 
-  it('Multiply big numbers', function() {
+  it('Multiply big numbers', function () {
     var x = [77, 242, 62],
         y = [0];
 
@@ -540,7 +540,7 @@ describe('#multiplication zero', function() {
     y.should.eql([0]);
   });
 
-  it('Multiply big numbers', function() {
+  it('Multiply big numbers', function () {
     var x = [0],
         y = [77, 242, 62];
 
@@ -550,7 +550,7 @@ describe('#multiplication zero', function() {
     y.should.eql([77, 242, 62]);
   });
 
-  it('Multiply big numbers', function() {
+  it('Multiply big numbers', function () {
     var x = [0],
         y = [0];
 
@@ -562,9 +562,9 @@ describe('#multiplication zero', function() {
 
 });
 
-describe('#squaring', function() {
+describe('#squaring', function () {
 
-  it('Squaring a big number', function() {
+  it('Squaring a big number', function () {
     var x = [162, 62];
 
     crunch.sqr(x).should.eql([102, 210, 135, 4]);
@@ -572,7 +572,7 @@ describe('#squaring', function() {
     x.should.eql([162, 62]);
   });
 
-  it('Squaring a big number', function() {
+  it('Squaring a big number', function () {
     var x = [78, 42, 255, 88, 11];
 
     crunch.sqr(x).should.eql([23, 222, 58, 210, 110, 72, 32, 49, 144, 121]);
@@ -580,7 +580,7 @@ describe('#squaring', function() {
     x.should.eql([78, 42, 255, 88, 11]);
   });
 
-  it('Squaring a big number', function() {
+  it('Squaring a big number', function () {
     var x = [255, 17, 162, 62];
 
     crunch.sqr(x).should.eql([254, 36, 34, 110, 119, 14, 135, 4]);
@@ -588,7 +588,7 @@ describe('#squaring', function() {
     x.should.eql([255, 17, 162, 62]);
   });
 
-  it('Squaring a negative number', function() {
+  it('Squaring a negative number', function () {
     var x = [-162, 62];
 
     crunch.sqr(x).should.eql([102, 210, 135, 4]);
@@ -596,7 +596,7 @@ describe('#squaring', function() {
     x.should.eql([-162, 62]);
   });
 
-  it('Squaring zero', function() {
+  it('Squaring zero', function () {
     var x = [0];
 
     crunch.sqr(x).should.eql([0]);
@@ -606,9 +606,9 @@ describe('#squaring', function() {
 
 });
 
-describe('#division unsigned', function() {
+describe('#division unsigned', function () {
 
-  it('Divide big numbers', function() {
+  it('Divide big numbers', function () {
     var x = [170, 153, 136],
         y = [17, 68];
 
@@ -618,7 +618,7 @@ describe('#division unsigned', function() {
     y.should.eql([17, 68]);
   });
 
-  it('Divide big numbers', function() {
+  it('Divide big numbers', function () {
     var x = [170, 153, 136, 119, 102, 85],
         y = [17, 68];
 
@@ -628,217 +628,217 @@ describe('#division unsigned', function() {
     y.should.eql([17, 68]);
   });
 
-  it('Divide big numbers', function() {
+  it('Divide big numbers', function () {
     var x = [52, 155, 168, 23, 6, 85],
         y = [19, 26, 247];
 
     crunch.div(x, y).should.eql([2, 192, 234, 136]);
-  
+
     x.should.eql([52, 155, 168, 23, 6, 85]);
     y.should.eql([19, 26, 247]);
   });
 
-  it('Divide by one', function() {
+  it('Divide by one', function () {
     var x = [15, 127, 73, 1],
         y = [1];
 
     crunch.div(x, y).should.eql([15, 127, 73, 1]);
-  
+
     x.should.eql([15, 127, 73, 1]);
     y.should.eql([1]);
   });
 
-  it('Divide by self', function() {
+  it('Divide by self', function () {
     var x = [15, 127, 73, 1],
         y = [15, 127, 73, 1];
 
     crunch.div(x, y).should.eql([1]);
-  
+
     x.should.eql([15, 127, 73, 1]);
     y.should.eql([15, 127, 73, 1]);
   });
 
 });
 
-describe('#division signed', function() {
+describe('#division signed', function () {
 
-  it('Divide big numbers', function() {
+  it('Divide big numbers', function () {
     var x = [-170, 153, 136],
         y = [17, 68];
 
     crunch.div(x, y).should.eql([-9, 225]);
-  
+
     x.should.eql([-170, 153, 136]);
     y.should.eql([17, 68]);
   });
 
-  it('Divide big numbers', function() {
+  it('Divide big numbers', function () {
     var x = [170, 153, 136, 119, 102, 85],
         y = [-17, 68];
 
     crunch.div(x, y).should.eql([-9, 225, 129, 255, 9]);
-  
+
     x.should.eql([170, 153, 136, 119, 102, 85]);
     y.should.eql([-17, 68]);
   });
 
-  it('Divide big numbers', function() {
+  it('Divide big numbers', function () {
     var x = [-52, 155, 168, 23, 6, 85],
         y = [-19, 26, 247];
 
     crunch.div(x, y).should.eql([2, 192, 234, 136]);
-  
+
     x.should.eql([-52, 155, 168, 23, 6, 85]);
     y.should.eql([-19, 26, 247]);
   });
 
 });
 
-describe('#division zero', function() {
+describe('#division zero', function () {
 
-  it('Divide zero', function() {
+  it('Divide zero', function () {
     var x = [0],
         y = [17, 68];
 
     crunch.div(x, y).should.eql([0]);
-  
+
     x.should.eql([0]);
     y.should.eql([17, 68]);
   });
 
-  it('Divide by zero', function() {
+  it('Divide by zero', function () {
     var x = [170, 153],
         y = [0];
 
     should.not.exist(crunch.div(x, y));
-  
+
     x.should.eql([170, 153]);
     y.should.eql([0]);
   });
 
-  it('Divide zero by zero', function() {
+  it('Divide zero by zero', function () {
     var x = [0],
         y = [0];
 
     should.not.exist(crunch.div(x, y));
-  
+
     x.should.eql([0]);
     y.should.eql([0]);
   });
 
 });
 
-describe('#modular reduction', function() {
+describe('#modular reduction', function () {
 
-  it('Big modulo smaller', function() {
+  it('Big modulo smaller', function () {
     var x = [170, 153, 136, 119, 102, 85],
         y = [17, 68];
 
     crunch.mod(x, y).should.eql([14, 241]);
-  
+
     x.should.eql([170, 153, 136, 119, 102, 85]);
     y.should.eql([17, 68]);
   });
 
-  it('Big modulo smaller', function() {
+  it('Big modulo smaller', function () {
     var x = [52, 155, 168, 23, 6, 85],
         y = [19, 26, 247];
 
     crunch.mod(x, y).should.eql([10, 237, 29]);
-  
+
     x.should.eql([52, 155, 168, 23, 6, 85]);
     y.should.eql([19, 26, 247]);
   });
 
-  it('Smaller modulo big', function() {
+  it('Smaller modulo big', function () {
     var x = [1, 0],
         y = [1, 241];
 
     crunch.mod(x, y).should.eql([1, 0]);
-  
+
     x.should.eql([1, 0]);
     y.should.eql([1, 241]);
   });
 
-  it('Modulus modulo', function() {
+  it('Modulus modulo', function () {
     var x = [1, 241],
         y = [1, 241];
 
     crunch.mod(x, y).should.eql([0]);
-  
+
     x.should.eql([1, 241]);
     y.should.eql([1, 241]);
   });
 
-  it('Zero modulo', function() {
+  it('Zero modulo', function () {
     var x = [0],
         y = [1, 241];
 
     crunch.mod(x, y).should.eql([0]);
-  
+
     x.should.eql([0]);
     y.should.eql([1, 241]);
   });
 
 });
 
-describe('#barret modular reduction', function() {
+describe('#barret modular reduction', function () {
 
-  it('Big modulo smaller', function() {
+  it('Big modulo smaller', function () {
     var x = [170, 153, 136, 119, 102, 85],
         y = [17, 68];
 
     crunch.bmr(x, y).should.eql([14, 241]);
-  
+
     x.should.eql([170, 153, 136, 119, 102, 85]);
     y.should.eql([17, 68]);
   });
 
-  it('Big modulo smaller', function() {
+  it('Big modulo smaller', function () {
     var x = [52, 155, 168, 23, 6, 85],
         y = [19, 26, 247];
 
     crunch.bmr(x, y).should.eql([10, 237, 29]);
-  
+
     x.should.eql([52, 155, 168, 23, 6, 85]);
     y.should.eql([19, 26, 247]);
   });
 
-  it('Smaller modulo big', function() {
+  it('Smaller modulo big', function () {
     var x = [1, 0],
         y = [1, 241];
 
     crunch.bmr(x, y).should.eql([1, 0]);
-  
+
     x.should.eql([1, 0]);
     y.should.eql([1, 241]);
   });
 
-  it('Modulus modulo', function() {
+  it('Modulus modulo', function () {
     var x = [1, 241],
         y = [1, 241];
 
     crunch.bmr(x, y).should.eql([0]);
-  
+
     x.should.eql([1, 241]);
     y.should.eql([1, 241]);
   });
 
-  it('Zero modulo', function() {
+  it('Zero modulo', function () {
     var x = [0],
         y = [1, 241];
 
     crunch.bmr(x, y).should.eql([0]);
-  
+
     x.should.eql([0]);
     y.should.eql([1, 241]);
   });
 
 });
 
-describe('#modular exponentiation', function() {
+describe('#modular exponentiation', function () {
 
-  it('Big number exponentiation', function() {
+  it('Big number exponentiation', function () {
     var x = [2, 92, 160],
         y = [45],
         z = [188, 14, 2];
@@ -850,7 +850,7 @@ describe('#modular exponentiation', function() {
     z.should.eql([188, 14, 2]);
   });
 
-  it('Big number exponentiation', function() {
+  it('Big number exponentiation', function () {
     var x = [2, 92, 160],
         y = [17, 190],
         z = [188, 14, 2];
@@ -862,7 +862,7 @@ describe('#modular exponentiation', function() {
     z.should.eql([188, 14, 2]);
   });
 
-  it('Big number exponentiation', function() {
+  it('Big number exponentiation', function () {
     var x = [6, 252, 83],
         y = [58, 219, 102, 99],
         z = [74, 192, 238, 73];
@@ -874,7 +874,7 @@ describe('#modular exponentiation', function() {
     z.should.eql([74, 192, 238, 73]);
   });
 
-  it('Big number exponentiation', function() {
+  it('Big number exponentiation', function () {
     var x = [1, 142, 233, 15, 246, 195, 115, 224, 238, 78, 63, 10, 210],
         y = [1, 0, 1],
         z = [10, 188, 222, 250, 188, 222, 250, 190, 250, 188, 222, 253, 174];
@@ -886,7 +886,7 @@ describe('#modular exponentiation', function() {
     z.should.eql([10, 188, 222, 250, 188, 222, 250, 190, 250, 188, 222, 253, 174]);
   });
 
-  it('Big number exponentiation', function() {
+  it('Big number exponentiation', function () {
     var x = [1, 35, 101, 20, 152, 20, 54, 18, 53, 20, 138, 254, 255, 18, 55, 134, 19, 25, 171, 205, 225, 56, 113, 70, 16, 151, 69, 1, 152, 20, 152, 97, 40, 151, 18, 70, 171, 237, 254, 253, 190, 18, 135, 54, 20, 145, 71, 97, 57, 25, 98, 20, 54, 175, 175, 171, 187, 190, 18, 54, 112],
         y = [1, 1],
         z = [8, 118, 18, 52, 175, 233, 135, 42, 203, 50, 232, 144, 71, 24, 18, 70, 23, 255, 19, 106, 196, 235, 103, 39, 21, 63, 234, 16, 148, 115, 38, 113, 144, 11, 190, 241, 67, 143, 233, 129, 47, 229, 18, 55, 129, 18, 56, 151, 18, 70, 18, 152, 87, 18, 97, 41, 20, 101, 129, 70, 18];
@@ -900,9 +900,9 @@ describe('#modular exponentiation', function() {
 
 });
 
-describe('#garner`s algo', function() {
+describe('#garner`s algo', function () {
 
-  it('Big number exponentiation', function() {
+  it('Big number exponentiation', function () {
     var v = [54, 11, 203],
         w = [147, 221, 12, 0, 9],
         x = [11, 58, 199, 45],
@@ -918,7 +918,7 @@ describe('#garner`s algo', function() {
     z.should.eql([1, 90, 87, 231]);
   });
 
-  it('Big number exponentiation', function() {
+  it('Big number exponentiation', function () {
     var v = [37,72,61,128,78,4,188,90,40,148,179,25,237,153,121,180],
         w = [83,109,25,53,121,92,247,51],
         x = [149,43,167,106,70,148,98,21],
@@ -934,7 +934,7 @@ describe('#garner`s algo', function() {
     z.should.eql([103,210,31,75,139,194,84,88]);
   });
 
-  it('Big number exponentiation', function() {
+  it('Big number exponentiation', function () {
     var v = [104,46,8,117,98,161,111,189,113,175,163,83,217,166,91,28],
         w = [158,239,229,2,116,132,105,151],
         x = [178,27,170,77,131,87,103,33],
@@ -952,9 +952,9 @@ describe('#garner`s algo', function() {
 
 });
 
-describe('#modular inverse', function() {
+describe('#modular inverse', function () {
 
-  it('Modular inverse', function() {
+  it('Modular inverse', function () {
     var x = [170, 153, 149],
         y = [63, 253];
 
@@ -964,7 +964,7 @@ describe('#modular inverse', function() {
     y.should.eql([63, 253]);
   });
 
-  it('Modular inverse', function() {
+  it('Modular inverse', function () {
     var x = [147, 221, 12, 0, 9],
         y = [11, 58, 199, 45];
 
@@ -974,7 +974,7 @@ describe('#modular inverse', function() {
     y.should.eql([11, 58, 199, 45]);
   });
 
-  it('Modular inverse', function() {
+  it('Modular inverse', function () {
     var x = [54, 100, 205],
         y = [78, 79];
 
@@ -984,7 +984,7 @@ describe('#modular inverse', function() {
     y.should.eql([78, 79]);
   });
 
-  it('No inverse', function() {
+  it('No inverse', function () {
     var x = [123],
         y = [24];
 
@@ -996,9 +996,9 @@ describe('#modular inverse', function() {
 
 });
 
-describe('#test prime', function() {
+describe('#test prime', function () {
 
-  it('Number is prime', function() {
+  it('Number is prime', function () {
     var x = [254, 87, 121, 7, 0, 217];
 
     crunch.testPrime(x).should.be.ok;
@@ -1006,43 +1006,43 @@ describe('#test prime', function() {
     x.should.eql([254, 87, 121, 7, 0, 217]);
   });
 
-  it('Number is prime', function() {
+  it('Number is prime', function () {
     var x = [7, 201];
 
     crunch.testPrime(x).should.be.ok;
-    
+
     x.should.eql([7, 201]);
   });
 
-  it('Number is not prime', function() {
+  it('Number is not prime', function () {
     var x = [58, 222, 67];
 
     crunch.testPrime(x).should.not.be.ok;
-    
+
     x.should.eql([58, 222, 67]);
   });
 
-  it('Number is not prime', function() {
+  it('Number is not prime', function () {
     var x = [9];
 
     crunch.testPrime(x).should.not.be.ok;
-    
+
     x.should.eql([9]);
   });
 
-  it('Number is not prime', function() {
+  it('Number is not prime', function () {
     var x = [44, 78, 64, 128];
 
     crunch.testPrime(x).should.not.be.ok;
-    
+
     x.should.eql([44, 78, 64, 128]);
   });
 
 });
 
-describe('#next prime', function() {
+describe('#next prime', function () {
 
-  it('Find next prime', function() {
+  it('Find next prime', function () {
     var x = [5, 57, 84, 76];
 
     crunch.nextPrime(x).should.eql([5, 57, 84, 81]);
@@ -1050,7 +1050,7 @@ describe('#next prime', function() {
     x.should.eql([5, 57, 84, 76]);
   });
 
-  it('Find next prime', function() {
+  it('Find next prime', function () {
     var x = [18, 214, 136];
 
     crunch.nextPrime(x).should.eql([18, 214, 145]);
@@ -1058,7 +1058,7 @@ describe('#next prime', function() {
     x.should.eql([18, 214, 136]);
   });
 
-  it('Find next prime', function() {
+  it('Find next prime', function () {
     var x = [5, 57, 84, 76, 233, 0, 120, 91, 180, 180, 8];
 
     crunch.nextPrime(x).should.eql([5, 57, 84, 76, 233, 0, 120, 91, 180, 180, 107]);
@@ -1066,7 +1066,7 @@ describe('#next prime', function() {
     x.should.eql([5, 57, 84, 76, 233, 0, 120, 91, 180, 180, 8]);
   });
 
-  it('Find next prime', function() {
+  it('Find next prime', function () {
     var x = [17];
 
     crunch.nextPrime(x).should.eql([19]);
@@ -1074,7 +1074,7 @@ describe('#next prime', function() {
     x.should.eql([17]);
   });
 
-  it('Find next prime', function() {
+  it('Find next prime', function () {
     var x = [7, 200];
 
     crunch.nextPrime(x).should.eql([7, 201]);
@@ -1082,7 +1082,7 @@ describe('#next prime', function() {
     x.should.eql([7, 200]);
   });
 
-  it('Find next prime', function() {
+  it('Find next prime', function () {
     var x = [3];
 
     crunch.nextPrime(x).should.eql([5]);
@@ -1092,17 +1092,17 @@ describe('#next prime', function() {
 
 });
 
-describe('#factorial', function() {
+describe('#factorial', function () {
 
-  it('Find 10 factorial', function() {
+  it('Find 10 factorial', function () {
     crunch.factorial(10).should.eql([55, 95, 0]);
   });
 
-  it('Find 50 factorial', function() {
+  it('Find 50 factorial', function () {
     crunch.factorial(50).should.eql([73, 238, 188, 150, 30, 210, 121, 176, 43, 30, 244, 242, 141, 25, 168, 79, 89, 115, 161, 210, 199, 128, 0, 0, 0, 0, 0]);
   });
 
-  it('Find 100 factorial', function() {
+  it('Find 100 factorial', function () {
     crunch.factorial(100).should.eql([27, 48, 150, 78, 195, 149, 220, 36, 6, 149, 40, 213, 75, 189, 164, 13, 22, 233, 102, 239, 154, 112, 235, 33, 181, 178, 148, 58, 50, 28, 223, 16, 57, 23, 69, 87, 12, 202, 148, 32, 198, 236, 179, 183, 46, 210, 238, 139, 2, 234, 39, 53, 198, 26, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
   });
 
