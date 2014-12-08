@@ -41,27 +41,27 @@
 <p><a href="./">&laquo; Back to Examples</a></p>
 
 <script>
-  var worker = new Worker("../crunch.js"),
-      native = new Worker("../crunch.js"),
-      result, 
-      iteration,
-      factorial;
+  var worker = new Worker("../crunch.js");
+  var native = new Worker("../crunch.js");
+  var crunch = Crunch();
+  var result, iteration, factorial;
 
   native.onmessage = function (e) {
-    document.getElementById("worker-result").insertAdjacentHTML("beforeend", "<li>" + convert(e.data) + "</li>");
+    document.getElementById("worker-result").insertAdjacentHTML("beforeend", "<li>" + crunch.stringify(e.data) + "</li>");
     document.getElementById("calc-factorial-native").disabled = false;
   }
 
   function calcFactorialNative() {
     document.getElementById("worker-result").innerHTML = "";
     document.getElementById("calc-factorial-native").disabled = true;
+
     native.postMessage({"func": "factorial", "args": [document.getElementById("factorial").value.toString(10)]});
   }
 
 
   worker.onmessage = function (e) {
     result = e.data;
-    document.getElementById("worker-result").insertAdjacentHTML("beforeend", "<li>" + convert(result) + "</li>");
+    document.getElementById("worker-result").insertAdjacentHTML("beforeend", "<li>" + crunch.stringify(result) + "</li>");
     window.scrollTo(0, document.body.offsetHeight);
 
     if (iteration <= factorial) {
@@ -72,7 +72,7 @@
   }
 
   function sendIteration() {
-    worker.postMessage({"func": "mul", "args": [convert(iteration.toString(10)), result]});
+    worker.postMessage({"func": "mul", "args": [crunch.parse(iteration.toString(10)), result]});
     iteration++;
   }
 
@@ -85,75 +85,6 @@
     sendIteration();
   }
 
-  //Modified from http://danvk.org/hex2dec.html
-  function convert(input) {
-    function add(x, y, base) {
-      var z = [],
-          n = Math.max(x.length, y.length),
-          c = 0,
-          i = -1,
-          xi, yi, zi;
-
-      while (++i < n || c) {
-        xi = i < x.length ? x[i] : 0;
-        yi = i < y.length ? y[i] : 0;
-        zi = c + xi + yi;
-
-        z.push(zi % base);
-        c = Math.floor(zi / base);
-      }
-
-      return z;
-    }
-
-    function multiply(num, x, base) {
-      var result = [],
-          power = x;
-
-      if (num != 0) {
-        while (true) {
-          if (num & 1)
-            result = add(result, power, base);
-
-          num = num >> 1;
-
-          if (num === 0)
-            break;
-
-          power = add(power, power, base);
-        }
-      }
-
-      return result;
-    }
-
-    function convertBase(str, fromBase, toBase) {
-      var digits = str.split('').map(function(v) { return parseInt(v, fromBase) }).reverse(),
-          result = [],
-          power = [1],
-          i;
-
-      for (i = 0; i < digits.length; i++) {
-        if (digits[i]) {
-          result = add(result, multiply(digits[i], power, toBase), toBase);
-        }
-        power = multiply(fromBase, power, toBase);
-      }
-
-      return result.reverse().map(function(v) { return v.toString(toBase) }).join("");
-    }
-
-    if (Array.isArray(input)) {
-      return convertBase(input.map(function(v) { return ("0"+v.toString(16)).slice(-2) }).join(""), 16, 10);
-    } else {
-      var hexStr = convertBase(input, 10, 16);
-
-      if (hexStr.length % 2) 
-        hexStr = "0" + hexStr;
-
-      return hexStr.match(/.{2}/g).map(function(v) { return parseInt(v, 16) });
-    }
-  }
 </script>
 
 </body>

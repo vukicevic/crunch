@@ -1,25 +1,25 @@
-/** 
- * Crunch - Arbitrary-precision integer arithmetic library 
+/**
+ * Crunch - Arbitrary-precision integer arithmetic library
  * Copyright (C) 2014 Nenad Vukicevic crunch.secureroom.net/license
  */
 
 /**
  * @module Crunch
  * Radix: 28 bits
- * Endianness: Big 
- * 
+ * Endianness: Big
+ *
  * @param {boolean} rawIn   - expect 28-bit arrays
  * @param {boolean} rawOut  - return 28-bit arrays
  */
-function Crunch(rawIn, rawOut) {
+function Crunch (rawIn, rawOut) {
 
   "use strict";
 
-  /** 
+  /**
    * BEGIN CONSTANTS
    * zeroes, primes and ptests for Miller-Rabin primality
    */
-  var primes = (function(n) {
+  var primes = (function (n) {
     for (var p = [2], l = 1, i = 3; l < n; i += 2) {
       for (var b = true, j = 0; b && j < l; j++) {
         b = i % p[j] !== 0;
@@ -31,17 +31,17 @@ function Crunch(rawIn, rawOut) {
     return p;
   })(1900);
 
-  var zeroes = (function(n) {
+  var zeroes = (function (n) {
     for (var z = []; z.push(0) < n;){}
     return z;
   })(500);
 
-  var ptests = primes.slice(0, 10).map(function(v) {
+  var ptests = primes.slice(0, 10).map(function (v) {
     return [v];
   });
   /* END CONSTANTS */
 
-  function cut(x) {
+  function cut (x) {
     while (x[0] === 0 && x.length > 1) {
       x.shift();
     }
@@ -49,7 +49,7 @@ function Crunch(rawIn, rawOut) {
     return x;
   }
 
-  function cmp(x, y) {
+  function cmp (x, y) {
     var xl = x.length,
         yl = y.length, i; //zero front pad problem
 
@@ -70,7 +70,7 @@ function Crunch(rawIn, rawOut) {
   /**
    * Most significant bit, base 28, position from left
    */
-  function msb(x) {
+  function msb (x) {
     if (x !== 0) {
       for (var i = 134217728, z = 0; i > x; z++) {
         i /= 2;
@@ -83,7 +83,7 @@ function Crunch(rawIn, rawOut) {
   /**
    * Least significant bit, base 28, position from right
    */
-  function lsb(x) {
+  function lsb (x) {
     if (x !== 0) {
       for (var z = 0; !(x & 1); z++) {
         x /= 2;
@@ -93,7 +93,7 @@ function Crunch(rawIn, rawOut) {
     }
   }
 
-  function add(x, y) {
+  function add (x, y) {
     var n = x.length,
         t = y.length,
         i = Math.max(n, t),
@@ -124,7 +124,7 @@ function Crunch(rawIn, rawOut) {
     return z;
   }
 
-  function sub(x, y, internal) {
+  function sub (x, y, internal) {
     var n = x.length,
         t = y.length,
         i = Math.max(n, t),
@@ -159,7 +159,7 @@ function Crunch(rawIn, rawOut) {
   /**
    * Signed Addition
    */
-  function sad(x, y) {
+  function sad (x, y) {
     var z;
 
     if (x.negative) {
@@ -179,7 +179,7 @@ function Crunch(rawIn, rawOut) {
   /**
    * Signed Subtraction
    */
-  function ssb(x, y) {
+  function ssb (x, y) {
     var z;
 
     if (x.negative) {
@@ -199,7 +199,7 @@ function Crunch(rawIn, rawOut) {
   /**
    * Multiplication - HAC 14.12
    */
-  function mul(x, y) {
+  function mul (x, y) {
     var yl, yh, c,
         n = x.length,
         i = y.length,
@@ -237,7 +237,7 @@ function Crunch(rawIn, rawOut) {
   /**
    * Squaring - HAC 14.16
    */
-  function sqr(x) {
+  function sqr (x) {
     var l1, h1, t1, t2, c,
         i = x.length,
         z = zeroes.slice(0, 2*i);
@@ -268,11 +268,11 @@ function Crunch(rawIn, rawOut) {
     if (z[0] === 0) {
       z.shift();
     }
-    
+
     return z;
   }
 
-  function rsh(x, s) {
+  function rsh (x, s) {
     var ss = s % 28,
         ls = Math.floor(s/28),
         l  = x.length - ls,
@@ -295,7 +295,7 @@ function Crunch(rawIn, rawOut) {
     return z;
   }
 
-  function lsh(x, s) {
+  function lsh (x, s) {
     var ss = s % 28,
         ls = Math.floor(s/28),
         l  = x.length,
@@ -321,7 +321,7 @@ function Crunch(rawIn, rawOut) {
   /**
    * Division - HAC 14.20
    */
-  function div(x, y, internal) {
+  function div (x, y, internal) {
     var u, v, xt, yt, d, q, k, i, z,
         s = msb(y[0]) - 1;
 
@@ -372,7 +372,7 @@ function Crunch(rawIn, rawOut) {
     return z;
   }
 
-  function mod(x, y) {
+  function mod (x, y) {
     switch (cmp(x, y)) {
       case -1:
         return x;
@@ -386,7 +386,7 @@ function Crunch(rawIn, rawOut) {
   /**
    * Greatest Common Divisor - HAC 14.61 - Binary Extended GCD, used to calc inverse, x <= modulo, y <= exponent
    */
-  function gcd(x, y) {
+  function gcd (x, y) {
     var g = Math.min(lsb(x[x.length-1]), lsb(y[y.length-1])),
         u = rsh(x, g),
         v = rsh(y, g),
@@ -436,7 +436,7 @@ function Crunch(rawIn, rawOut) {
   /**
    * Inverse 1/x mod y
    */
-  function inv(x, y) {
+  function inv (x, y) {
     var z = gcd(y, x);
     return (typeof z !== "undefined" && z.negative) ? sub(y, z, false) : z;
   }
@@ -444,11 +444,11 @@ function Crunch(rawIn, rawOut) {
   /**
    * Barret Modular Reduction - HAC 14.42
    */
-  function bmr(x, m, mu) {
+  function bmr (x, m, mu) {
     var q1, q2, q3, r1, r2, z, s, k = m.length;
 
     if (cmp(x, m) < 0) {
-      return x; 
+      return x;
     }
 
     if (typeof mu === "undefined") {
@@ -464,7 +464,7 @@ function Crunch(rawIn, rawOut) {
 
     r2 = mul(q3, m);
     s  = r2.length-(k+1);
-    
+
     if (s > 0) {
       r2 = r2.slice(s);
     }
@@ -485,7 +485,7 @@ function Crunch(rawIn, rawOut) {
   /**
    * Modular Exponentiation - HAC 14.76 Right-to-left binary exp
    */
-  function exp(x, e, n) {
+  function exp (x, e, n) {
     var c = 268435456,
         r = [1],
         u = div(r.concat(zeroes.slice(0, 2*n.length)), n, false);
@@ -509,7 +509,7 @@ function Crunch(rawIn, rawOut) {
   /**
    * Garner's algorithm, modular exponentiation - HAC 14.71
    */
-  function gar(x, p, q, d, u, dp1, dq1) {
+  function gar (x, p, q, d, u, dp1, dq1) {
     var vp, vq, t;
 
     if (typeof dp1 === "undefined") {
@@ -535,7 +535,7 @@ function Crunch(rawIn, rawOut) {
   /**
    * Simple Mod - When n < 2^14
    */
-  function mds(x, n) {
+  function mds (x, n) {
     for (var i = 0, z = 0, l = x.length; i < l; i++) {
       z = ((x[i] >> 14) + (z << 14)) % n;
       z = ((x[i] & 16383) + (z << 14)) % n;
@@ -544,17 +544,17 @@ function Crunch(rawIn, rawOut) {
     return z;
   }
 
-  function xor(x, y) {
+  function xor (x, y) {
     if (x.length === y.length) {
       for (var z = [], i = 0; i < x.length; i++) {
         z[i] = x[i] ^ y[i];
       }
-    
+
       return z;
     }
   }
 
-  function dec(x) {
+  function dec (x) {
     var z;
 
     if (x[x.length-1] > 0) {
@@ -571,7 +571,7 @@ function Crunch(rawIn, rawOut) {
   /**
    * Miller-Rabin Primality Test
    */
-  function mrb(x, iterations) {
+  function mrb (x, iterations) {
     var m = dec(x),
         s = lsb(m[x.length-1]),
         r = rsh(x, s);
@@ -582,7 +582,7 @@ function Crunch(rawIn, rawOut) {
       if ( (y.length > 1 || y[0] !== 1) && cmp(y,m) !== 0 ) {
         j = 1;
         t = true;
-        
+
         while (t && s > j++) {
           y = mod(sqr(y), x);
 
@@ -602,7 +602,7 @@ function Crunch(rawIn, rawOut) {
     return true;
   }
 
-  function tpr(x) {
+  function tpr (x) {
     if (x.length === 1 && x[0] < 16384 && primes.indexOf(x[0]) >= 0) {
       return true;
     }
@@ -619,7 +619,7 @@ function Crunch(rawIn, rawOut) {
   /**
    * Quick add integer n to arbitrary precision integer x avoiding overflow
    */
-  function qad(x, n) {
+  function qad (x, n) {
     var l = x.length - 1;
 
     if (x[l] + n < 268435456) {
@@ -631,7 +631,7 @@ function Crunch(rawIn, rawOut) {
     return x;
   }
 
-  function npr(x) {
+  function npr (x) {
     x = qad(x, 1 + x[x.length-1] % 2);
 
     while (!tpr(x)) {
@@ -641,7 +641,7 @@ function Crunch(rawIn, rawOut) {
     return x;
   }
 
-  function fct(n) {
+  function fct (n) {
     var z = [1],
         a = [1];
 
@@ -655,7 +655,7 @@ function Crunch(rawIn, rawOut) {
   /**
    * Convert byte array to 28 bit array
    */
-  function ci(a) {
+  function ci (a) {
     var x = [0,0,0,0,0,0].slice((a.length-1)%7),
         z = [];
 
@@ -671,20 +671,20 @@ function Crunch(rawIn, rawOut) {
     for (var i = 0; i < x.length; i += 7) {
       z.push((x[i]*1048576 + x[i+1]*4096 + x[i+2]*16 + (x[i+3]>>4)), ((x[i+3]&15)*16777216 + x[i+4]*65536 + x[i+5]*256 + x[i+6]));
     }
-    
+
     return cut(z);
   }
 
   /**
    * Convert 28 bit array to byte array
    */
-  function co(a) {
+  function co (a) {
     if (typeof a !== "undefined") {
       var x = [0].slice((a.length-1)%2).concat(a),
           z = [];
 
       for (var u, v, i = 0; i < x.length;) {
-        u = x[i++]; 
+        u = x[i++];
         v = x[i++];
 
         z.push((u >> 20), (u >> 12 & 255), (u >> 4 & 255), ((u << 4 | v >> 24) & 255), (v >> 16 & 255), (v >> 8 & 255), (v & 255));
@@ -700,23 +700,52 @@ function Crunch(rawIn, rawOut) {
     }
   }
 
-  function transformIn(a) {
-    return (rawIn) ? a : Array.prototype.slice.call(a).map(function(v) { return ci(v.slice()) });
+  function stringify (x) {
+    var a = [],
+        b = [10],
+        z = [0],
+        i = 0, q;
+
+    do {
+      q      = x;
+      x      = div(q, b);
+      a[i++] = sub(q, mul(b, x)).pop();
+    } while (cmp(x, z));
+
+    return a.reverse().join("");
   }
 
-  function transformOut(x) {
-    return (rawOut) ? x : co(x);
+  function parse (s) {
+    var x = s.split(""),
+        p = [1],
+        a = [0],
+        b = [10];
+
+    while (x.length) {
+      a = add(a, mul(p, [x.pop()]));
+      p = mul(p, b);
+    }
+
+    return a;
+  }
+
+  function transformIn (a) {
+    return rawIn ? a : Array.prototype.slice.call(a).map(function (v) { return ci(v.slice()) });
+  }
+
+  function transformOut (x) {
+    return rawOut ? x : co(x);
   }
 
   return {
     /**
-     * Return zero array length n 
+     * Return zero array length n
      *
      * @method zero
      * @param {Number} n
      * @return {Array} 0 length n
      */
-    zero: function(n) {
+    zero: function (n) {
       return zeroes.slice(0, n);
     },
 
@@ -728,7 +757,7 @@ function Crunch(rawIn, rawOut) {
      * @param {Array} y
      * @return {Array} x + y
      */
-    add: function(x, y) {
+    add: function (x, y) {
       return transformOut(
         sad.apply(null, transformIn(arguments))
       );
@@ -742,7 +771,7 @@ function Crunch(rawIn, rawOut) {
      * @param {Array} y
      * @return {Array} x - y
      */
-    sub: function(x, y) {
+    sub: function (x, y) {
       return transformOut(
         ssb.apply(null, transformIn(arguments))
       );
@@ -756,7 +785,7 @@ function Crunch(rawIn, rawOut) {
      * @param {Array} y
      * @return {Array} x * y
      */
-    mul: function(x, y) {
+    mul: function (x, y) {
       return transformOut(
         mul.apply(null, transformIn(arguments))
       );
@@ -769,7 +798,7 @@ function Crunch(rawIn, rawOut) {
      * @param {Array} x
      * @return {Array} x * x
      */
-    sqr: function(x) {
+    sqr: function (x) {
       return transformOut(
         sqr.apply(null, transformIn(arguments))
       );
@@ -784,7 +813,7 @@ function Crunch(rawIn, rawOut) {
      * @param {Array} n
      * @return {Array} x^e % n
      */
-    exp: function(x, e, n) {
+    exp: function (x, e, n) {
       return transformOut(
         exp.apply(null, transformIn(arguments))
       );
@@ -798,7 +827,7 @@ function Crunch(rawIn, rawOut) {
      * @param {Array} y
      * @return {Array} x / y || undefined
      */
-    div: function(x, y) {
+    div: function (x, y) {
       if (y.length !== 1 || y[0] !== 0) {
         return transformOut(
           div.apply(null, transformIn(arguments))
@@ -814,7 +843,7 @@ function Crunch(rawIn, rawOut) {
      * @param {Array} y
      * @return {Array} x % y
      */
-    mod: function(x, y) {
+    mod: function (x, y) {
       return transformOut(
         mod.apply(null, transformIn(arguments))
       );
@@ -829,7 +858,7 @@ function Crunch(rawIn, rawOut) {
      * @param {Array} [mu]
      * @return {Array} x % y
      */
-    bmr: function(x, y, mu) {
+    bmr: function (x, y, mu) {
       return transformOut(
         bmr.apply(null, transformIn(arguments))
       );
@@ -848,7 +877,7 @@ function Crunch(rawIn, rawOut) {
      * @param {Array} [dq1]
      * @return {Array} x^d % pq
      */
-    gar: function(x, p, q, d, u, dp1, dq1) {
+    gar: function (x, p, q, d, u, dp1, dq1) {
       return transformOut(
         gar.apply(null, transformIn(arguments))
       );
@@ -862,7 +891,7 @@ function Crunch(rawIn, rawOut) {
      * @param {Array} y
      * @return {Array} 1/x % y || undefined
      */
-    inv: function(x, y) {
+    inv: function (x, y) {
       return transformOut(
         inv.apply(null, transformIn(arguments))
       );
@@ -875,7 +904,7 @@ function Crunch(rawIn, rawOut) {
      * @param {Array} x
      * @return {Array} x without leading zeroes
      */
-    cut: function(x) {
+    cut: function (x) {
       return transformOut(
         cut.apply(null, transformIn(arguments))
       );
@@ -886,10 +915,10 @@ function Crunch(rawIn, rawOut) {
      * Factorial - for n < 268435456
      *
      * @method factorial
-     * @param {Number} n 
+     * @param {Number} n
      * @return {Array} n!
      */
-    factorial: function(n) {
+    factorial: function (n) {
       return transformOut(
         fct.apply(null, [n%268435456])
       );
@@ -903,7 +932,7 @@ function Crunch(rawIn, rawOut) {
      * @param {Array} y
      * @return {Array} x xor y
      */
-    xor: function(x, y) {
+    xor: function (x, y) {
       return xor(x, y);
     },
 
@@ -914,7 +943,7 @@ function Crunch(rawIn, rawOut) {
      * @param {Array} x
      * @return {Array} x - 1
      */
-    decrement: function(x) {
+    decrement: function (x) {
       return transformOut(
         dec.apply(null, transformIn(arguments))
       );
@@ -927,10 +956,10 @@ function Crunch(rawIn, rawOut) {
      * @param {Array} x
      * @param {Array} y
      * @return {Number} 1: x > y
-     *                  0: x = y 
+     *                  0: x = y
      *                 -1: x < y
      */
-    compare: function(x, y) {
+    compare: function (x, y) {
       return cmp(x, y);
     },
 
@@ -941,7 +970,7 @@ function Crunch(rawIn, rawOut) {
      * @param {Array} x
      * @return {Array} 1st prime > x
      */
-    nextPrime: function(x) {
+    nextPrime: function (x) {
       return transformOut(
         npr.apply(null, transformIn(arguments))
       );
@@ -955,21 +984,43 @@ function Crunch(rawIn, rawOut) {
      * @param {Array} x
      * @return {boolean} is prime
      */
-    testPrime: function(x) {
+    testPrime: function (x) {
       return (x[x.length-1] % 2 === 0) ? false : tpr.apply(null, transformIn(arguments));
     },
 
     /**
      * Array base conversion
      *
-     * @method transfirn
+     * @method transform
      * @param {Array} x
      * @param {boolean} toRaw
      * @return {Array}  toRaw: 8 => 28-bit array
      *                 !toRaw: 28 => 8-bit array
      */
-    transform: function(x, toRaw) {
-      return (toRaw) ? ci(x) : co(x);
+    transform: function (x, toRaw) {
+      return toRaw ? ci(x) : co(x);
+    },
+
+    /**
+     * Integer to String conversion
+     *
+     * @method stringify
+     * @param {Array} x
+     * @return {String} base 10 number as string
+     */
+    stringify: function (x) {
+      return stringify(ci(x));
+    },
+
+    /**
+     * String to Integer conversion
+     *
+     * @method parse
+     * @param {String} s
+     * @return {Array} x
+     */
+    parse: function (s) {
+      return co(parse(s));
     }
   }
 }
@@ -986,8 +1037,8 @@ function Crunch(rawIn, rawOut) {
 if (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope) {
   var crunch = Crunch(false, false);
 
-  self.onmessage = function(e) {
-    self.postMessage(crunch[e.data.func].apply(crunch, e.data.args));  
+  self.onmessage = function (e) {
+    self.postMessage(crunch[e.data.func].apply(crunch, e.data.args));
   }
 } else if (typeof module !== "undefined" && module.exports) {
   module.exports = Crunch(false, false);

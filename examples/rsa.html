@@ -43,10 +43,16 @@
 <p>RSA is one of the first practicable public-key cryptosystems. In such a cryptosystem, the encryption key is public and differs from the decryption key which is kept secret. In RSA, this asymmetry is based on the practical difficulty of factoring the product of two large prime numbers.</p>
 <p>In this example, the Crunch arbitrary percision arithmetic library is used to generate an RSA key-pair, and uses it to "encrypt" and "decrypt" data.</p>
 
-<fieldset class="vertical">	
+<fieldset>
+	<h2>Toggle base-10 integer representation</h2>
+	<p>Enable base-10 integer representation in the fields below, to more easily visualize the numbers. This adds 10-20 milliseconds to each operation.</p>
+	<button id="conversion" onclick="toggleConversion(this)">Conversion: OFF</button>
+</fieldset>
+
+<fieldset class="vertical">
 	<h2>Generate RSA Key-Pair</h2>
 	<p>Select a key size and click Generate. Larger key sizes will take longer to generate. Key material will populate the fields below.</p>
-	
+
 	<label for="size">Size</label>
 	<select id="size">
 		<option value="128">128</option>
@@ -79,7 +85,7 @@
 <fieldset>
 	<h2>Modular Exponentiation (Encyption/Decryption)</h2>
 	<p>Once a key-pair is generated, you can test the encryption/decryption using the following fields. This actually does modular exponentiation, which is the basis of the RSA cryptosystem.</p>
-	<input type="text" name="in" id="in" value="1,2,3,4,5,6,7,8" disabled="disabled">
+	<input type="text" name="in" id="in" disabled="disabled">
 	<button id="in-button" onclick="encrypt()" disabled="disabled">x ^ e mod n [Encrypt] &rarr;</button>
 	<button id="out-button" onclick="decrypt()" disabled="disabled">&larr; x ^ d mod n [Decrypt]</button>
 	<input type="text" name="out" id="out" disabled="disabled">
@@ -93,7 +99,21 @@
 <p><a href="./">&laquo; Back to Examples</a></p>
 
 <script>
-	var p, q, e, n, f, d, u, crunch = Crunch();
+	var p, q, e, n, f, d, u, crunch = Crunch(), convert = false;
+
+	function stringify(x) {
+		return convert ? crunch.stringify(x) : x.join(",");
+	}
+
+	function parse(x) {
+		return convert ? crunch.parse(x) : x.split(',').map(function(v){return parseInt(v)});
+	}
+
+	function toggleConversion(elem) {
+		convert = !convert;
+		elem.textContent = convert ? 'Conversion: ON' : 'Conversion: OFF';
+		Array.prototype.forEach.call(document.querySelectorAll("input"), function (input) { input.value = "" });
+	}
 
 	function generateRandom(size) {
 		var t = new Uint8Array(Math.ceil(size/8));
@@ -114,46 +134,47 @@
 
 		t = performance.now();
 		p = crunch.nextPrime(a);
-		document.getElementById("p").value = p;
+		document.getElementById("p").value = stringify(p);
 		document.getElementById("p-time").textContent = (performance.now() - t).toFixed(2) + ' ms';
 
 		t = performance.now();
 		q = crunch.nextPrime(b);
-		document.getElementById("q").value = q;
+		document.getElementById("q").value = stringify(q);
 		document.getElementById("q-time").textContent = (performance.now() - t).toFixed(2) + ' ms';
 
 		t = performance.now();
 		e = [1, 0, 1];//crunch.nextPrime(c);
-		document.getElementById("e").value = e;
+		document.getElementById("e").value = stringify(e);
 		document.getElementById("e-time").textContent = (performance.now() - t).toFixed(2) + ' ms';
 
 		t = performance.now();
 		n = crunch.mul(p, q);
-		document.getElementById("n").value = n;
+		document.getElementById("n").value = stringify(n);
 		document.getElementById("n-time").textContent = (performance.now() - t).toFixed(2) + ' ms';
 
 		t = performance.now();
 		f = crunch.mul(crunch.decrement(p), crunch.decrement(q));
-		document.getElementById("f").value = f;
+		document.getElementById("f").value = stringify(f);
 		document.getElementById("f-time").textContent = (performance.now() - t).toFixed(2) + ' ms';
 
 		t = performance.now();
 		d = crunch.cut(crunch.inv(e, f));
-		document.getElementById("d").value = d;
+		document.getElementById("d").value = stringify(d);
 		document.getElementById("d-time").textContent = (performance.now() - t).toFixed(2) + ' ms';
 
 		t = performance.now();
 		u = crunch.cut(crunch.inv(p, q));
-		document.getElementById("u").value = u;
+		document.getElementById("u").value = stringify(u);
 		document.getElementById("u-time").textContent = (performance.now() - t).toFixed(2) + ' ms';
 
+		document.getElementById('in').value = stringify([1,2,3,4,5,6,7,8,9,0]);
 		document.getElementById('in').disabled = false;
 		document.getElementById('in-button').disabled = false;
 	}
 
 	function encrypt() {
 		var t = performance.now();
-		document.getElementById('out').value = crunch.exp(document.getElementById('in').value.split(',').map(function(v){return parseInt(v)}), e, n); 
+		document.getElementById('out').value = stringify(crunch.exp(parse(document.getElementById('in').value), e, n));
 		document.getElementById('in').value = '';
 		document.getElementById("c-time").textContent = (performance.now() - t).toFixed(2) + ' ms';
 
@@ -165,7 +186,7 @@
 
 	function decrypt() {
 		var t = performance.now();
-		document.getElementById('in').value = crunch.gar(document.getElementById('out').value.split(',').map(function(v){return parseInt(v)}), p, q, d, u);
+		document.getElementById('in').value = stringify(crunch.gar(parse(document.getElementById('out').value), p, q, d, u));
 		document.getElementById('out').value = '';
 		document.getElementById("c-time").textContent = (performance.now() - t).toFixed(2) + ' ms';
 

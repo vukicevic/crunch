@@ -56,76 +56,6 @@
 <script type="text/javascript">
   var crunch = Crunch();
 
-  //Modified from http://danvk.org/hex2dec.html
-  function convert(input) {
-    function add(x, y, base) {
-      var z = [],
-          n = Math.max(x.length, y.length),
-          c = 0,
-          i = -1,
-          xi, yi, zi;
-
-      while (++i < n || c) {
-        xi = i < x.length ? x[i] : 0;
-        yi = i < y.length ? y[i] : 0;
-        zi = c + xi + yi;
-
-        z.push(zi % base);
-        c = Math.floor(zi / base);
-      }
-
-      return z;
-    }
-
-    function multiply(num, x, base) {
-      var result = [],
-          power = x;
-
-      if (num != 0) {
-        while (true) {
-          if (num & 1)
-            result = add(result, power, base);
-
-          num = num >> 1;
-
-          if (num === 0)
-            break;
-
-          power = add(power, power, base);
-        }
-      }
-
-      return result;
-    }
-
-    function convertBase(str, fromBase, toBase) {
-      var digits = str.split('').map(function(v) { return parseInt(v, fromBase) }).reverse(),
-          result = [],
-          power = [1],
-          i;
-
-      for (i = 0; i < digits.length; i++) {
-        if (digits[i]) {
-          result = add(result, multiply(digits[i], power, toBase), toBase);
-        }
-        power = multiply(fromBase, power, toBase);
-      }
-
-      return result.reverse().map(function(v) { return v.toString(toBase) }).join("");
-    }
-
-    if (Array.isArray(input)) {
-      return convertBase(input.map(function(v) { return ("0"+v.toString(16)).slice(-2) }).join(""), 16, 10);
-    } else {
-      var hexStr = convertBase(input, 10, 16);
-
-      if (hexStr.length % 2) 
-        hexStr = "0" + hexStr;
-
-      return hexStr.match(/.{2}/g).map(function(v) { return parseInt(v, 16) });
-    }
-  }
-
   function generateRandom(size) {
     var t = new Uint8Array(Math.ceil(size/8));
 
@@ -135,11 +65,11 @@
   }
 
   function largePrime() {
-    document.getElementById("large-prime").insertAdjacentHTML("beforeend", "<li>" + convert(crunch.nextPrime(generateRandom(document.getElementById("length").value || 256))) + "</li>");
+    document.getElementById("large-prime").insertAdjacentHTML("beforeend", "<li>" + crunch.stringify(crunch.nextPrime(generateRandom(document.getElementById("length").value || 256))) + "</li>");
   }
 
   function sequencePrimes() {
-    var a = convert(document.getElementById("start").value),
+    var a = crunch.parse(document.getElementById("start").value),
         i = parseInt(document.getElementById("count").value),
         l = document.getElementById("prime-sequence");
 
@@ -147,11 +77,11 @@
 
     while (i--) {
       a = crunch.nextPrime(a);
-      l.insertAdjacentHTML("beforeend", "<li>" + convert(a) + "</li>");
+      l.insertAdjacentHTML("beforeend", "<li>" + crunch.stringify(a) + "</li>");
     }
   }
 
-  document.getElementById("start").value = convert(generateRandom(128));
+  document.getElementById("start").value = crunch.stringify(generateRandom(128));
 </script>
 
 </body>
