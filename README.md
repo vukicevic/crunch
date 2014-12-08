@@ -50,7 +50,7 @@ The library accepts and returns 8-bit integer arrays which represent artbitrary-
 crunch.transform([256820807]); //[15, 78, 198, 71]
 ```
 
-The reverse transform takes a second boolean parameter 
+The reverse transform takes a second boolean parameter
 
 ```javascript
 crunch.transform([15, 78, 198, 71], true); //[256820807]
@@ -80,6 +80,8 @@ factorial | n | n! [n < 268435456]
 nextPrime | x | First prime after x
 testPrime | x | Boolean x is prime
 transform | x | Radix conversion
+stringify | x | String (base 10 representation)
+parse | s | Arbitrary-precision integer
 
 Left shift `lsh`, right shift `rsh`, Barret modular reduction `bmr`, Miller-Rabin primality testing `mrb`, simple mod `mds` and greatest common divisor `gcd` are also implemented as internal methods not exposed via the initialized Crunch object.
 
@@ -98,8 +100,8 @@ Crunch can be loaded in a Web Worker. Instruction messages are sent to the worke
 var crunch = new Worker("crunch.js");
 var message = {func: "add", args: [[10, 123, 21, 127], [4, 211, 176, 200]]};
 
-crunch.onmessage = function(m) { 
-	console.log(m); 
+crunch.onmessage = function(m) {
+	console.log(m);
 };
 
 crunch.postMessage(message);

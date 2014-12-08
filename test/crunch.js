@@ -1107,3 +1107,43 @@ describe('#factorial', function () {
   });
 
 });
+
+describe('#stringify', function () {
+
+  it('Convert Integer to String', function () {
+    var x = [1, 2, 3, 4];
+
+    crunch.stringify(x).should.equal("16909060");
+
+    x.should.eql([1, 2, 3, 4]);
+  });
+
+  it('Convert Integer to String', function () {
+    var x = [5, 57, 84, 76, 233, 0, 120, 91, 180, 180, 8];
+
+    crunch.stringify(x).should.equal("6315359056060240643798024");
+
+    x.should.eql([5, 57, 84, 76, 233, 0, 120, 91, 180, 180, 8]);
+  });
+
+});
+
+describe('#parse', function () {
+
+  it('Convert String to Integer', function () {
+    var s = "16909060";
+
+    crunch.parse(s).should.eql([1, 2, 3, 4]);
+
+    s.should.equal("16909060");
+  });
+
+  it('Convert String to Integer', function () {
+    var s = "6315359056060240643798024";
+
+    crunch.parse(s).should.eql([5, 57, 84, 76, 233, 0, 120, 91, 180, 180, 8]);
+
+    s.should.equal("6315359056060240643798024");
+  });
+
+});

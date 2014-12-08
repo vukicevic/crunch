@@ -700,6 +700,35 @@ function Crunch (rawIn, rawOut) {
     }
   }
 
+  function stringify (x) {
+    var a = [],
+        b = [10],
+        z = [0],
+        i = 0, q;
+
+    do {
+      q      = x;
+      x      = div(q, b);
+      a[i++] = sub(q, mul(b, x)).pop();
+    } while (cmp(x, z));
+
+    return a.reverse().join("");
+  }
+
+  function parse (s) {
+    var x = s.split(""),
+        p = [1],
+        a = [0],
+        b = [10];
+
+    while (x.length) {
+      a = add(a, mul(p, [x.pop()]));
+      p = mul(p, b);
+    }
+
+    return a;
+  }
+
   function transformIn (a) {
     return rawIn ? a : Array.prototype.slice.call(a).map(function (v) { return ci(v.slice()) });
   }
@@ -970,6 +999,28 @@ function Crunch (rawIn, rawOut) {
      */
     transform: function (x, toRaw) {
       return toRaw ? ci(x) : co(x);
+    },
+
+    /**
+     * Integer to String conversion
+     *
+     * @method stringify
+     * @param {Array} x
+     * @return {String} base 10 number as string
+     */
+    stringify: function (x) {
+      return stringify(ci(x));
+    },
+
+    /**
+     * String to Integer conversion
+     *
+     * @method parse
+     * @param {String} s
+     * @return {Array} x
+     */
+    parse: function (s) {
+      return co(parse(s));
     }
   }
 }
