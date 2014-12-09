@@ -42,22 +42,20 @@ y = [4, 211, 176, 200];
 crunch.add(x, y); //[15, 78, 198, 71]
 ```
 
-The library accepts and returns 8-bit integer arrays which represent artbitrary-precision (big) integers, but internally it uses 28-bit arrays and performs the conversions automatically. Array radix conversion can also be performed via the `transform` function.
+The library accepts and returns 8-bit integer arrays which represent artbitrary-precision (big) integers, but internally it uses 28-bit arrays and performs the conversions automatically.
+
+Crunch also converts the between big integer byte-array representation and base-10 strings (a string is used as the Number type could not represent large numbers) using the .stringify() and .parse() functions.
 
 
 **Example 2**
 ```javascript
-crunch.transform([256820807]); //[15, 78, 198, 71]
-```
+crunch.stringify([1,2,3,4,5,6,7,8,9,0]); // "4759477275222530853120"
 
-The reverse transform takes a second boolean parameter
-
-```javascript
-crunch.transform([15, 78, 198, 71], true); //[256820807]
+crunch.parse("4759477275222530853120");  // [1,2,3,4,5,6,7,8,9,0]
 ```
 
 
-Arithmetic Functions
+Functions
 ----
 
 Function | Input Parameters | Output
@@ -68,8 +66,9 @@ mul | x, y | x * y
 div | x, y | x / y
 sqr | x | x * x
 mod | x, y | x % y
+bmr | x, y, [mu] | x % y
 exp | x, e, n | x^e % n
-gar | x, p, q, d, u, dp1, dq1 | x^d % pq
+gar | x, p, q, d, u, [dp1], [dq1] | x^d % pq
 inv | x, y | 1/x % y
 xor | x, y | x XOR y
 cut | x | Remove leading zeroes of x
@@ -79,11 +78,11 @@ decrement | x | x - 1
 factorial | n | n! [n < 268435456]
 nextPrime | x | First prime after x
 testPrime | x | Boolean x is prime
-transform | x | Radix conversion
 stringify | x | String (base 10 representation)
 parse | s | Arbitrary-precision integer
+transform | x, [toRaw] | Radix conversion
 
-Left shift `lsh`, right shift `rsh`, Barret modular reduction `bmr`, Miller-Rabin primality testing `mrb`, simple mod `mds` and greatest common divisor `gcd` are also implemented as internal methods not exposed via the initialized Crunch object.
+Left shift `lsh`, right shift `rsh`, Miller-Rabin primality testing `mrb`, simple mod `mds` and greatest common divisor `gcd` are also implemented as internal methods not exposed via the Crunch object.
 
 Web Workers
 ----
