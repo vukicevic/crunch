@@ -579,7 +579,7 @@ function Crunch (rawIn, rawOut) {
     for (var i = 0, j, t, y; i < iterations; i++) {
       y = exp(ptests[i], r, x);
 
-      if ( (y.length > 1 || y[0] !== 1) && cmp(y,m) !== 0 ) {
+      if ( (y.length > 1 || y[0] !== 1) && cmp(y, m) !== 0 ) {
         j = 1;
         t = true;
 
