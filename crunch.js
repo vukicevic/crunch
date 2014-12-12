@@ -19,17 +19,28 @@ function Crunch (rawIn, rawOut) {
    * BEGIN CONSTANTS
    * zeroes, primes and ptests for Miller-Rabin primality
    */
-  var primes = (function (n) {
-    for (var p = [2], l = 1, i = 3; l < n; i += 2) {
-      for (var b = true, j = 0; b && j < l; j++) {
-        b = i % p[j] !== 0;
+  // sieve of Eratosthenes for first 1900 primes
+  var primes = (function(n) {
+    var arr = new Array(Math.ceil((n - 2) / 32));
+    var maxi = (n - 3) / 2;
+    var p = [2];
+    for (var q = 3; q < n; q += 2) {
+      var i = (q - 3) / 2;
+      var index = i >> 5;
+      var bit = i & 31;
+      if ((arr[index] & (1 << bit)) == 0) {
+        // q is prime
+        p.push(q);
+        i += q;
+        for (var d = q; i < maxi; i += d) {
+          index = i >> 5;
+          bit = i & 31;
+          arr[index] |= (1 << bit);
+        }
       }
-
-      l = b ? p.push(i) : l;
     }
-
     return p;
-  })(1900);
+  })(16382);
 
   var zeroes = (function (n) {
     for (var z = []; z.push(0) < n;){}
