@@ -70,9 +70,14 @@ bmr | x, y, [mu] | x % y
 exp | x, e, n | x^e % n
 gar | x, p, q, d, u, [dp1], [dq1] | x^d % pq
 inv | x, y | 1/x % y
-xor | x, y | x XOR y
 cut | x | Remove leading zeroes of x
 zero | x | Return zero array of length x
+and | x, y | x AND y
+or | x, y | x OR y
+xor | x, y | x XOR y
+not | x | NOT x
+leftShift | x, s | x << s
+rightShift | x, s | x >>> s
 compare | x, y | -1: x < y, 0: x = y, 1: x > y
 decrement | x | x - 1
 factorial | n | n! [n < 268435456]
@@ -82,7 +87,9 @@ stringify | x | String (base 10 representation)
 parse | s | Arbitrary-precision integer
 transform | x, [toRaw] | Radix conversion
 
-Left shift `lsh`, right shift `rsh`, Miller-Rabin primality testing `mrb`, simple mod `mds` and greatest common divisor `gcd` are also implemented as internal methods not exposed via the Crunch object.
+Be carefult with right shift, it is right zero-filled for positive numbers, negative numbers retain their sign.
+
+Miller-Rabin primality testing `mrb`, simple mod `mds` and greatest common divisor `gcd` are also implemented as internal methods not exposed via the Crunch object.
 
 Web Workers
 ----

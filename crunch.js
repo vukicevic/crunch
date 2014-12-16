@@ -555,16 +555,6 @@ function Crunch (rawIn, rawOut) {
     return z;
   }
 
-  function xor (x, y) {
-    if (x.length === y.length) {
-      for (var z = [], i = 0; i < x.length; i++) {
-        z[i] = x[i] ^ y[i];
-      }
-
-      return z;
-    }
-  }
-
   function dec (x) {
     var z;
 
@@ -658,6 +648,23 @@ function Crunch (rawIn, rawOut) {
 
     while (a[0]++ < n) {
       z = mul(z, a);
+    }
+
+    return z;
+  }
+
+  function bitwise (op, x, y) {
+    var z, i = 0;
+
+    if (op === "xor" && x.length === y.length) {
+      for (z = []; i < x.length; i++) z[i] = x[i] ^ y[i];
+    } else if (op === "and" && x.length === y.length) {
+      for (z = []; i < x.length; i++) z[i] = x[i] & y[i];
+    } else if (op === "or" && x.length === y.length) {
+      for (z = []; i < x.length; i++) z[i] = x[i] | y[i];
+    } else if (op === "not") {
+      var mask = rawIn ? 268435455 : 255;
+      for (z = []; i < x.length; i++) z[i] = ~x[i] & mask;
     }
 
     return z;
@@ -936,15 +943,59 @@ function Crunch (rawIn, rawOut) {
     },
 
     /**
-     * Exclusive-Or
+     * Bitwise AND, OR, XOR
+     * Undefined if x and y different lengths
      *
-     * @method xor
+     * @method OP
      * @param {Array} x
      * @param {Array} y
-     * @return {Array} x xor y
+     * @return {Array} x OP y
      */
+    and: function (x, y) {
+      return bitwise("and", x, y);
+    },
+
+    or: function (x, y) {
+      return bitwise("or", x, y);
+    },
+
     xor: function (x, y) {
-      return xor(x, y);
+      return bitwise("xor", x, y);
+    },
+
+    /**
+     * Bitwise NOT
+     *
+     * @method not
+     * @param {Array} x
+     * @return {Array} NOT x
+     */
+    not: function (x) {
+      return bitwise("not", x);
+    },
+
+    /**
+     * Left Shift
+     *
+     * @method leftShift
+     * @param {Array} x
+     * @param {Integer} s
+     * @return {Array} x << s
+     */
+    leftShift: function (x, s) {
+      return transformOut(lsh(transformIn([x]), s));
+    },
+
+    /**
+     * Zero-fill Right Shift
+     *
+     * @method rightShift
+     * @param {Array} x
+     * @param {Integer} s
+     * @return {Array} x >>> s
+     */
+    rightShift: function (x, s) {
+      return transformOut(rsh(transformIn([x]), s));
     },
 
     /**
