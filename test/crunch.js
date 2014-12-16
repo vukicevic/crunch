@@ -843,9 +843,37 @@ describe("#zero", function () {
 
 });
 
+describe("#and", function () {
+
+  it("Should br bitwise AND of two numbers", function () {
+    var x = [22, 11],
+        y = [255, 189];
+
+    crunch.and(x, y).should.eql([22, 9]);
+
+    x.should.eql([22, 11]);
+    y.should.eql([255, 189]);
+  });
+
+});
+
+describe("#or", function () {
+
+  it("Should be bitwise OR of two numbers", function () {
+    var x = [22, 11],
+        y = [255, 189];
+
+    crunch.or(x, y).should.eql([255, 191]);
+
+    x.should.eql([22, 11]);
+    y.should.eql([255, 189]);
+  });
+
+});
+
 describe("#xor", function () {
 
-  it("Should xor two numbers", function () {
+  it("Should be bitwise XOR of two numbers", function () {
     var x = [22, 11],
         y = [255, 189];
 
@@ -853,6 +881,76 @@ describe("#xor", function () {
 
     x.should.eql([22, 11]);
     y.should.eql([255, 189]);
+  });
+
+});
+
+describe("#not", function () {
+
+  it("Should be bitwise NOT of a number", function () {
+    var x = [22, 11];
+
+    crunch.not(x).should.eql([233, 244]);
+
+    x.should.eql([22, 11]);
+  });
+
+});
+
+describe("#leftShift", function () {
+
+  it("Should left shift a number", function () {
+    var x = [22, 11],
+        s = 5;
+
+    crunch.leftShift(x, s).should.eql([2, 193, 96]);
+
+    x.should.eql([22, 11]);
+    s.should.eql(5);
+  });
+
+  it("Should left shift a number more", function () {
+    var x = [1],
+        s = 64;
+
+    crunch.leftShift(x, s).should.eql([1,0,0,0,0,0,0,0,0]);
+
+    x.should.eql([1]);
+    s.should.eql(64);
+  });
+
+  it("Should left shift zero", function () {
+    var x = [0],
+        s = 80;
+
+    crunch.leftShift(x, s).should.eql([0]);
+
+    x.should.eql([0]);
+    s.should.eql(80);
+  });
+
+});
+
+describe("#rightShift", function () {
+
+  it("Should right shift a number", function () {
+    var x = [22, 11],
+        s = 5;
+
+    crunch.rightShift(x, s).should.eql([176]);
+
+    x.should.eql([22, 11]);
+    s.should.eql(5);
+  });
+
+  it("Should right shift a number out of existance", function () {
+    var x = [22, 11],
+        s = 20;
+
+    crunch.rightShift(x, s).should.eql([0]);
+
+    x.should.eql([22, 11]);
+    s.should.eql(20);
   });
 
 });
