@@ -653,23 +653,6 @@ function Crunch (rawIn, rawOut) {
     return z;
   }
 
-  function bitwise (op, x, y) {
-    var z, i = 0;
-
-    if (op === "xor" && x.length === y.length) {
-      for (z = []; i < x.length; i++) z[i] = x[i] ^ y[i];
-    } else if (op === "and" && x.length === y.length) {
-      for (z = []; i < x.length; i++) z[i] = x[i] & y[i];
-    } else if (op === "or" && x.length === y.length) {
-      for (z = []; i < x.length; i++) z[i] = x[i] | y[i];
-    } else if (op === "not") {
-      var mask = rawIn ? 268435455 : 255;
-      for (z = []; i < x.length; i++) z[i] = ~x[i] & mask;
-    }
-
-    return z;
-  }
-
   /**
    * Convert byte array to 28 bit array
    */
@@ -952,15 +935,24 @@ function Crunch (rawIn, rawOut) {
      * @return {Array} x OP y
      */
     and: function (x, y) {
-      return bitwise("and", x, y);
+      if (x.length === y.length) {
+        for (var i = 0, z = []; i < x.length; i++) { z[i] = x[i] & y[i] }
+        return z;
+      }
     },
 
     or: function (x, y) {
-      return bitwise("or", x, y);
+      if (x.length === y.length) {
+        for (var i = 0, z = []; i < x.length; i++) { z[i] = x[i] | y[i] }
+        return z;
+      }
     },
 
     xor: function (x, y) {
-      return bitwise("xor", x, y);
+      if (x.length === y.length) {
+        for (var i = 0, z = []; i < x.length; i++) { z[i] = x[i] ^ y[i] }
+        return z;
+      }
     },
 
     /**
@@ -971,7 +963,8 @@ function Crunch (rawIn, rawOut) {
      * @return {Array} NOT x
      */
     not: function (x) {
-      return bitwise("not", x);
+      for (var i = 0, z = [], m = rawIn ? 268435455 : 255; i < x.length; i++) { z[i] = ~x[i] & m }
+      return z;
     },
 
     /**

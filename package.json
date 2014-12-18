@@ -1,6 +1,6 @@
 {
   "name": "number-crunch",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Fast arbitraty-precision integer arithmetic library. Used for large-number calculations including finding large prime numbers, performing modular exponentiation and other arithmetic operations.",
   "main": "crunch.js",
   "scripts": {
@@ -16,7 +16,9 @@
     "maths",
     "primes",
     "modulo",
-    "exponentiation"
+    "exponentiation",
+    "crypto",
+    "integer"
   ],
   "author": "Nenad Vukicevic <vukicevic@gmail.com> (https://github.com/vukicevic)",
   "license": "MIT",

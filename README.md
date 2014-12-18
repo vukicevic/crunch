@@ -1,4 +1,4 @@
-Crunch [![Build Status](https://travis-ci.org/vukicevic/crunch.svg?branch=master)](https://travis-ci.org/vukicevic/crunch) [![NPM version](https://badge.fury.io/js/number-crunch.svg)](http://badge.fury.io/js/number-crunch) [![Bower version](https://badge.fury.io/bo/crunch.svg)](http://badge.fury.io/bo/crunch)
+Crunch [![Build Status](https://img.shields.io/travis/vukicevic/crunch.svg?style=flat-square)](https://travis-ci.org/vukicevic/crunch) [![NPM version](https://img.shields.io/npm/v/number-crunch.svg?style=flat-square)](https://www.npmjs.com/package/number-crunch) ![Bower version](https://img.shields.io/bower/v/crunch.svg?style=flat-square) ![License](https://img.shields.io/npm/l/number-crunch.svg?style=flat-square)
 ======
 Crunch is an [arbitrary-precision integer arithmetic](http://en.wikipedia.org/wiki/Arbitrary-precision_arithmetic) library for JavaScript.
 
