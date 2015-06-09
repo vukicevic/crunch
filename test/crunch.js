@@ -561,6 +561,16 @@ describe("#mod", function () {
     y.should.eql([1, 241]);
   });
 
+  it("Should calculate modulo of negative", function () {
+    var x = [-4],
+        y = [3];
+
+    crunch.mod(x, y).should.eql([-1]);
+
+    x.should.eql([-4]);
+    y.should.eql([3]);
+  });
+
 });
 
 describe("#bmr", function () {
@@ -929,6 +939,26 @@ describe("#leftShift", function () {
     s.should.eql(80);
   });
 
+  it("Should left shift negative", function () {
+    var x = [-3],
+        s = 8;
+
+    crunch.leftShift(x, s).should.eql([-3, 0]);
+
+    x.should.eql([-3]);
+    s.should.eql(8);
+  });
+
+  it("Should left shift one", function () {
+    var x = [1, 0, 0, 0, 0],
+        s = 1;
+
+    crunch.leftShift(x, s).should.eql([2, 0, 0, 0, 0]);
+
+    x.should.eql([1, 0, 0, 0, 0]);
+    s.should.eql(1);
+  });
+
 });
 
 describe("#rightShift", function () {
@@ -953,6 +983,16 @@ describe("#rightShift", function () {
     s.should.eql(20);
   });
 
+  it("Should right shift a negative number", function () {
+    var x = [-3],
+        s = 8;
+
+    crunch.rightShift(x, s).should.eql([-1]);
+
+    x.should.eql([-3]);
+    s.should.eql(8);
+  });
+
 });
 
 describe("#parse", function () {
@@ -963,6 +1003,14 @@ describe("#parse", function () {
     crunch.parse(s).should.eql([5, 57, 84, 76, 233, 0, 120, 91, 180, 180, 8]);
 
     s.should.equal("6315359056060240643798024");
+  });
+
+  it("Should convert string negative number to integer", function () {
+    var s = "-256";
+
+    crunch.parse(s).should.eql([-1, 0]);
+
+    s.should.equal("-256");
   });
 
 });
