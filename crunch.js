@@ -720,12 +720,20 @@ function Crunch (rawIn, rawOut) {
     var x = s.split(""),
         p = [1],
         a = [0],
-        b = [10];
+        b = [10],
+        n = false;
+
+    if (x[0] === "-") {
+      n = true;
+      x.shift();
+    }
 
     while (x.length) {
       a = add(a, mul(p, [x.pop()]));
       p = mul(p, b);
     }
+
+    a.negative = n;
 
     return a;
   }
