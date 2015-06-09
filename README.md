@@ -77,7 +77,7 @@ or | x, y | x OR y
 xor | x, y | x XOR y
 not | x | NOT x
 leftShift | x, s | x << s
-rightShift | x, s | x >>> s
+rightShift<sup>[1](#footnote1)</sup> | x, s | x >>> s
 compare | x, y | -1: x < y, 0: x = y, 1: x > y
 decrement | x | x - 1
 factorial | n | n! [n < 268435456]
@@ -87,7 +87,7 @@ stringify | x | String (base 10 representation)
 parse | s | Arbitrary-precision integer
 transform | x, [toRaw] | Radix conversion
 
-Be carefult with right shift, it is right zero-filled for positive numbers, negative numbers retain their sign.
+<a name="footnote1">1</a>: Be aware, negative numbers retain their sign but Crunch uses a form of signed-magnitude representation rather than two's complement representation for negative numbers. Right shifting will not produce the same result as when it is done to complement representation. So: -4 >> 5 will be -0, not -1.
 
 Miller-Rabin primality testing `mrb`, simple mod `mds` and greatest common divisor `gcd` are also implemented as internal methods not exposed via the Crunch object.
 

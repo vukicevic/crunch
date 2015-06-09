@@ -19,27 +19,34 @@ function Crunch (rawIn, rawOut) {
    * BEGIN CONSTANTS
    * zeroes, primes and ptests for Miller-Rabin primality
    */
+
   // sieve of Eratosthenes for first 1900 primes
   var primes = (function(n) {
-    var arr = new Array(Math.ceil((n - 2) / 32));
-    var maxi = (n - 3) / 2;
-    var p = [2];
-    for (var q = 3; q < n; q += 2) {
-      var i = (q - 3) / 2;
-      var index = i >> 5;
-      var bit = i & 31;
+    var arr  = new Array(Math.ceil((n - 2) / 32)),
+        maxi = (n - 3) / 2,
+        p    = [2];
+
+    for (var q = 3, i, index, bit; q < n; q += 2) {
+      i     = (q - 3) / 2;
+      index = i >> 5;
+      bit   = i & 31;
+
       if ((arr[index] & (1 << bit)) == 0) {
         // q is prime
         p.push(q);
         i += q;
+
         for (var d = q; i < maxi; i += d) {
           index = i >> 5;
-          bit = i & 31;
+          bit   = i & 31;
+
           arr[index] |= (1 << bit);
         }
       }
     }
+
     return p;
+
   })(16382);
 
   var zeroes = (function (n) {
@@ -316,7 +323,7 @@ function Crunch (rawIn, rawOut) {
     if (ss) {
       while (l--) {
         z[l] = ((x[l] << ss) + t) & 268435455;
-        t    = x[l] >>> (28-ss);
+        t    = x[l] >>> (28 - ss);
       }
 
       if (t !== 0) {
@@ -384,6 +391,12 @@ function Crunch (rawIn, rawOut) {
   }
 
   function mod (x, y) {
+    //For negative x, cmp doesn't work and result of div is negative
+    //so take result away from the modulus to get the correct result
+    if (x.negative) {
+      return sub(y, div(x, y, true));
+    }
+
     switch (cmp(x, y)) {
       case -1:
         return x;
@@ -720,12 +733,20 @@ function Crunch (rawIn, rawOut) {
     var x = s.split(""),
         p = [1],
         a = [0],
-        b = [10];
+        b = [10],
+        n = false;
+
+    if (x[0] === "-") {
+      n = true;
+      x.shift();
+    }
 
     while (x.length) {
       a = add(a, mul(p, [x.pop()]));
       p = mul(p, b);
     }
+
+    a.negative = n;
 
     return a;
   }
@@ -976,7 +997,7 @@ function Crunch (rawIn, rawOut) {
      * @return {Array} x << s
      */
     leftShift: function (x, s) {
-      return transformOut(lsh(transformIn([x]), s));
+      return transformOut(lsh(transformIn([x]).pop(), s));
     },
 
     /**
@@ -988,7 +1009,7 @@ function Crunch (rawIn, rawOut) {
      * @return {Array} x >>> s
      */
     rightShift: function (x, s) {
-      return transformOut(rsh(transformIn([x]), s));
+      return transformOut(rsh(transformIn([x]).pop(), s));
     },
 
     /**
