@@ -391,6 +391,12 @@ function Crunch (rawIn, rawOut) {
   }
 
   function mod (x, y) {
+    //For negative x, cmp doesn't work and result of div is negative
+    //so take result away from the modulus to get the correct result
+    if (x.negative) {
+      return sub(y, div(x, y, true));
+    }
+
     switch (cmp(x, y)) {
       case -1:
         return x;

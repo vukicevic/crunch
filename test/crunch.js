@@ -1,4 +1,4 @@
-var should = require("chai").should(),
+var should = require("should"),
     crunch = require("../crunch");
 
 describe("#compare", function () {
@@ -565,10 +565,30 @@ describe("#mod", function () {
     var x = [-4],
         y = [3];
 
-    crunch.mod(x, y).should.eql([-1]);
+    crunch.mod(x, y).should.eql([2]);
 
     x.should.eql([-4]);
     y.should.eql([3]);
+  });
+
+  it("Should calculate modulo of negative", function () {
+    var x = [ -10, 18 ],
+        y = [ 123 ];
+
+    crunch.mod(x, y).should.eql([ 5 ]);
+
+    x.should.eql([ -10, 18 ]);
+    y.should.eql([ 123 ]);
+  });
+
+  it("Should calculate modulo of negative", function () {
+    var x = [ -15, 62, 62, 18, 176 ],
+        y = [ 139, 207, 194, 82 ];
+
+    crunch.mod(x, y).should.eql([ 12, 123, 46, 72 ]);
+
+    x.should.eql([ -15, 62, 62, 18, 176 ]);
+    y.should.eql([ 139, 207, 194, 82 ]);
   });
 
 });
@@ -987,7 +1007,7 @@ describe("#rightShift", function () {
     var x = [-3],
         s = 8;
 
-    crunch.rightShift(x, s).should.eql([-1]);
+    crunch.rightShift(x, s).should.eql([-0]);
 
     x.should.eql([-3]);
     s.should.eql(8);
