@@ -397,6 +397,30 @@ describe("#mul", function () {
 
 });
 
+describe("#mulk", function () {
+
+  it("Should multiply numbers", function () {
+    var x = [162, 51, 95],
+        y = [42, 18, 204];
+
+    crunch.mulk(x, y).should.eql([26, 168, 86, 115, 157, 180]);
+
+    x.should.eql([162, 51, 95]);
+    y.should.eql([42, 18, 204]);
+  });
+
+  it("Should multiply negative with positive number", function () {
+    var x = [-255, 17, 162, 62],
+        y = [255, 17, 162, 62];
+
+    crunch.mulk(x, y).should.eql([-254, 36, 34, 110, 119, 14, 135, 4]);
+
+    x.should.eql([-255, 17, 162, 62]);
+    y.should.eql([255, 17, 162, 62]);
+  });
+
+});
+
 describe("#sqr", function () {
 
   it("Should square a number", function () {

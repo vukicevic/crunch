@@ -1,10 +1,10 @@
-Crunch [![Build Status](https://img.shields.io/travis/vukicevic/crunch.svg?style=flat-square)](https://travis-ci.org/vukicevic/crunch) [![NPM version](https://img.shields.io/npm/v/number-crunch.svg?style=flat-square)](https://www.npmjs.com/package/number-crunch) ![Bower version](https://img.shields.io/bower/v/crunch.svg?style=flat-square) ![License](https://img.shields.io/npm/l/number-crunch.svg?style=flat-square)
+Crunch [![Build Status](https://img.shields.io/travis/vukicevic/crunch.svg?style=flat-square)](https://semaphoreci.com/vukicevic/crunch) [![NPM version](https://img.shields.io/npm/v/number-crunch.svg?style=flat-square)](https://www.npmjs.com/package/number-crunch) ![Bower version](https://img.shields.io/bower/v/crunch.svg?style=flat-square) ![License](https://img.shields.io/npm/l/number-crunch.svg?style=flat-square)
 ======
 Crunch is an [arbitrary-precision integer arithmetic](http://en.wikipedia.org/wiki/Arbitrary-precision_arithmetic) library for JavaScript.
 
-* [Homepage](http://crunch.secureroom.net/)
-* [Examples](http://crunch.secureroom.net/examples/)
-* [Tests](http://crunch.secureroom.net/tests/)
+* [Homepage](http://crunch.js.org/)
+* [Examples](http://crunch.js.org/examples/)
+* [Tests](http://crunch.js.org/tests/)
 
 It was designed to execute arithmetic operations as quickly as possible, in particular those upon which asymmetric encryption cryptosystems such as RSA are built.
 
@@ -63,6 +63,7 @@ Function | Input Parameters | Output
 add | x, y | x + y
 sub | x, y | x - y
 mul | x, y | x * y
+mulk | x, y | x * y [Karatsuba algorithm](https://en.wikipedia.org/wiki/Karatsuba_algorithm)
 div | x, y | x / y
 sqr | x | x * x
 mod | x, y | x % y

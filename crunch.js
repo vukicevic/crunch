@@ -213,7 +213,7 @@ function Crunch (rawIn, rawOut) {
 
     return z;
   }
-  
+
   /**
    * Multiplication - HAC 14.12
    */
@@ -242,7 +242,7 @@ function Crunch (rawIn, rawOut) {
 
       z[i] = c;
     }
-    
+
     if (z[0] === 0) {
       z.shift();
     }
@@ -251,13 +251,13 @@ function Crunch (rawIn, rawOut) {
 
     return z;
   }
-  
+
   /**
    *  Karatsuba Multiplication, works faster when numbers gets bigger
    */
   function mulk (x, y) {
     var z, lx, ly, negx, negy, b;
-    
+
     if (x.length > y.length) {
       z = x; x = y; y = z;
     }
@@ -267,7 +267,7 @@ function Crunch (rawIn, rawOut) {
     negy = y.negative;
     x.negative = false;
     y.negative = false;
-    
+
     if (lx <= 100) {
       z = mul(x, y);
     } else if (ly / lx >= 2) {
@@ -278,7 +278,7 @@ function Crunch (rawIn, rawOut) {
       );
     } else {
       b = (ly + 1) >> 1;
-      var 
+      var
           x0 = x.slice(lx-b, lx),
           x1 = x.slice(0, lx-b),
           y0 = y.slice(ly-b, ly),
@@ -288,10 +288,10 @@ function Crunch (rawIn, rawOut) {
           z1 = ssb(sad(z0, z2), mulk(ssb(x1, x0), ssb(y1, y0)));
       z2 = lsh(z2, b * 2 * 28);
       z1 = lsh(z1, b * 28);
-      
+
       z = sad(sad(z2, z1), z0);
     }
-    
+
     z.negative = (negx ^ negy) ? true : false;
     x.negative = negx;
     y.negative = negy;
@@ -376,9 +376,9 @@ function Crunch (rawIn, rawOut) {
       if (t !== 0) {
         z.unshift(t);
       }
-      
+
       z.negative = x.negative;
-      
+
     } else {
       z = x;
     }
