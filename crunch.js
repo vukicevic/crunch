@@ -52,7 +52,7 @@ function Crunch (rawIn, rawOut) {
   var zeroes = (function (n) {
     for (var z = []; z.push(0) < n;){}
     return z;
-  })(500);
+  })(50000);
 
   var ptests = primes.slice(0, 10).map(function (v) {
     return [v];
@@ -213,7 +213,7 @@ function Crunch (rawIn, rawOut) {
 
     return z;
   }
-
+  
   /**
    * Multiplication - HAC 14.12
    */
@@ -242,12 +242,59 @@ function Crunch (rawIn, rawOut) {
 
       z[i] = c;
     }
-
+    
     if (z[0] === 0) {
       z.shift();
     }
 
     z.negative = (x.negative ^ y.negative) ? true : false;
+
+    return z;
+  }
+  
+  /**
+   *  Karatsuba Multiplication, works faster when numbers gets bigger
+   */
+  function mulk (x, y) {
+    var z, lx, ly, negx, negy, b;
+    
+    if (x.length > y.length) {
+      z = x; x = y; y = z;
+    }
+    lx = x.length;
+    ly = y.length;
+    negx = x.negative,
+    negy = y.negative;
+    x.negative = false;
+    y.negative = false;
+    
+    if (lx <= 100) {
+      z = mul(x, y);
+    } else if (ly / lx >= 2) {
+      b = (ly + 1) >> 1;
+      z = sad(
+        lsh(mulk(x, y.slice(0, ly-b)), b * 28),
+        mulk(x, y.slice(ly-b, ly))
+      );
+    } else {
+      b = (ly + 1) >> 1;
+      var 
+          x0 = x.slice(lx-b, lx),
+          x1 = x.slice(0, lx-b),
+          y0 = y.slice(ly-b, ly),
+          y1 = y.slice(0, ly-b),
+          z0 = mulk(x0, y0),
+          z2 = mulk(x1, y1),
+          z1 = ssb(sad(z0, z2), mulk(ssb(x1, x0), ssb(y1, y0)));
+      z2 = lsh(z2, b * 2 * 28);
+      z1 = lsh(z1, b * 28);
+      
+      z = sad(sad(z2, z1), z0);
+    }
+    
+    z.negative = (negx ^ negy) ? true : false;
+    x.negative = negx;
+    y.negative = negy;
 
     return z;
   }
@@ -329,9 +376,12 @@ function Crunch (rawIn, rawOut) {
       if (t !== 0) {
         z.unshift(t);
       }
+      
+      z.negative = x.negative;
+      
+    } else {
+      z = x;
     }
-
-    z.negative = x.negative;
 
     return (ls) ? z.concat(zeroes.slice(0, ls)) : z;
   }
@@ -810,6 +860,20 @@ function Crunch (rawIn, rawOut) {
     mul: function (x, y) {
       return transformOut(
         mul.apply(null, transformIn(arguments))
+      );
+    },
+
+    /**
+     * Multiplication, with karatsuba method
+     *
+     * @method mulk
+     * @param {Array} x
+     * @param {Array} y
+     * @return {Array} x * y
+     */
+    mulk: function (x, y) {
+      return transformOut(
+        mulk.apply(null, transformIn(arguments))
       );
     },
 
