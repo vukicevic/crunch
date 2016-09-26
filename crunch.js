@@ -68,18 +68,25 @@ function Crunch (rawIn, rawOut) {
   }
 
   function cmp (x, y) {
-    var xl = x.length,
-        yl = y.length, i; //zero front pad problem
-
-    if (x.negative && !y.negative || xl < yl) {
+    if (x.negative && !y.negative) {
       return -1;
-    } else if (!x.negative && y.negative || xl > yl) {
+    } else if (!x.negative && y.negative) {
       return 1;
     }
 
+    var xl = x.length,
+        yl = y.length, i; //zero front pad problem
+
+    // We know x.negative == y.negative.
+    if (xl < yl) {
+      return x.negative ? 1 : -1;
+    } else if (xl > yl) {
+      return x.negative ? -1 : 1;
+    }
+
     for (i = 0; i < xl; i++) {
-      if (x[i] < y[i]) return -1;
-      if (x[i] > y[i]) return 1;
+      if (x[i] < y[i]) return x.negative ? 1 : -1;
+      if (x[i] > y[i]) return x.negative ? -1 : 1;
     }
 
     return 0;
