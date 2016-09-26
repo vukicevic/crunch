@@ -411,7 +411,7 @@ function Crunch (rawIn, rawOut) {
     d  = u.length - v.length;
     q  = [0];
     k  = v.concat(zeroes.slice(0, d));
-    yt = v[0]*268435456 + v[1];
+    yt = v.slice(0, 2);
 
     // only cmp as last resort
     while (u[0] > k[0] || (u[0] === k[0] && cmp(u, k) > -1)) {
@@ -422,9 +422,9 @@ function Crunch (rawIn, rawOut) {
     for (i = 1; i <= d; i++) {
       q[i] = u[i-1] === v[0] ? 268435455 : ~~((u[i-1]*268435456 + u[i])/v[0]);
 
-      xt = u[i-1]*72057594037927936 + u[i]*268435456 + u[i+1];
+      xt = u.slice(i-1, i+2);
 
-      while (q[i]*yt > xt) { //condition check can fail due to precision problem at 28-bit
+      while (cmp(mul([q[i]], yt), xt) > 0) {
         q[i]--;
       }
 
