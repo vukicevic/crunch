@@ -63,6 +63,34 @@ describe("#compare", function () {
     y.should.eql([-4, 10]);
   });
 
+  it("Should find first parsed negative number less than second", function () {
+    var x = crunch.parse("-9999999999999999"),
+        y = crunch.parse("0");
+
+    crunch.compare(x, y).should.equal(-1);
+  });
+
+  it("Should find second parsed negative number less than first", function () {
+    var x = crunch.parse("0"),
+        y = crunch.parse("-9999999999999999");
+
+    crunch.compare(x, y).should.equal(1);
+  });
+
+  it("Should find equality in parsed numbers", function () {
+    var x = crunch.parse("14314141"),
+        y = crunch.parse("14314141");
+
+    crunch.compare(x, y).should.equal(0);
+  });
+
+  it("Should find first parsed number greater than second", function () {
+    var x = crunch.parse("32434111"),
+        y = crunch.parse("1438791");
+
+    crunch.compare(x, y).should.equal(1);
+  });
+
 });
 
 describe("#add", function () {
