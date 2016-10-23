@@ -67,26 +67,36 @@ function Crunch (rawIn, rawOut) {
     return x;
   }
 
-  function cmp(x, y) {
-    if (x.negative && !y.negative) {
+  function cmp(x, y, abs) {
+    var sx, sy, xl, yl;
+
+    if (abs) {
+      sx = false;
+      sy = false;
+    } else {
+      sx = x.negative;
+      sy = y.negative;
+    }
+
+    if (sx && !sy) {
       return -1;
-    } else if (!x.negative && y.negative) {
+    } else if (!sx && sy) {
       return 1;
     }
 
-    var xl = x.length,
-        yl = y.length, i; //zero front pad problem
+    xl = x.length;
+    yl = y.length; //zero front pad problem
 
     // We know x.negative == y.negative.
     if (xl < yl) {
-      return x.negative ? 1 : -1;
+      return sx ? 1 : -1;
     } else if (xl > yl) {
-      return x.negative ? -1 : 1;
+      return sy ? -1 : 1;
     }
 
-    for (i = 0; i < xl; i++) {
-      if (x[i] < y[i]) return x.negative ? 1 : -1;
-      if (x[i] > y[i]) return x.negative ? -1 : 1;
+    for (var i = 0; i < xl; i++) {
+      if (x[i] < y[i]) return sx ? 1 : -1;
+      if (x[i] > y[i]) return sx ? -1 : 1;
     }
 
     return 0;
@@ -397,8 +407,19 @@ function Crunch (rawIn, rawOut) {
    * Division - HAC 14.20
    */
   function div(x, y, internal) {
-    var u, v, xt, yt, d, q, k, i, z,
-        s = msb(y[0]) - 1;
+    var u, v, xt, yt, d, q, k, i, z, s, c;
+
+    if (!internal) {
+      c = cmp(x, y, true);
+
+      if (c < 1) {
+        u = [c === 0 ? 1 : 0];
+        u.negative = x.negative;
+        return u;
+      }
+    }
+
+    s = msb(y[0]) - 1;
 
     if (s > 0) {
       u = lsh(x, s);
@@ -448,8 +469,7 @@ function Crunch (rawIn, rawOut) {
   }
 
   function mod(x, y) {
-    //For negative x, cmp doesn't work and result of div is negative
-    //so take result away from the modulus to get the correct result
+    //For negative x, take result away from the modulus to get the correct result
     if (x.negative) {
       return sub(y, div(x, y, true));
     }

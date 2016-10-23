@@ -569,6 +569,16 @@ describe("#div", function () {
     y.should.eql([0]);
   });
 
+  it("Should divide small number by large", function () {
+    var x = [8, 0, 0, 1],
+        y = [128, 0, 0, 0, 0, 0, 2];
+
+    crunch.div(x, y).should.eql([0]);
+
+    x.should.eql([8, 0, 0, 1]);
+    y.should.eql([128, 0, 0, 0, 0, 0, 2]);
+  });
+
 });
 
 describe("#mod", function () {
