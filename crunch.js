@@ -1107,7 +1107,7 @@ function Crunch (rawIn, rawOut) {
      *                 -1: x < y
      */
     compare: function (x, y) {
-      return cmp(x, y);
+      return cmp.apply(null, transformIn(arguments));
     },
 
     /**
