@@ -78,6 +78,34 @@ describe("#compare", function () {
     y.should.eql([-4, 10]);
   });
 
+  it("Should find first parsed negative number less than second", function () {
+    var x = crunch.parse("-9999999999999999"),
+        y = crunch.parse("0");
+
+    crunch.compare(x, y).should.equal(-1);
+  });
+
+  it("Should find second parsed negative number less than first", function () {
+    var x = crunch.parse("0"),
+        y = crunch.parse("-9999999999999999");
+
+    crunch.compare(x, y).should.equal(1);
+  });
+
+  it("Should find equality in parsed numbers", function () {
+    var x = crunch.parse("14314141"),
+        y = crunch.parse("14314141");
+
+    crunch.compare(x, y).should.equal(0);
+  });
+
+  it("Should find first parsed number greater than second", function () {
+    var x = crunch.parse("32434111"),
+        y = crunch.parse("1438791");
+
+    crunch.compare(x, y).should.equal(1);
+  });
+
 });
 
 describe("#add", function () {
@@ -412,6 +440,30 @@ describe("#mul", function () {
 
 });
 
+describe("#mulk", function () {
+
+  it("Should multiply numbers", function () {
+    var x = [162, 51, 95],
+        y = [42, 18, 204];
+
+    crunch.mulk(x, y).should.eql([26, 168, 86, 115, 157, 180]);
+
+    x.should.eql([162, 51, 95]);
+    y.should.eql([42, 18, 204]);
+  });
+
+  it("Should multiply negative with positive number", function () {
+    var x = [-255, 17, 162, 62],
+        y = [255, 17, 162, 62];
+
+    crunch.mulk(x, y).should.eql([-254, 36, 34, 110, 119, 14, 135, 4]);
+
+    x.should.eql([-255, 17, 162, 62]);
+    y.should.eql([255, 17, 162, 62]);
+  });
+
+});
+
 describe("#sqr", function () {
 
   it("Should square a number", function () {
@@ -532,6 +584,16 @@ describe("#div", function () {
     y.should.eql([0]);
   });
 
+  it("Should divide small number by large", function () {
+    var x = [8, 0, 0, 1],
+        y = [128, 0, 0, 0, 0, 0, 2];
+
+    crunch.div(x, y).should.eql([0]);
+
+    x.should.eql([8, 0, 0, 1]);
+    y.should.eql([128, 0, 0, 0, 0, 0, 2]);
+  });
+
 });
 
 describe("#mod", function () {
@@ -574,6 +636,36 @@ describe("#mod", function () {
 
     x.should.eql([0]);
     y.should.eql([1, 241]);
+  });
+
+  it("Should calculate modulo of negative", function () {
+    var x = [-4],
+        y = [3];
+
+    crunch.mod(x, y).should.eql([2]);
+
+    x.should.eql([-4]);
+    y.should.eql([3]);
+  });
+
+  it("Should calculate modulo of negative", function () {
+    var x = [ -10, 18 ],
+        y = [ 123 ];
+
+    crunch.mod(x, y).should.eql([ 5 ]);
+
+    x.should.eql([ -10, 18 ]);
+    y.should.eql([ 123 ]);
+  });
+
+  it("Should calculate modulo of negative", function () {
+    var x = [ -15, 62, 62, 18, 176 ],
+        y = [ 139, 207, 194, 82 ];
+
+    crunch.mod(x, y).should.eql([ 12, 123, 46, 72 ]);
+
+    x.should.eql([ -15, 62, 62, 18, 176 ]);
+    y.should.eql([ 139, 207, 194, 82 ]);
   });
 
 });
@@ -858,9 +950,37 @@ describe("#zero", function () {
 
 });
 
+describe("#and", function () {
+
+  it("Should br bitwise AND of two numbers", function () {
+    var x = [22, 11],
+        y = [255, 189];
+
+    crunch.and(x, y).should.eql([22, 9]);
+
+    x.should.eql([22, 11]);
+    y.should.eql([255, 189]);
+  });
+
+});
+
+describe("#or", function () {
+
+  it("Should be bitwise OR of two numbers", function () {
+    var x = [22, 11],
+        y = [255, 189];
+
+    crunch.or(x, y).should.eql([255, 191]);
+
+    x.should.eql([22, 11]);
+    y.should.eql([255, 189]);
+  });
+
+});
+
 describe("#xor", function () {
 
-  it("Should xor two numbers", function () {
+  it("Should be bitwise XOR of two numbers", function () {
     var x = [22, 11],
         y = [255, 189];
 
@@ -868,6 +988,106 @@ describe("#xor", function () {
 
     x.should.eql([22, 11]);
     y.should.eql([255, 189]);
+  });
+
+});
+
+describe("#not", function () {
+
+  it("Should be bitwise NOT of a number", function () {
+    var x = [22, 11];
+
+    crunch.not(x).should.eql([233, 244]);
+
+    x.should.eql([22, 11]);
+  });
+
+});
+
+describe("#leftShift", function () {
+
+  it("Should left shift a number", function () {
+    var x = [22, 11],
+        s = 5;
+
+    crunch.leftShift(x, s).should.eql([2, 193, 96]);
+
+    x.should.eql([22, 11]);
+    s.should.eql(5);
+  });
+
+  it("Should left shift a number more", function () {
+    var x = [1],
+        s = 64;
+
+    crunch.leftShift(x, s).should.eql([1,0,0,0,0,0,0,0,0]);
+
+    x.should.eql([1]);
+    s.should.eql(64);
+  });
+
+  it("Should left shift zero", function () {
+    var x = [0],
+        s = 80;
+
+    crunch.leftShift(x, s).should.eql([0]);
+
+    x.should.eql([0]);
+    s.should.eql(80);
+  });
+
+  it("Should left shift negative", function () {
+    var x = [-3],
+        s = 8;
+
+    crunch.leftShift(x, s).should.eql([-3, 0]);
+
+    x.should.eql([-3]);
+    s.should.eql(8);
+  });
+
+  it("Should left shift one", function () {
+    var x = [1, 0, 0, 0, 0],
+        s = 1;
+
+    crunch.leftShift(x, s).should.eql([2, 0, 0, 0, 0]);
+
+    x.should.eql([1, 0, 0, 0, 0]);
+    s.should.eql(1);
+  });
+
+});
+
+describe("#rightShift", function () {
+
+  it("Should right shift a number", function () {
+    var x = [22, 11],
+        s = 5;
+
+    crunch.rightShift(x, s).should.eql([176]);
+
+    x.should.eql([22, 11]);
+    s.should.eql(5);
+  });
+
+  it("Should right shift a number out of existance", function () {
+    var x = [22, 11],
+        s = 20;
+
+    crunch.rightShift(x, s).should.eql([0]);
+
+    x.should.eql([22, 11]);
+    s.should.eql(20);
+  });
+
+  it("Should right shift a negative number", function () {
+    var x = [-3],
+        s = 8;
+
+    crunch.rightShift(x, s).should.eql([-0]);
+
+    x.should.eql([-3]);
+    s.should.eql(8);
   });
 
 });
@@ -882,6 +1102,14 @@ describe("#parse", function () {
     s.should.equal("6315359056060240643798024");
   });
 
+  it("Should convert string negative number to integer", function () {
+    var s = "-256";
+
+    crunch.parse(s).should.eql([-1, 0]);
+
+    s.should.equal("-256");
+  });
+
 });
 
 describe("#stringify", function () {
@@ -892,6 +1120,14 @@ describe("#stringify", function () {
     crunch.stringify(x).should.equal("6315359056060240643798024");
 
     x.should.eql([5, 57, 84, 76, 233, 0, 120, 91, 180, 180, 8]);
+  });
+
+  it("Should convert negative number to string", function () {
+    var x = [-7, 91, 205, 21];
+
+    crunch.stringify(x).should.equal("-123456789");
+
+    x.should.eql([-7, 91, 205, 21]);
   });
 
 });
