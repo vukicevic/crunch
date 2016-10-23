@@ -1097,6 +1097,14 @@ describe("#stringify", function () {
     x.should.eql([5, 57, 84, 76, 233, 0, 120, 91, 180, 180, 8]);
   });
 
+  it("Should convert negative number to string", function () {
+    var x = [-7, 91, 205, 21];
+
+    crunch.stringify(x).should.equal("-123456789");
+
+    x.should.eql([-7, 91, 205, 21]);
+  });
+
 });
 
 describe("#transform", function () {
