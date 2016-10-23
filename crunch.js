@@ -351,7 +351,7 @@ function Crunch (rawIn, rawOut) {
         z  = x.slice(0,l);
 
     if (ss) {
-      while (--l) {
+      while (--l > 0) {
         z[l] = ((z[l] >> ss) | (z[l-1] << (28-ss))) & 268435455;
       }
 
