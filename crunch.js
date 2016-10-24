@@ -31,7 +31,7 @@ function Crunch (rawIn, rawOut) {
       index = i >> 5;
       bit   = i & 31;
 
-      if ((arr[index] & (1 << bit)) == 0) {
+      if ((arr[index] & (1 << bit)) === 0) {
         // q is prime
         p.push(q);
         i += q;
