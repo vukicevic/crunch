@@ -1252,7 +1252,7 @@ if (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScop
 
   self.onmessage = function (e) {
     self.postMessage(crunch[e.data.func].apply(crunch, e.data.args));
-  }
+  };
 }
 /* istanbul ignore if */
 if (typeof module !== "undefined" && module.exports) {
