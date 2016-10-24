@@ -280,7 +280,7 @@ function Crunch (rawIn, rawOut) {
     }
     lx = x.length;
     ly = y.length;
-    negx = x.negative,
+    negx = x.negative;
     negy = y.negative;
     x.negative = false;
     y.negative = false;
