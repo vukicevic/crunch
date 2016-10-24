@@ -1064,7 +1064,7 @@ function Crunch (rawIn, rawOut) {
         for (var i = 0, z = []; i < x.length; i++) { z[i] = x[i] & y[i] }
         return z;
       } else {
-        throw new Error('Mismatched bit lengths');
+        throw new Error("Mismatched bit lengths");
       }
     },
 
@@ -1073,7 +1073,7 @@ function Crunch (rawIn, rawOut) {
         for (var i = 0, z = []; i < x.length; i++) { z[i] = x[i] | y[i] }
         return z;
       } else {
-        throw new Error('Mismatched bit lengths');
+        throw new Error("Mismatched bit lengths");
       }
     },
 
@@ -1082,7 +1082,7 @@ function Crunch (rawIn, rawOut) {
         for (var i = 0, z = []; i < x.length; i++) { z[i] = x[i] ^ y[i] }
         return z;
       } else {
-        throw new Error('Mismatched bit lengths');
+        throw new Error("Mismatched bit lengths");
       }
     },
 
@@ -1142,7 +1142,7 @@ function Crunch (rawIn, rawOut) {
      * @param {Array} x
      * @return {Array} x + 1
      */
-    increment: function (x) {
+    increment: function () {
       return transformOut(
         qad.apply(null, transformIn(arguments).concat([1]))
       );
