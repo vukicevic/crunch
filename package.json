@@ -4,7 +4,8 @@
   "description": "Fast arbitraty-precision integer arithmetic library. Used for large-number calculations including finding large prime numbers, performing modular exponentiation and other arithmetic operations.",
   "main": "crunch.js",
   "scripts": {
-    "test": "mocha test"
+    "test": "mocha test",
+    "coverage" : "istanbul cover ./node_modules/mocha/bin/_mocha --report lcov -- -R spec"
   },
   "repository": {
     "type": "git",
@@ -27,7 +28,15 @@
   },
   "homepage": "https://github.com/vukicevic/crunch",
   "devDependencies": {
-    "should": "latest",
-    "mocha": "latest"
+    "istanbul": "latest",
+    "mocha": "latest",
+    "mocha-lcov-reporter": "latest",
+    "should": "latest"
+  },
+  "config": {
+    "blanket": {
+      "pattern": [ "" ],
+      "data-cover-never": [ "node_modules", "test" ]
+    }
   }
 }

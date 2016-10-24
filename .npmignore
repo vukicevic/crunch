@@ -3,3 +3,4 @@ test
 Makefile
 bower.json
 .travis.yml
+coverage
