@@ -427,7 +427,7 @@ function Crunch (rawIn, rawOut) {
 
       if (c < 1) {
         u = [c === 0 ? 1 : 0];
-        u.negative = x.negative;
+        u.negative = (x.negative ^ y.negative) ? true : false;
         return u;
       }
     }
@@ -448,7 +448,7 @@ function Crunch (rawIn, rawOut) {
     yt = v.slice(0, 2);
 
     // only cmp as last resort
-    while (u[0] > k[0] || (u[0] === k[0] && cmp(u, k) > -1)) {
+    while (u[0] > k[0] || (u[0] === k[0] && cmp(u, k, true) > -1)) {
       q[0]++;
       u = sub(u, k, false);
     }
@@ -473,6 +473,7 @@ function Crunch (rawIn, rawOut) {
 
     if (internal) {
       z = (s > 0) ? rsh(cut(u), s) : cut(u);
+      z.negative = x.negative;
     } else {
       z = cut(q);
       z.negative = (x.negative ^ y.negative) ? true : false;
@@ -482,12 +483,7 @@ function Crunch (rawIn, rawOut) {
   }
 
   function mod(x, y) {
-    //For negative x, take result away from the modulus to get the correct result
-    if (x.negative) {
-      return sub(y, div(x, y, true));
-    }
-
-    switch (cmp(x, y)) {
+    switch (cmp(x, y, true)) {
       case -1:
         return x;
       case 0:
