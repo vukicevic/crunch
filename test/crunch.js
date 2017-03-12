@@ -660,6 +660,27 @@ describe("#div", function () {
     y.should.eql([128, 0, 0, 0, 0, 0, 2]);
   });
 
+  it("Should divide negative with positive", function () {
+  
+    var x = [-59, 154, 201, 255],
+        y = [59, 154, 201, 254];
+
+    crunch.div(x, y).should.eql([-1]);
+
+    x.should.eql([-59, 154, 201, 255]);
+    y.should.eql([59, 154, 201, 254]);
+  });
+
+  it("Should divide negative with positive", function () {
+  
+    var x = [-2],
+        y = [2];
+
+    crunch.div(x, y).should.eql([-1]);
+
+    x.should.eql([-2]);
+    y.should.eql([2]);
+  });
 });
 
 describe("#mod", function () {
@@ -734,6 +755,16 @@ describe("#mod", function () {
     y.should.eql([ 139, 207, 194, 82 ]);
   });
 
+  it("Should mod positive with negative", function () {
+  
+    var x = [ 3, 255, 255, 247],
+        y = [ -31, 255, 255, 255, 255, 255, 247 ];
+
+    crunch.mod(x, y).should.eql([ 3, 255, 255, 247 ]);
+
+    x.should.eql([ 3, 255, 255, 247 ]);
+    y.should.eql([ -31, 255, 255, 255, 255, 255, 247 ]);
+  });
 });
 
 describe("#bmr", function () {
