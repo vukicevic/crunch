@@ -473,7 +473,6 @@ function Crunch (rawIn, rawOut) {
 
     if (internal) {
       z = (s > 0) ? rsh(cut(u), s) : cut(u);
-      z.negative = x.negative;
     } else {
       z = cut(q);
       z.negative = (x.negative ^ y.negative) ? true : false;
@@ -483,6 +482,18 @@ function Crunch (rawIn, rawOut) {
   }
 
   function mod(x, y) {
+    //For negative x, take result away from the modulus to get the correct result
+    if (x.negative) {
+      switch (cmp(x, y, true)) {
+        case -1:
+          return sub(y, x);
+        case 0:
+          return [0];
+        default:
+          return sub(y, div(x, y, true));
+      }
+    }
+
     switch (cmp(x, y, true)) {
       case -1:
         return x;
