@@ -1009,6 +1009,14 @@ describe("#nextPrime", function () {
     x.should.eql([3]);
   });
 
+  it("Should find next prime", function () {
+    var x = [1];
+
+    crunch.nextPrime(x).should.eql([2]);
+
+    x.should.eql([1]);
+  });
+
 });
 
 describe("#factorial", function () {
