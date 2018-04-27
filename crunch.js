@@ -743,7 +743,10 @@ function Crunch (rawIn, rawOut) {
   }
 
   function npr(x) {
-    x = qad(x, 1 + x[x.length-1] % 2);
+    // Add 2 on odd number to skip evens, otherwise 1 when odd or input is [1]
+    var a = (x[x.length - 1] !== 1 && x[x.length - 1] % 2 !== 0) ? 2 : 1;
+
+    x = qad(x, a);
 
     while (!tpr(x)) {
       x = qad(x, 2);
