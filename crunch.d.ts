@@ -299,3 +299,4 @@ declare namespace crunch {
     function config(rIn: Boolean, rOut: Boolean): void;
 
 }
+
